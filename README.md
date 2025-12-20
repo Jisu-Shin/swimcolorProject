@@ -49,3 +49,35 @@ PyCharm 설정(간단)
 - 추천 알고리즘 비교: 보색/유사색/패턴 기반(스트라이프, 플라워 등) 필터 추가
 - 색상 정확도 개선: 배경 제거(세그멘테이션) 후 전경 색상만 사용
 - 성능: 대량 이미지 처리용 비동기 배치(큐) 도입
+
+## 디렉토리 구조
+```
+swimmatch/
+├── manage.py
+├── db.sqlite3
+├── swimmatch/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── catalog/
+│   ├── migrations/
+│   ├── templates
+│   ├── models.py
+│   ├── services.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── views.py
+│   └── __init__.py
+├── crawlers/             
+│   ├── __init__.py
+│   ├── swimwear_crawler. py
+│   └── data_processor.py
+└── requirements.txt
+```
+
+## resource URLs 정의하기
+- `home/` : 홈페이지
+- `home/swimsuit/` : 모든 수영복들의 목록
+- `home/swimcap/` : 모든 수모들의 목록
+- `home/swimsuit/<id>` : <id> 라는 수영복의 수모 추천 페이지

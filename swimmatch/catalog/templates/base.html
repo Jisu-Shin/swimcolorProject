@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}수영복에 맞는 수모 추천 - SwimMatch{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <!-- 헤더 -->
+    {% block header %}
+    <header class="header">
+        <div class="header-container">
+            <!-- 햄버거 메뉴 -->
+            <button class="hamburger" id="hamburger">
+                <span>1</span>
+                <span>2</span>
+                <span>3</span>
+            </button>
+
+            <!-- 로고 -->
+            <div class="logo">🏊 SwimMatch</div>
+
+            <!-- 검색바 -->
+            <div class="search-bar">
+                <input type="text" placeholder="수영복, 수모 검색... ">
+                <button class="search-btn">🔍</button>
+            </div>
+        </div>
+    </header>
+    {% endblock %}
+
+    <main>
+        {% block content %}
+        <!-- 자식 템플릿이 여기를 채움 -->
+        {% endblock %}
+    </main>
+
+     <!-- 푸터 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>SwimPerfect</h4>
+                <p>수영복에 맞는 수모를 추천해드립니다</p>
+            </div>
+            <div class="footer-section">
+                <h4>링크</h4>
+                <ul>
+                    <li><a href="#home">홈</a></li>
+                    <li><a href="products.html">수영복 추천</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>문의</h4>
+                <p>📧 contact@swimperfect.com</p>
+                <p>📱 010-XXXX-XXXX</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 SwimPerfect. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'script.js' %}"></script>
+
+</body>
+</html>
