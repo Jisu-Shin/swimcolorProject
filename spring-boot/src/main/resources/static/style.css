@@ -1,0 +1,527 @@
+/* 기본 초기화 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-blue: #93BECC;
+    --sky-blue: #87CEEB;
+    --light-blue: #e0f7ff;
+    --white: #ffffff;
+    --light-gray: #f5f5f5;
+    --dark-text: #000000;
+    --accent-color: #ff6b6b;
+    --max-content-width: 700px;
+    --header-height: 64px;
+    --card-radius: 12px;
+    --shadow-1: 0 4px 12px rgba(30, 90, 150, 0.08);
+    --shadow-2: 0 8px 24px rgba(30, 90, 150, 0.14);
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Thin.woff2') format('woff2');
+    font-weight: 100;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-ExtraLight.woff2') format('woff2');
+    font-weight: 200;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-ExtraBold.woff2') format('woff2');
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Pretendard';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Black.woff2') format('woff2');
+    font-weight: 900;
+    font-display: swap;
+}
+
+/* 바디 배경: 하늘색 -> 흰색 그라데이션 (부드럽게) */
+body {
+    font-family: 'Pretendard', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--light-blue) 0%, var(--white) 70%);
+    color: var(--dark-text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+}
+
+/* 컨테이너 (너무 퍼지지 않도록) */
+.main-container {
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    padding: 0 16px;
+    width: 100%; /* 너비 명시 */
+}
+
+/* ===== 헤더 ===== */
+.header {
+    background: linear-gradient(135deg, var(--sky-blue) 0%, var(--light-blue) 100%);
+    padding: 10px 0;
+    position: sticky;
+    top: 0;
+    z-index: 120;
+    box-shadow: 0 2px 10px rgba(30, 90, 150, 0.12);
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    padding: 0 16px;
+    gap: 8px;
+    width: 100%;
+    overflow: hidden; /* 영역 이탈 방지 */
+}
+
+/* 햄버거 (접근성 고려한 크기/포커스) */
+.hamburger {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background .18s ease;
+}
+.hamburger:focus {
+    outline: 3px solid rgba(255,255,255,0.25);
+    outline-offset: 2px;
+}
+.hamburger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: rgba(255,255,255,0.95);
+    margin: 3px 0;
+    border-radius: 2px;
+}
+
+/* 로고 */
+.logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dark-text);
+    white-space: nowrap;
+}
+
+/* 검색바 */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255,255,255,0.95);
+    border-radius: 28px;
+    padding: 4px 8px;
+    flex: 1;
+    min-width: 0; /* 중요: flex 자식이 부모보다 커지는 것을 방지 */
+    max-width: 480px;
+    gap: 4px;
+}
+.search-bar input {
+    border: none;
+    background: transparent;
+    padding: 8px 4px;
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    color: #222;
+    width: 100%; /* 부모 너비에 맞춤 */
+}
+.search-bar input::placeholder {
+    color: #9aa6b2;
+}
+.search-bar input:focus {
+    outline: none;
+}
+.search-bar .search-btn {
+    flex-shrink: 0; /* 버튼이 찌그러지지 않게 고정 */
+    background: var(--primary-blue);
+    color: var(--white);
+    border: none;
+    padding: 6px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: var(--shadow-1);
+}
+.search-bar .search-btn:focus {
+    outline: 3px solid rgba(135,206,235,0.28);
+    outline-offset: 2px;
+}
+
+/* ===== 히어로 섹션 ===== */
+.hero {
+    background: linear-gradient(135deg, var(--sky-blue) 0%, var(--light-blue) 100%);
+    padding: 72px 24px;
+    text-align: center;
+    border-radius: var(--card-radius);
+    margin: 28px auto;
+    color: var(--dark-text);
+    box-shadow: var(--shadow-2);
+
+    /* PC에서 너무 퍼지지 않도록 너비 제한 추가 */
+    max-width: var(--max-content-width);
+    width: 100%;
+}
+
+.hero-content h1 {
+    font-size: 40px;
+    margin-bottom: 12px;
+    font-weight: 800;
+    text-shadow: 1px 1px 6px rgba(0,0,0,0.08);
+    line-height: 1.05;
+}
+.hero-content p {
+    font-size: 16px;
+    margin-bottom: 18px;
+    opacity: 0.95;
+}
+
+/* CTA 버튼 (기본) */
+.cta-button {
+    background-color: var(--accent-color);
+    color: var(--white);
+    border: none;
+    padding: 12px 34px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(255,107,107,0.18);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.cta-button:hover { transform: translateY(-3px); }
+.cta-button:focus { outline: 3px solid rgba(255,107,107,0.22); outline-offset: 2px; }
+
+/* secondary 타입 (예: '모든 수영복 보기') */
+.cta-button.secondary {
+    background: transparent;
+    color: var(--primary-blue);
+    border: 2px solid rgba(147,190,204,0.9);
+    box-shadow: none;
+}
+
+/* ===== 서비스 소개 ===== */
+.service-intro {
+    margin: 52px 0;
+    text-align: left;
+}
+.service-intro h2 {
+    font-size: 28px;
+    margin-bottom: 18px;
+    color: var(--primary-blue);
+    font-weight: 800;
+}
+
+/* 스크롤 가능한 래퍼: 모바일에서 3열 고정 유지(overflow로 해결) */
+.features-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+}
+
+/* 항상 3열 유지: 데스크탑에서는 정상 레이아웃, 모바일에서는 가로 스크롤로 처리 */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(220px, 1fr));
+    gap: 24px;
+    align-items: start;
+    /* 최소 너비를 정해 '항목 3개'가 보장되도록 함(작은 화면은 스크롤) */
+    min-width: calc(3 * 220px + 2 * 24px);
+}
+
+/* 카드 스타일 */
+.feature-card {
+    background-color: var(--white);
+    padding: 22px;
+    border-radius: var(--card-radius);
+    box-shadow: var(--shadow-1);
+    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s;
+}
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-2);
+}
+.feature-icon {
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+.feature-card h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+.feature-card p {
+    font-size: 14px;
+    color: #55646f;
+    line-height: 1.45;
+}
+
+/* ===== 인기 상품 ===== */
+.popular-products {
+    margin: 44px 0;
+}
+.popular-products h2 {
+    font-size: 24px;
+    margin-bottom: 16px;
+    color: var(--primary-blue);
+    font-weight: 700;
+}
+
+/* 제품 그리드: 데스크탑 4열, 태블릿/모바일 2열(이미지 비율 유지) */
+.products-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+.product-preview-card {
+    background-color: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform .18s ease;
+    box-shadow: var(--shadow-1);
+    cursor: pointer;
+}
+.product-preview-card:hover { transform: translateY(-6px); }
+.product-preview-card img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    display: block;
+}
+.product-preview-info {
+    padding: 12px 14px;
+}
+.product-preview-info h3 {
+    font-size: 16px;
+    margin-bottom: 6px;
+}
+.product-preview-info p {
+    font-size: 14px;
+    color: #657786;
+}
+
+/* ===== 푸터 ===== */
+.footer {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 100%);
+    color: var(--white);
+    padding: 20px 0 20px;
+}
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    padding: 0 16px 28px;
+}
+.footer-section h4 {
+    font-size: 16px;
+    margin-bottom: 8px;
+    font-weight: 800;
+}
+.footer-bottom {
+    text-align: center;
+    padding-bottom: 18px;
+    color: rgba(255,255,255,0.92);
+}
+
+/* ===== 사이드바 (오프캔버스) - 모바일 접근성에 최적화 ===== */
+/* 구조(예시):
+   <aside class="sidebar" id="sidebar" aria-hidden="true">...</aside>
+   <div class="sidebar-overlay" id="sidebarOverlay"></div>
+   script.js에서 .open 클래스 토글 권장
+*/
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    background: var(--white);
+    box-shadow: 0 12px 40px rgba(10,20,30,0.18);
+    transform: translateX(-110%);
+    transition: transform .28s ease;
+    z-index: 140;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.sidebar.open {
+    transform: translateX(0);
+}
+.sidebar .close-btn {
+    align-self: flex-end;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    padding: 8px;
+    cursor: pointer;
+}
+.sidebar nav a {
+    display: block;
+    padding: 10px;
+    border-radius: 8px;
+    color: #234;
+    text-decoration: none;
+}
+.sidebar nav a:focus,
+.sidebar nav a:hover {
+    background: var(--light-gray);
+    outline: none;
+}
+
+/* 오버레이: 사이드바 열릴 때 배경 어둡게 (스크린리더/키보드 포커스 관리 권장) */
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.36);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .28s ease;
+    z-index: 130;
+}
+.sidebar-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 접근성: 포커스 가능한 요소 강조, 터치 영역 확보 */
+a, button {
+    -webkit-tap-highlight-color: rgba(0,0,0,0.08);
+}
+button {
+    min-height: 40px;
+    min-width: 44px;
+}
+a:focus, button:focus, input:focus {
+    outline: 3px solid rgba(100,180,220,0.24);
+    outline-offset: 2px;
+}
+
+/* ==============================
+   반응형 조정 (모바일: 글자 크기 축소, 3열 유지)
+   ============================== */
+@media (max-width: 1024px) {
+    .hero {
+        padding: 56px 18px;
+    }
+    .hero-content h1 { font-size: 34px; }
+    .features-grid { gap: 18px; min-width: calc(3 * 200px + 2 * 18px); grid-template-columns: repeat(3, minmax(200px, 1fr)); }
+    .product-preview-card img { height: 220px; }
+}
+
+@media (max-width: 767px) {
+    /* 히어로 텍스트 축소 (모바일 가독성 유지) */
+    .hero {
+        padding: 40px 14px;
+    }
+    .hero-content h1 { font-size: 26px; }
+    .hero-content p { font-size: 14px; }
+
+    /* features-grid는 '무조건 3열' 요구에 맞춰 열 수 유지.
+       폭이 좁을 경우 가로 스크롤이 생기도록 .features-wrapper를 사용.
+       대신 카드 내부 텍스트는 작게 줄여서 한 번 더 공간 확보. */
+    .features-grid {
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+        gap: 12px;
+        min-width: calc(3 * 160px + 2 * 12px);
+    }
+    .feature-card {
+        padding: 12px;
+    }
+    .feature-icon { font-size: 24px; margin-bottom: 6px; }
+    .feature-card h3 { font-size: 14px; }
+    .feature-card p { font-size: 12px; color: #6b7a82; display: block; }
+
+    /* 인기 상품: 2열으로 전환 (이미지 크기 감소) */
+    .products-preview-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .product-preview-card img { height: 160px; }
+
+    /* 푸터 1열 */
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 20px;
+    }
+
+    /* 햄버거와 검색바 정렬 최적화 */
+    .header-container { gap: 8px; }
+    .logo { font-size: 18px; }
+    .search-bar { max-width: none; margin-left: 6px; }
+}
+
+/* 초소형 기기(360px 이하) 추가 축소 */
+@media (max-width: 360px) {
+    .hero-content h1 { font-size: 22px; }
+    .hero { padding: 28px 12px; }
+    .feature-card h3 { font-size: 13px; }
+    .feature-card p { font-size: 11px; }
+}
+
+/* 유틸리티: 숨기기 / 중앙 정렬 등 */
+.hide-mobile { display: none; }
+.center { text-align: center; }
+
+
+* {
+    max-width: 100% !important; /* 모든 요소가 부모보다 커지지 않게 강제 */
+    box-sizing: border-box !important;
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: common_head}"></th:block>
+  <title>SwimMatch - 홈</title>
+</head>
+<body>
+
+<div th:replace="~{fragments/common :: common_header}"></div>
+
+<main class="main-container" role="main">
+  <section class="hero">
+    <div class="hero-content">
+      <h1>당신의 수영복에 완벽한 수모를 찾아보세요</h1>
+      <p>수영복과 수모의 완벽한 매칭으로 스타일을 완성하세요</p>
+      <button class="cta-button" onclick="goToProducts()">지금 시작하기</button>
+    </div>
+  </section>
+
+  <section class="service-intro">
+    <h2>우리의 서비스</h2>
+
+    <!-- features-grid를 가로 스크롤 가능 wrapper로 감쌈 (요청: 항상 3열 유지) -->
+    <div class="features-wrapper">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>쉬운 매칭</h3>
+          <p>수영복을 선택하기만 해도 당신의 스타일에 맞는 수모가 자동으로 추천돼요</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">💎</div>
+          <h3>스타일 완성</h3>
+          <p>색상, 소재, 디자인이 완벽하게 어울리는 수영복과 수모의 조합</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🏊</div>
+          <h3>전문가 선정</h3>
+          <p>수영 전문가가 엄선한 수영복과 수모 조합으로 최고의 경험을 제공합니다</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="popular-products">
+    <h2>인기있는 수영복</h2>
+    <div class="products-preview-grid">
+      <div class="product-preview-card" th:each="product : ${products}" onclick="goToProductDetail(1)">
+        <img th:src="${product.imageUrl}" th:alt="${product.name}">
+        <div class="product-preview-info">
+          <h3 th:text="${product.name}">수영복 이름</h3>
+          <p th:text="|${#numbers.formatInteger(product.price, 3, 'COMMA')}원|">0원</p>
+          <div class="preview-action">수모 추천 보기 →</div>
+        </div>
+      </div>
+    </div>
+    <div class="all-products-cta">
+      <button class="cta-button secondary" onclick="goToProducts()">모든 수영복 보기</button>
+    </div>
+  </section>
+</main>
+
+<div th:replace="~{fragments/common :: common_footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="common_head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+</head>
+
+<header th:fragment="common_header" class="header">
+    <div class="header-container">
+        <button class="hamburger" id="hamburger" aria-label="메뉴 열기" aria-controls="sidebar" aria-expanded="false">
+            <i class="bi bi-three-dots fs-10"></i>
+        </button>
+        <div class="logo">🏊 SwimMatch</div>
+        <div class="search-bar" role="search" aria-label="사이트 검색">
+            <input type="text" placeholder="수영복, 수모 검색..." aria-label="검색어 입력">
+            <button class="search-btn" type="button" aria-label="검색">🔍</button>
+        </div>
+    </div>
+
+    <!-- Off-canvas sidebar (접근성 속성 포함) -->
+    <aside id="sidebar" class="sidebar" aria-hidden="true" aria-labelledby="sidebarLabel" role="dialog">
+        <button class="close-btn" aria-label="사이드바 닫기">✕</button>
+
+        <nav aria-label="주요 메뉴">
+            <h3 id="sidebarLabel">메뉴</h3>
+            <a th:href="@{/}" class="sidebar-link">홈</a>
+            <a th:href="@{/products}" class="sidebar-link">수영복 추천</a>
+            <a th:href="@{/about}" class="sidebar-link">소개</a>
+            <a th:href="@{/contact}" class="sidebar-link">문의</a>
+            <!-- 필요한 메뉴를 여기에 추가하세요 -->
+        </nav>
+    </aside>
+
+    <!-- Overlay: sidebar 활성화 시 배경 클릭으로 닫기 -->
+    <div id="sidebarOverlay" class="sidebar-overlay" tabindex="-1" aria-hidden="true"></div>
+</header>
+
+<footer th:fragment="common_footer" class="footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h4>SwimPerfect</h4>
+            <p>수영복에 맞는 수모를 추천해드립니다</p>
+        </div>
+        <div class="footer-section">
+            <h4>링크</h4>
+            <ul>
+                <li><a th:href="@{/}">홈</a></li>
+                <li><a th:href="@{/products}">수영복 추천</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h4>문의</h4>
+            <p>📧 contact@swimperfect.com</p>
+            <p>📱 010-XXXX-XXXX</p>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 SwimPerfect. All rights reserved.</p>
+    </div>
+
+    <script th:src="@{/script.js}"></script>
+
+    <!-- 사이드바 토글 스크립트 (간단한 접근성 처리 포함) -->
+    <script>
+        (function () {
+          const hamburger = document.getElementById('hamburger');
+          const sidebar = document.getElementById('sidebar');
+          const overlay = document.getElementById('sidebarOverlay');
+          const closeBtn = sidebar.querySelector('.close-btn');
+
+          const focusableSelector = 'a, button, input, [tabindex]:not([tabindex="-1"])';
+
+          function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+            sidebar.setAttribute('aria-hidden', 'false');
+            hamburger.setAttribute('aria-expanded', 'true');
+            overlay.setAttribute('aria-hidden', 'false');
+
+            // 포커스 이동: 사이드바의 첫 포커스 가능한 요소로
+            const first = sidebar.querySelector(focusableSelector);
+            if (first) first.focus();
+
+            // 키보드로 Esc 누르면 닫기
+            document.addEventListener('keydown', onKeyDown);
+          }
+
+          function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            sidebar.setAttribute('aria-hidden', 'true');
+            hamburger.setAttribute('aria-expanded', 'false');
+            overlay.setAttribute('aria-hidden', 'true');
+
+            // 포커스 원래 버튼으로 복원
+            hamburger.focus();
+
+            document.removeEventListener('keydown', onKeyDown);
+          }
+
+          function onKeyDown(e) {
+            if (e.key === 'Escape') {
+              closeSidebar();
+            }
+          }
+
+          hamburger.addEventListener('click', function () {
+            const isOpen = sidebar.classList.contains('open');
+            if (isOpen) closeSidebar(); else openSidebar();
+          });
+
+          closeBtn.addEventListener('click', closeSidebar);
+          overlay.addEventListener('click', closeSidebar);
+
+          // 사이드바 내 링크 클릭 시 닫기 (선택적)
+          sidebar.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', closeSidebar);
+          });
+        })();
+    </script>
+</footer>
+
+</html>
