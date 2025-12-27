@@ -3,7 +3,8 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # 모델 경로
-    yolo_model_path: str = "ml/runs/segment/swimsuit-seg3/weights/best.pt"
+    yolo_model_path: str = "/ml/runs/segment/swimsuit-seg3/weights/best.pt"
+    swimcap_yolo_model_path: str = "ml/runs/segment/swimcap-seg/weights/best.pt"
 
     # 색상 추출 기본값
     default_n_colors: int = 3

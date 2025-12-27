@@ -10,14 +10,15 @@ import matplotlib.pyplot as plt
 from app.config import settings
 
 
-class ColorExtractor:
+class CapColorExtractor:
     """
-    YOLO로 수영복 탐지 → 해당 영역만 크롭 → K-means로 색상 추출
+    YOLO로 수모 탐지 → 해당 영역만 크롭 → K-means로 색상 추출
     바운딩 박스 그리기가 아닌, 객체 추출 용도로 YOLO 사용
     """
 
-    def __init__(self, yolo_model_path=settings.yolo_model_path):
+    def __init__(self, yolo_model_path=settings.swimcap_yolo_model_path):
         """YOLO 모델 초기화"""
+        print(yolo_model_path)
         self.model = YOLO(yolo_model_path)
         print(f"✓ YOLO 모델 로드 완료: {yolo_model_path}")
 
@@ -37,7 +38,7 @@ class ColorExtractor:
             # 로컬 파일
             return cv2.imread(image_source)
 
-    def crop_swimsuit_only(self, image, conf_threshold=0.5, target_class=0):
+    def crop_swimcap_only(self, image, conf_threshold=0.5, target_class=0):
         """
         ⭐ 핵심 기능: YOLO로 수영복 탐지 후 해당 영역만 크롭
 
@@ -68,23 +69,23 @@ class ColorExtractor:
                 max_confidence = conf
 
         if best_detection is None:
-            raise ValueError(f"수영복을 탐지하지 못했습니다. (신뢰도 임계값: {conf_threshold})")
+            raise ValueError(f"수모를 탐지하지 못했습니다. (신뢰도 임계값: {conf_threshold})")
 
         # 수영복 영역만 크롭
         mask = r.masks.data[best_detection].cpu().numpy()  # (H, W), 0~1
         mask = (mask * 255).astype("uint8")
-        print("수영복 영역만 mask를 통해 크롭 완료")
+        # print("수영복 영역만 mask를 통해 크롭 완료")
 
         # 크기 맞추기
         h, w = image.shape[:2]
         mask = cv2.resize(mask, (w, h))  # (width, height) 순서!
         # print(f"image shape: {image.shape}")  # (H, W, 3)
         # print(f"mask shape: {mask.shape}")  # (h, w) ← 다를 수 있음!
-        print("크기 맞추기 완료")
+        # print("크기 맞추기 완료")
 
         # 3채널 마스크
         mask_3c = cv2.merge([mask, mask, mask])
-        print("3채널 마스크 완료")
+        # print("3채널 마스크 완료")
         # print(f"mask_3c shape: {mask_3c.shape}")  # (h, w, 3)
 
         swimsuit_only = cv2.bitwise_and(image, mask_3c)
@@ -113,8 +114,12 @@ class ColorExtractor:
             # 밝기 계산 (평균)
             brightness = np.mean(pixels, axis=1)
 
+            # 채도 계산 (R, G, B의 표준편차 - 회색 감지용)
+            saturation = np.std(pixels, axis=1)
+
             # 너무 밝거나 어두운 픽셀 제거 (배경/그림자 제거)
-            mask = (brightness > 25) & (brightness < 230)
+            # 회색 제거 (채도가 낮은 색상 제거)
+            mask = (brightness > 25) & (brightness < 230) & (saturation > 15)
             pixels_filtered = pixels[mask]
 
             if len(pixels_filtered) < 100:  # 필터링 후 픽셀이 너무 적으면
@@ -212,8 +217,8 @@ class ColorExtractor:
             plt.savefig(save_path, dpi=150, bbox_inches='tight')
         plt.show()
 
-    def process_swimsuit_image(self, image_source, n_colors=5,
-                               conf_threshold=0.5, visualize=True):
+    def process_swimcap_image(self, image_source, n_colors=5,
+                              conf_threshold=0.5, visualize=True):
         """
         전체 파이프라인: 이미지 → 수영복 크롭 → 색상 추출
 
@@ -238,7 +243,7 @@ class ColorExtractor:
 
         # 2. YOLO로 수영복 탐지 & 크롭
         print("2️⃣ YOLO로 수영복 탐지 중...")
-        cropped_image = self.crop_swimsuit_only(
+        cropped_image = self.crop_swimcap_only(
             original_image,
             conf_threshold=conf_threshold
         )
@@ -343,18 +348,16 @@ def recommend_swim_caps(swimsuit_colors, cap_database, top_n=5):
 if __name__ == '__main__':
 
     # 1. 색상 추출기 초기화
-    extractor = ColorExtractor()
-    # extractor = SwimwearColorExtractor('yolov8n.pt')
-    # 커스텀 모델 사용 시: SwimwearColorExtractor('runs/detect/train/weights/best.pt')
+    extractor = CapColorExtractor("../../ml/runs/segment/swimcap-seg/weights/best.pt")
 
     # 2. 이미지 처리 (URL 또는 로컬 경로)
-    image_path = '/Users/zsu/MyProject/training_set/swimsuit_25_데이지 테이.jpg'  # 또는 'https://example.com/image.jpg'
+    image_path = '/Users/zsu/MyProject/크롤링 사진/swimcap_1228/0009_피닉스_픽셀코기 실.jpg'
 
     try:
         # 수영복 크롭 & 색상 추출
-        cropped_swimsuit, colors = extractor.process_swimsuit_image(
+        cropped_swimsuit, colors = extractor.process_swimcap_image(
             image_source=image_path,
-            n_colors=5,  # 상위 5개 색상
+            n_colors=3,  # 상위 5개 색상
             conf_threshold=0.5,  # 탐지 임계값 (낮추면 더 많이 탐지)
             visualize=True  # 결과 시각화
         )
