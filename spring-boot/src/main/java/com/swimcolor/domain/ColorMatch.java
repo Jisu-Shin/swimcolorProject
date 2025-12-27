@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SwimsuitCapSimilarity {
+public class ColorMatch {
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private Long id;
@@ -30,7 +30,7 @@ public class SwimsuitCapSimilarity {
     private Double similarity;
 
     @Builder
-    private SwimsuitCapSimilarity(String swimsuitId, String swimcapId, String suitHexColor, String capHexColor, Double similarity) {
+    private ColorMatch(String swimsuitId, String swimcapId, String suitHexColor, String capHexColor, Double similarity) {
         this.swimsuitId = swimsuitId;
         this.swimcapId = swimcapId;
         this.suitHexColor = suitHexColor;

@@ -4,6 +4,5 @@ import lombok.Data;
 
 @Data
 public class CrawlRequestDto {
-    String url;
-
+    private String url;
 }
