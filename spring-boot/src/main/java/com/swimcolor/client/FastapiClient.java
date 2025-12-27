@@ -2,6 +2,7 @@ package com.swimcolor.client;
 
 import com.swimcolor.dto.CrawlRequestDto;
 import com.swimcolor.dto.CrawlResponseDto;
+import com.swimcolor.dto.SimilarResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +30,21 @@ public class FastapiClient {
             );
             return response.getBody();
         } catch (Exception e) {
-            log.error("fastapi-service 호출 중 에러 발생", e);
+            log.error("fastapi-service의 crawlProducts 호출 중 에러 발생", e);
+            throw new IllegalStateException();
+        }
+    }
+
+    public SimilarResponseDto getSimilarSwimCap(String swimsuitId) {
+        try {
+            ResponseEntity<SimilarResponseDto> response = restTemplate.postForEntity(
+                    baseUrl + "/crawl",
+                    swimsuitId,
+                    SimilarResponseDto.class
+            );
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("fastapi-service의 getSimilarSwimCap 호출 중 에러 발생", e);
             throw new IllegalStateException();
         }
     }

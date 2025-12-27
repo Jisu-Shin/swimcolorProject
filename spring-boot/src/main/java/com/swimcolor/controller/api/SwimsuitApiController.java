@@ -2,6 +2,7 @@ package com.swimcolor.controller.api;
 
 import com.swimcolor.dto.SwimcapListDto;
 import com.swimcolor.dto.SwimsuitListDto;
+import com.swimcolor.service.SwimcapRecommendationService;
 import com.swimcolor.service.SwimsuitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 public class SwimsuitApiController {
 
     private final SwimsuitService swimsuitService;
+    private final SwimcapRecommendationService recommendationService;
 
     @GetMapping("/{id}")
     public SwimsuitListDto getSwimsuit(@PathVariable String id) {
@@ -26,6 +28,6 @@ public class SwimsuitApiController {
 
     @GetMapping("/{id}/recommended-swimcaps")
     public ResponseEntity<List<SwimcapListDto>> getRecommendedSwimcaps(@PathVariable String id) {
-        return ResponseEntity.ok(swimsuitService.recommendSwimcapsBySwimsuitSimilarity(id));
+        return ResponseEntity.ok(recommendationService.recommendSwimcaps(id));
     }
 }
