@@ -1,62 +1,108 @@
-// 햄버거 메뉴 토글
-const hamburger = document.getElementById('hamburger');
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
-const closeBtn = document.getElementById('closeBtn');
+var main = {
+    init : function() {
 
-hamburger.addEventListener('click', () => {
-    sidebar.classList.add('active');
-    overlay.classList.add('active');
-    hamburger.classList.add('active');
-});
+        var _this = this;
 
-closeBtn.addEventListener('click', () => {
-    closeSidebar();
-});
-
-overlay.addEventListener('click', () => {
-    closeSidebar();
-});
-
-function closeSidebar() {
-    sidebar.classList.remove('active');
-    overlay.classList.remove('active');
-    hamburger.classList.remove('active');
+    }
 }
 
-// 로고 클릭 시 홈으로
-document.querySelector('.logo').addEventListener('click', () => {
-    window.location.href = 'index.html';
-});
+// 수영복 상세 페이지로 이동하는 함수
+function goToSwimsuitDetail(id) {
+    console.log(id);
+    if (oper.isEmpty(id)) {
+        alert('상품 정보를 찾을 수 없습니다.');
+        return;
+    }
+    window.location.href = '/swimsuits/' + id;
+}
 
-// products.html로 이동
+// 수영복 목록 페이지로 이동하는 함수
 function goToProducts() {
-    window.location.href = 'products.html';
+    window.location.href = '/swimsuits';
 }
 
-// 상세 페이지로 이동 (products.html 내에서)
-function goToProductDetail(productId) {
-    // products.html에서 상세 페이지를 보여주도록 설정
-    localStorage.setItem('selectedProductId', productId);
-    window.location.href = 'products.html#detail';
+// 이전 페이지로 돌아가는 함수
+function goBack() {
+    window.history.back();
 }
 
-// 검색 기능
-document.addEventListener('DOMContentLoaded', () => {
-    const searchBtn = document.querySelector('.search-btn');
-    const searchInput = document.querySelector('.search-bar input');
+var callback = {
 
-    searchBtn.addEventListener('click', () => {
-        const keyword = searchInput.value;
-        if (keyword. trim()) {
-            console.log('검색어:', keyword);
-            // 추후 검색 기능 구현
-        }
-    });
+}
 
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            searchBtn.click();
+var oper = {
+    isEmpty : function(value) {
+        if(value == "" || value == null || value == undefined) {
+            return true;
+        } else {
+            return false;
         }
-    });
-});
+    },
+
+    ajax : function(type, data, url, callback) {
+        // GET이면 쿼리스트링으로 붙이고 data는 제거
+        if (type === "GET" && data && Object.keys(data).length > 0) {
+            const queryString = $.param(data); // itemId=123&bookingStatus=BOOK
+            url += (url.includes("?") ? "&" : "?") + queryString;
+            data = null;
+        }
+
+        $.ajax({
+            'type': type,
+            'url':url,
+//            'dataType':'json',
+            'contentType':'application/json; charset=utf-8',
+            'data': type === "GET" ? null : JSON.stringify(data)
+        })
+        .done(function(response){
+            callback(response);
+        })
+        .fail(function(xhr, status, error) {
+            // 요청이 실패했을 때 실행되는 코드
+            console.error('요청 실패:', xhr);
+            let errMsg = xhr.responseJSON?.message || xhr.responseText || error || '알 수 없는 오류';
+
+            // Validation 에러인 경우 필드별 에러도 표시
+            if (xhr.responseJSON?.errors) {
+                let fieldErrors = xhr.responseJSON.errors;
+                let errorDetails = '\n';
+                for (let field in fieldErrors) {
+                    errorDetails += `- ${fieldErrors[field]}\n`;
+                }
+                errMsg += errorDetails;
+            }
+
+            alert(errMsg);
+        })
+//        .always(function(){
+//            console.log("ajax always 로그");
+//        });
+    },
+
+    getTodayDt : function() {
+        let today = new Date();
+        let year = String(today.getFullYear());
+        let month = String(today.getMonth()+1).padStart(2,"0");
+        let date = String(today.getDate()).padStart(2,"0");
+        let hours = String(today.getHours()).padStart(2,"0");
+        let minutes = String(today.getMinutes()).padStart(2,"0");
+        return year+month+date+hours+minutes;
+    },
+
+    getSevenDaysAgo : function() {
+        let today = new Date();
+
+        let sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(today.getDate() - 7);
+
+        let year = String(sevenDaysAgo.getFullYear());
+        let month = String(sevenDaysAgo.getMonth()+1).padStart(2,"0");
+        let date = String(sevenDaysAgo.getDate()).padStart(2,"0");
+        let hours = String(sevenDaysAgo.getHours()).padStart(2,"0");
+        let minutes = String(sevenDaysAgo.getMinutes()).padStart(2,"0");
+
+        return year+month+date+hours+minutes;
+    }
+}
+
+main.init();

@@ -9,18 +9,34 @@
 <div th:replace="~{fragments/common :: common_header}"></div>
 
 <main class="main-container" role="main">
-  <section class="swimsuit-products">
-    <h2>수영복 목록</h2>
-    <div class="products-preview-grid">
-      <div class="product-preview-card" th:each="product : ${products}" onclick="goToProductDetail(1)">
-        <img th:src="${product.imageUrl}" th:alt="${product.name}">
-        <div class="product-preview-info">
-          <p th:text="${product.brand}">수영복 브랜드</p>
-          <p th:text="${product.name}">수영복 이름</p>
-          <p th:text="|${#numbers.formatInteger(product.price, 3, 'COMMA')}원|">0원</p>
+  <section class="swimsuit-page">
+    <button class="back-btn" onclick="goBack()">← 돌아가기</button>
+
+    <div class="detail-container">
+      <!-- 왼쪽:  수영복 정보 -->
+      <div class="detail-left">
+        <img th:src="${swimsuit.imageUrl}" th:alt="${swimsuit.name}">
+        <div class="detail-info">
+          <p th:text="${swimsuit.brand}">상품명</p>
+          <p th:text="${swimsuit.name}">상품명</p>
+          <p th:text="|${#numbers.formatInteger(swimsuit.price, 3, 'COMMA')}원|">가격</p>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 추천 수모 -->
+      <div class="detail-right">
+        <h3>🏊 이 수영복과 어울리는 수모</h3>
+        <div class="caps-grid">
+          <div class="cap-item">
+            <img src="https://via.placeholder.com/200x200?text=수모1" alt="수모1">
+            <p>클래식 블루 수모</p>
+            <p>₩25,000</p>
+          </div>
+          </div>
         </div>
       </div>
     </div>
+
   </section>
 </main>
 
