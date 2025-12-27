@@ -1,4 +1,4 @@
-package com.swimcolor.controller;
+package com.swimcolor.controller.web;
 
 import com.swimcolor.dto.SwimsuitListDto;
 import com.swimcolor.service.SwimsuitService;
