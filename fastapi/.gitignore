@@ -39,6 +39,8 @@ wheels/
 
 # ML
 ml/runs/**/*
+# weights 디렉토리는 추적 (best.pt 접근을 위해)
+!ml/runs/**/weights/
 #best.pt만 예외로 포함
 !ml/runs/**/best.pt
 
