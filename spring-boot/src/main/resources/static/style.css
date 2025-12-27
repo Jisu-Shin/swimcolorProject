@@ -357,6 +357,88 @@ h2 {
     color: var(--dark-text);
 }
 
+/* ==== 상세 페이지 ==== */
+.back-btn {
+    background-color: transparent; /* 투명 */
+    border: none;
+    padding: 0 15px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.detail-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    background-color: var(--white);
+    padding: 20px;
+    border-radius:  12px;
+    box-shadow: 0 4px 12px rgba(30, 90, 150, 0.15);
+    margin-bottom: 40px;
+}
+
+.detail-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-left img {
+    height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.detail-info {
+    font-size: 12px;
+    padding: 0 5px;
+    font-weight: bold;
+}
+
+.detail-right h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: var(--dark-text);
+}
+
+.caps-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.cap-item {
+    background-color: var(--light-gray);
+    border-radius: 12px;
+    padding: 12px;
+    text-align:  center;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.cap-item:hover {
+    background-color: var(--light-blue);
+    transform: scale(1.05);
+}
+
+. cap-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.cap-item p {
+    color: var(--dark-text);
+    font-weight: bold;
+    font-size: 12px;
+}
+
+
+
 /* ===== 푸터 ===== */
 .footer {
     background: var(--sky-blue);
