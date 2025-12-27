@@ -6,9 +6,9 @@
 }
 
 :root {
-    --primary-blue: #93BECC;
-    --sky-blue: #87CEEB;
-    --light-blue: #e0f7ff;
+    --primary-blue: #99E6FF;
+    --sky-blue: #CCF2FF;
+    --light-blue: #F2FCFF;
     --white: #ffffff;
     --light-gray: #f5f5f5;
     --dark-text: #000000;
@@ -85,8 +85,8 @@
 
 /* 바디 배경: 하늘색 -> 흰색 그라데이션 (부드럽게) */
 body {
-    font-family: 'Pretendard', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, var(--light-blue) 0%, var(--white) 70%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg,var(--sky-blue) 0%, var(--light-blue) 30%, var(--white) 100%);
     color: var(--dark-text);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -157,7 +157,7 @@ body {
 
 /* 로고 */
 .logo a{
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 700;
     white-space: nowrap;
     text-decoration: none;
@@ -210,7 +210,7 @@ body {
 
 /* ===== 히어로 섹션 ===== */
 .hero {
-    background: linear-gradient(135deg, var(--sky-blue) 0%, var(--light-blue) 100%);
+    background: linear-gradient(135deg, var(--light-blue) 0%, var(--white) 100%);
     padding: 72px 24px;
     text-align: center;
     border-radius: var(--card-radius);
@@ -224,7 +224,7 @@ body {
 }
 
 .hero-content h1 {
-    font-size: 40px;
+    font-size: 30px;
     margin-bottom: 12px;
     font-weight: 800;
     text-shadow: 1px 1px 6px rgba(0,0,0,0.08);
@@ -259,16 +259,18 @@ body {
     box-shadow: none;
 }
 
+/* ===== 기본 태그 ===== */
+h2 {
+    font-size: 25px;
+    margin-bottom: 15px;
+    color: var(--dark-text);
+    font-weight: 700;
+}
+
 /* ===== 서비스 소개 ===== */
 .service-intro {
     margin: 52px 0;
     text-align: left;
-}
-.service-intro h2 {
-    font-size: 28px;
-    margin-bottom: 18px;
-    color: var(--primary-blue);
-    font-weight: 800;
 }
 
 /* 스크롤 가능한 래퍼: 모바일에서 3열 고정 유지(overflow로 해결) */
@@ -319,11 +321,10 @@ body {
 .popular-products {
     margin: 44px 0;
 }
-.popular-products h2 {
-    font-size: 24px;
-    margin-bottom: 16px;
-    color: var(--primary-blue);
-    font-weight: 700;
+
+/* ===== 수영복 목록 ===== */
+.swimsuit-products {
+    padding: 15px 0;
 }
 
 /* 제품 그리드: 데스크탑 4열, 태블릿/모바일 2열(이미지 비율 유지) */
@@ -331,10 +332,10 @@ body {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 18px;
+    margin: 18px 0;
 }
 .product-preview-card {
     background-color: var(--white);
-    border-radius: 12px;
     overflow: hidden;
     transition: transform .18s ease;
     box-shadow: var(--shadow-1);
@@ -348,22 +349,19 @@ body {
     display: block;
 }
 .product-preview-info {
-    padding: 12px 14px;
+    padding: 10px;
 }
-.product-preview-info h3 {
-    font-size: 16px;
-    margin-bottom: 6px;
-}
+
 .product-preview-info p {
-    font-size: 14px;
-    color: #657786;
+    font-size: 10px;
+    color: var(--dark-text);
 }
 
 /* ===== 푸터 ===== */
 .footer {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--light-blue) 100%);
-    color: var(--white);
-    padding: 20px 0 20px;
+    background: var(--sky-blue);
+    color: var(--dark-text);
+    padding: 15px 0;
 }
 .footer-content {
     display: grid;
