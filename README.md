@@ -1,83 +1,158 @@
-# SwimMatch (Django) — 색상 기반 수영복/수모 추천 서비스 (프로젝트 뼈대)
+# 🏊 SwimColor Project
 
-개요
-- Django 프로젝트로 수영복(swimsuit)과 수모(swimcap) 이미지를 DB에 저장하고,
-  이미지에서 색상(지배색/팔레트)을 추출하여 색상 거리(Lab 기준)로 추천하는 간단한 서비스입니다.
-- PyCharm에서 개발/디버깅하도록 구성되어 있습니다.
+색상 기반 수영복/수모 매칭 추천 서비스
 
-주요 라이브러리
-- Pillow, OpenCV (opencv-python), numpy
-- scikit-learn (KMeans)
-- scikit-image (RGB ↔ Lab 변환)
-- Django REST Framework (간단한 API)
+## 📋 개요
 
-설치
-1. 가상환경 생성 (권장)
-   python -m venv .venv
-   source .venv/bin/activate  # mac/linux
-   .venv\Scripts\activate     # windows
+SwimColor는 이미지 색상 분석을 통해 수영복과 수모의 최적 조합을 추천하는 AI 기반 서비스입니다. 
+사용자가 업로드한 수영복 이미지를 분석하여 색상 조화를 고려한 수모를 추천합니다.
 
-2. 패키지 설치
-   pip install -r requirements.txt
+## 🏗️ 프로젝트 구조
 
-3. 마이그레이션
-   python manage.py migrate
-
-이미지 임포트 (이미 크롤링/저장해둔 경우)
-- images/ 폴더에 swimsuits/ 와 swimcaps/ 로 구분해서 이미지를 넣어둡니다.
-  예: /path/to/images/swimsuits/*.jpg, /path/to/images/swimcaps/*.jpg
-
-- import 명령 실행:
-  python manage.py import_images --type swimsuits --dir /path/to/images/swimsuits
-  python manage.py import_images --type swimcaps --dir /path/to/images/swimcaps
-
-API 예시
-- 모든 수영복 목록: GET /api/swimsuits/
-- 특정 수영복에 대해 추천 수모: GET /api/swimsuits/{id}/recommend_caps/
-
-색상 알고리즘
-- 현재 색상 추출: KMeans(n_colors=3)로 dominant 및 palette 추출
-- 추천: CIE Lab 공간에서 유클리드 거리 기반으로 가장 가까운 수모를 추천
-- 확장: 보색(complementary), 유사색(analogous), 삼원색(triadic) 등의 알고리즘 인터페이스는 utils/color_utils.py에 자리 잡고 있습니다. 필요하시면 원하는 알고리즘을 선택/구현해 드립니다.
-
-PyCharm 설정(간단)
-- Interpreter: 프로젝트 가상환경(.venv) 선택
-- Run/Debug: manage.py runserver (parameters: runserver 127.0.0.1:8000)
-
-다음 단계 제안(옵션)
-- 프론트엔드(React/Vue)와 연동하여 이미지 업로드/추천 UI 구현
-- 추천 알고리즘 비교: 보색/유사색/패턴 기반(스트라이프, 플라워 등) 필터 추가
-- 색상 정확도 개선: 배경 제거(세그멘테이션) 후 전경 색상만 사용
-- 성능: 대량 이미지 처리용 비동기 배치(큐) 도입
-
-## 디렉토리 구조
 ```
-swimmatch/
-├── manage.py
-├── db.sqlite3
-├── swimmatch/
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── catalog/
-│   ├── migrations/
-│   ├── templates
-│   ├── models.py
-│   ├── services.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── views.py
-│   └── __init__.py
-├── crawlers/             
-│   ├── __init__.py
-│   ├── swimwear_crawler. py
-│   └── data_processor.py
-└── requirements.txt
+swimcolorProject/
+├── fastapi/              # Python 백엔드 (AI/ML 서비스)
+│   ├── app/             # FastAPI 애플리케이션
+│   ├── ml/              # 머신러닝 모델 및 색상 분석
+│   ├── test/            # 테스트 코드
+│   ├── requirements.txt # Python 의존성
+│   └── run.py           # 실행 진입점
+│
+├── spring-boot/         # Java 백엔드 (비즈니스 로직)
+│   ├── src/
+│   │   ├── main/
+│   │   └── test/
+│   ├── build.gradle     # Gradle 빌드 설정
+│   └── gradlew          # Gradle 래퍼
+│
+└── README.md            # 프로젝트 문서 (이 파일)
 ```
 
-## resource URLs 정의하기
-- `home/` : 홈페이지
-- `home/swimsuit/` : 모든 수영복들의 목록
-- `home/swimcap/` : 모든 수모들의 목록
-- `home/swimsuit/<id>` : <id> 라는 수영복의 수모 추천 페이지
+## 🎨 주요 기능
+
+### 색상 추출 & 분석
+- **KMeans 클러스터링**: 이미지에서 지배색 및 색상 팔레트 추출 (n_colors=3)
+- **CIE Lab 색공간**: 인간의 색각과 유사한 색상 거리 계산
+- **다양한 추천 알고리즘**:
+  - 유사색 (Analogous) 추천
+  - 보색 (Complementary) 추천
+  - 삼원색 (Triadic) 추천
+
+### 이미지 처리
+- Pillow, OpenCV를 활용한 이미지 전처리
+- 배경 제거를 통한 정확한 색상 추출 (옵션)
+- 다양한 이미지 포맷 지원
+
+## 🚀 시작하기
+
+### 필수 요구사항
+- Python 3.9+
+- Java 17+
+- Gradle 7.0+
+
+### FastAPI 서버 실행
+
+```bash
+cd fastapi
+
+# 가상환경 생성 및 활성화
+python -m venv .venv
+source .venv/bin/activate  # Mac/Linux
+# .venv\Scripts\activate   # Windows
+
+# 의존성 설치
+pip install -r requirements.txt
+
+# 서버 실행
+python run.py
+```
+
+FastAPI 서버는 기본적으로 `http://localhost:8000`에서 실행됩니다.
+- API 문서: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+### Spring Boot 서버 실행
+
+```bash
+cd spring-boot
+
+# Gradle로 빌드 및 실행
+./gradlew bootRun
+
+# 또는 빌드 후 실행
+./gradlew build
+java -jar build/libs/*.jar
+```
+
+## 📡 API 엔드포인트
+
+### FastAPI (AI/ML 서비스)
+- `POST /api/analyze` - 이미지 색상 분석
+- `POST /api/recommend` - 색상 기반 추천
+- `GET /api/health` - 헬스 체크
+
+### Spring Boot (비즈니스 로직)
+- `GET /api/swimsuits` - 수영복 목록 조회
+- `GET /api/swimsuits/{id}` - 특정 수영복 조회
+- `GET /api/swimcaps` - 수모 목록 조회
+- `POST /api/swimsuits/{id}/recommend` - 수모 추천
+
+## 🧪 테스트
+
+### FastAPI 테스트
+```bash
+cd fastapi
+pytest
+# 또는 커버리지 포함
+pytest --cov=app --cov-report=html
+```
+
+### Spring Boot 테스트
+```bash
+cd spring-boot
+./gradlew test
+```
+
+## 🛠️ 기술 스택
+
+### Backend (FastAPI)
+- **FastAPI**: 고성능 Python 웹 프레임워크
+- **OpenCV**: 이미지 처리
+- **scikit-learn**: KMeans 클러스터링
+- **scikit-image**: 색공간 변환 (RGB ↔ Lab)
+- **Pillow**: 이미지 로딩 및 조작
+- **NumPy**: 수치 연산
+
+### Backend (Spring Boot)
+- **Spring Boot 3.x**: Java 엔터프라이즈 프레임워크
+- **Spring Data JPA**: 데이터 영속성
+- **Gradle**: 빌드 도구
+
+## 🎯 향후 개발 계획
+
+- [ ] 프론트엔드 (React/Vue) 연동
+- [ ] 사용자 업로드 이미지 처리 파이프라인
+- [ ] 추천 알고리즘 비교 및 평가 시스템
+- [ ] 패턴 기반 추천 (스트라이프, 플라워 등)
+- [ ] 배경 제거를 통한 색상 추출 정확도 개선
+- [ ] 대용량 이미지 처리를 위한 비동기 큐 시스템
+- [ ] 사용자 피드백 기반 추천 개선
+
+## 👥 개발 환경
+
+### IntelliJ IDEA 설정
+1. Project SDK: Java 17 선택
+2. Python Interpreter: fastapi/.venv 선택
+3. Gradle: 자동 가져오기 활성화
+
+### 디버깅
+- FastAPI: `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
+- Spring Boot: IntelliJ의 Run/Debug Configuration 사용
+
+## 📄 라이선스
+
+이 프로젝트는 개인 프로젝트입니다.
+
+## 📧 문의
+
+프로젝트 관련 문의사항이 있으시면 이슈를 등록해주세요.
