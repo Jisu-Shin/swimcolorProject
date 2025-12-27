@@ -6,6 +6,7 @@ __pycache__/
 .Python
 env/
 venv/
+.venv/
 ENV/
 build/
 develop-eggs/
@@ -37,15 +38,16 @@ wheels/
 .env.*. local
 
 # ML
-ml/runs/*/
-!ml/runs/*/best.pt
+ml/runs/**/*
+#best.pt만 예외로 포함
+!ml/runs/**/best.pt
 
 # OS
 .DS_Store
 Thumbs.db
 
 # Testing
-. coverage
+.coverage
 .pytest_cache/
 htmlcov/
 
