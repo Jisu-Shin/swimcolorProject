@@ -10,10 +10,12 @@
 
 <header th:fragment="common_header" class="header">
     <div class="header-container">
-        <button class="hamburger" id="hamburger" aria-label="메뉴 열기" aria-controls="sidebar" aria-expanded="false">
-            <i class="bi bi-three-dots fs-10"></i>
-        </button>
-        <div class="logo">🏊 SwimMatch</div>
+        <div class="header-left">
+            <button class="hamburger" id="hamburger" aria-label="메뉴 열기" aria-controls="sidebar" aria-expanded="false">
+                <i class="bi bi-three-dots fs-10"></i>
+            </button>
+            <div class="logo"><a th:href="@{/}" >🏊 SwimColor</a></div>
+        </div>
         <div class="search-bar" role="search" aria-label="사이트 검색">
             <input type="text" placeholder="수영복, 수모 검색..." aria-label="검색어 입력">
             <button class="search-btn" type="button" aria-label="검색">🔍</button>
@@ -27,7 +29,7 @@
         <nav aria-label="주요 메뉴">
             <h3 id="sidebarLabel">메뉴</h3>
             <a th:href="@{/}" class="sidebar-link">홈</a>
-            <a th:href="@{/products}" class="sidebar-link">수영복 추천</a>
+            <a th:href="@{/swimsuits}" class="sidebar-link">수영복 추천</a>
             <a th:href="@{/about}" class="sidebar-link">소개</a>
             <a th:href="@{/contact}" class="sidebar-link">문의</a>
             <!-- 필요한 메뉴를 여기에 추가하세요 -->
@@ -58,7 +60,7 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <p>&copy; 2025 SwimPerfect. All rights reserved.</p>
+        <p>&copy; 2025 SwimColor. All rights reserved.</p>
     </div>
 
     <script th:src="@{/script.js}"></script>
