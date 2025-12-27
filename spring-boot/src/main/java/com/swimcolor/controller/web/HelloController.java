@@ -19,7 +19,7 @@ public class HelloController {
 
     @GetMapping("hello")
     public String hello(Model model) {
-        model.addAttribute("data","hello");
+        model.addAttribute("data", "hello");
         return "hello";
     }
 
@@ -28,7 +28,7 @@ public class HelloController {
         List<SwimsuitListDto> list = swimsuitService.getPopularSwimsuit();
         log.debug("@@@@@ 인기있는 수영복 조회 개수:{}", list.size());
 
-        model.addAttribute("products",list);
+        model.addAttribute("products", list);
         return "index";
     }
 }

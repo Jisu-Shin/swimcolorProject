@@ -12,7 +12,7 @@
   <section class="swimsuit-products">
     <h2>수영복 목록</h2>
     <div class="products-preview-grid">
-      <div class="product-preview-card" th:each="product : ${products}" th:onclick="|goToSwimsuitDetail('${product.id}')|">
+      <div class="product-preview-card" th:each="product : ${products}" th:onclick="goToSwimsuitDetail([[${product.id}]])">
         <img th:src="${product.imageUrl}" th:alt="${product.name}">
         <div class="product-preview-info">
           <p th:text="${product.brand}">수영복 브랜드</p>

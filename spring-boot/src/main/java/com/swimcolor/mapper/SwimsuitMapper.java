@@ -29,6 +29,8 @@ public interface SwimsuitMapper {
                 .toList();
     }
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "colors", target = "colors")
     SwimsuitListDto toDto(Swimsuit swimsuit);
 }
 

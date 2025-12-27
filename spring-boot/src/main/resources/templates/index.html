@@ -47,9 +47,10 @@
   <section class="popular-products">
     <h2>인기있는 수영복</h2>
     <div class="products-preview-grid">
-      <div class="product-preview-card" th:each="product : ${products}" onclick="goToProductDetail(1)">
+      <div class="product-preview-card" th:each="product : ${products}" th:onclick="goToSwimsuitDetail([[${product.id}]])">
         <img th:src="${product.imageUrl}" th:alt="${product.name}">
         <div class="product-preview-info">
+          <p th:text="${product.id}">id</p>
           <p th:text="${product.brand}">수영복 브랜드</p>
           <p th:text="${product.name}">수영복 이름</p>
           <p th:text="|${#numbers.formatInteger(product.price, 3, 'COMMA')}원|">0원</p>

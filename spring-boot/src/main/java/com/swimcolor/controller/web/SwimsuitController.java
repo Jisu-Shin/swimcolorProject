@@ -25,7 +25,7 @@ public class SwimsuitController {
     @GetMapping("/swimsuits/{id}")
     public String getSwimsuitSimilarity(@PathVariable("id")String id, Model model){
         SwimsuitListDto swimsuit = swimsuitService.getSwimsuit(id);
-        model.addAttribute("product",swimsuit);
+        model.addAttribute("swimsuit",swimsuit);
         return "swimsuit";
     }
 }
