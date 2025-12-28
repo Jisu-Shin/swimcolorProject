@@ -21,7 +21,7 @@ class FastapiClientTest {
         String testUrl = "https://swim.co.kr/categories/918698/products?childCategoryNo=919173&brands=%255B43160579%255D&pageNumber=1&categoryNos=%255B%255D";
 
         // when
-        CrawlResponseDto response = fastapiClient.crawlProducts(testUrl);
+        CrawlResponseDto response = fastapiClient.crawlSwimsuits(testUrl);
 
         // then
         assertThat(response).isNotNull();
