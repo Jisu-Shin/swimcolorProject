@@ -14,10 +14,17 @@ import reactor.core.publisher.Mono;
 public class AdminService {
     private final FastapiClient fastapiClient;
     private final SwimsuitService swimsuitService;
+    private final SwimcapService swimcapService;
 
-    public void crawl(String url) {
-        CrawlResponseDto crawlResponseDto = fastapiClient.crawlProducts(url);
+    public void crawlSwimsuits(String url) {
+        CrawlResponseDto crawlResponseDto = fastapiClient.crawlSwimsuits(url);
         int count = swimsuitService.saveSwimsuit(crawlResponseDto);
+        log.debug("#### 저장된 row {} ", count);
+    }
+
+    public void crawlSwimcaps(String url) {
+        CrawlResponseDto crawlResponseDto = fastapiClient.crawlSwimcaps(url);
+        int count = swimcapService.saveSwimcap(crawlResponseDto);
         log.debug("#### 저장된 row {} ", count);
     }
 

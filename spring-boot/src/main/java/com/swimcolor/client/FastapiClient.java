@@ -19,12 +19,28 @@ public class FastapiClient {
     @Value("${fastapi}")
     private String baseUrl;
 
-    public CrawlResponseDto crawlProducts(String url) {
+    public CrawlResponseDto crawlSwimsuits(String url) {
         CrawlRequestDto requestDto = new CrawlRequestDto();
         requestDto.setUrl(url);
         try {
             ResponseEntity<CrawlResponseDto> response = restTemplate.postForEntity(
-                    baseUrl + "/crawl",
+                    baseUrl + "/crawl/swimsuits",
+                    requestDto,
+                    CrawlResponseDto.class
+            );
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("fastapi-service의 crawlProducts 호출 중 에러 발생", e);
+            throw new IllegalStateException();
+        }
+    }
+
+    public CrawlResponseDto crawlSwimcaps(String url) {
+        CrawlRequestDto requestDto = new CrawlRequestDto();
+        requestDto.setUrl(url);
+        try {
+            ResponseEntity<CrawlResponseDto> response = restTemplate.postForEntity(
+                    baseUrl + "/crawl/swimcaps",
                     requestDto,
                     CrawlResponseDto.class
             );
