@@ -14,9 +14,7 @@ import java.util.List;
 public class Swimcap {
 
     @Id
-    @GeneratedValue(generator = "swimcap-id-generator")
-    @GenericGenerator(name = "swimcap-id-generator",
-            strategy = "com.swimcolor.domain.SwimcapIdGenerator")
+    @SwimcapId
     @Column(length = 10, nullable = false) // SC-0001
     private String id;
 
