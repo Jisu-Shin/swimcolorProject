@@ -12,10 +12,9 @@ class Swimsuit(Base):
     price = Column(Integer)
 
 class SwimsuitPalette(Base):
-    __tablename__ = 'swimsuitpalette'
-    id = Column(String(10), primary_key=True)
-    swimsuit_id = Column(String(10))
-    colors = Column(String(255))
+    __tablename__ = 'swimsuit_palette'
+    swimsuit_id = Column(String(10), primary_key=True)
+    colors = Column(String(255), primary_key=True)
 
 class Swimcap(Base):
     __tablename__ = 'swimcap'
@@ -27,7 +26,6 @@ class Swimcap(Base):
     price = Column(Integer)
 
 class SwimcapPalette(Base):
-    __tablename__ = 'swimcappalette'
-    id = Column(String(10), primary_key=True)
-    swimcap_id = Column(String(10))
-    colors = Column(String(255))
+    __tablename__ = 'swimcap_palette'
+    swimcap_id = Column(String(10), primary_key=True)
+    colors = Column(String(255), primary_key=True)

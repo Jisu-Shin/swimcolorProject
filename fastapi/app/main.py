@@ -63,10 +63,11 @@ async def crawl_swimcap(request: CrawlRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 # 수모 추천
-@app.post("/crawl/swimcaps")
-async def crawl_swimcap(request: SwimsuitRequest, db: Session = Depends(get_db)):
+@app.post("/recommend")
+async def recommend_swimcaps(request: SwimsuitRequest, db: Session = Depends(get_db)):
     try :
         products = recommend_swim_caps(db, request.swimsuit_id, request.swimsuit_colors)
         return {"products": products}
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))

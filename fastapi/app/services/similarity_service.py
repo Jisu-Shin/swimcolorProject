@@ -38,25 +38,35 @@ def recommend_swim_caps(db, swimsuit_id, swimsuit_colors):
     ]
 
     # 색상 유사도 필터링을 위한 최소거리
-    min_distance = 7.0
+    min_distance = 15.0
 
     for pallete in all_swimcap_pallete:
-        cap_lab_color = hex_to_lab(pallete['colors'])
+        cap_lab_color = hex_to_lab(pallete.colors)
 
         for suit_info in suit_info_list:
             # 수영복의 각 색상과 비교하여 가장 유사한 것 찾기
             distance = color_similarity_ciede(suit_info['lab_color'], cap_lab_color)
+            # print(f"거리계산: {distance}")
 
             if distance < min_distance:
                 recommendations.append({
                     'swimsuit_id': swimsuit_id,
-                    "swimcap_id": pallete['swimcap_id'],
+                    "swimcap_id": pallete.swimcap_id,
                     'swimsuit_color_hex': suit_info['hex_color'],
-                    'swimcap_color_hex': pallete['colors'],
-                    'similarity_score': distance
+                    'swimcap_color_hex': pallete.colors,
+                    'similarity_score': round(distance, 4),
                 })
 
     # 유사도 순 정렬
     recommendations.sort(key=lambda x: x['similarity_score'])
 
-    return recommendations[:5]
+    # 동일 swimcap_id 제거 (상위 유사도만 유지)
+    seen_ids = set()
+    unique_recommendations = []
+
+    for rec in recommendations:
+        if rec['swimcap_id'] not in seen_ids:
+            unique_recommendations.append(rec)
+            seen_ids.add(rec['swimcap_id'])
+
+    return unique_recommendations[:5]
