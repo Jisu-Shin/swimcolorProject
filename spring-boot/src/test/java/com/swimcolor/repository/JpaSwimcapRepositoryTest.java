@@ -1,22 +1,20 @@
 package com.swimcolor.repository;
 
 import com.swimcolor.domain.Swimcap;
-import com.swimcolor.domain.Swimsuit;
 import com.swimcolor.dto.SwimcapListDto;
-import com.swimcolor.dto.SwimsuitListDto;
 import com.swimcolor.mapper.SwimcapMapper;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class JpaSwimcapRepositoryTest {
 
     @Autowired

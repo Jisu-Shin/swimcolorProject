@@ -29,7 +29,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 	annotationProcessor 'org.projectlombok:lombok'
@@ -42,6 +41,10 @@ dependencies {
 	// map struct
 	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+	// mysql
+	runtimeOnly 'com.mysql:mysql-connector-j:8.3.0'  // 최신 버전
+	testRuntimeOnly 'com.mysql:mysql-connector-j:8.3.0'  // test에서도 사용
 }
 
 tasks.named('test') {
