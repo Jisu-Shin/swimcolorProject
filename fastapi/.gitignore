@@ -55,3 +55,6 @@ htmlcov/
 
 # Temporary files
 *.tmp
+
+# DB
+secrets.json
