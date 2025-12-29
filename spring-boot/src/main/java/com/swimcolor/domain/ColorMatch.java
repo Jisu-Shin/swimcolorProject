@@ -1,13 +1,10 @@
 package com.swimcolor.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Getter
+@Getter @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ColorMatch {
     @Id
@@ -21,20 +18,20 @@ public class ColorMatch {
     private String swimcapId;
 
     @Column(length = 7, nullable = false)
-    private String swimsuitColorHex;
+    private String suitHexColor;
 
     @Column(length = 7, nullable = false)
-    private String swimcapColorHex;
+    private String capHexColor;
 
     @Column(nullable = false)
-    private Double similarity;
+    private Double similarityScore;
 
     @Builder
-    private ColorMatch(String swimsuitId, String swimcapId, String swimsuitColorHex, String swimcapColorHex, Double similarity) {
+    private ColorMatch(String swimsuitId, String swimcapId, String suitHexColor, String capHexColor, Double similarityScore) {
         this.swimsuitId = swimsuitId;
         this.swimcapId = swimcapId;
-        this.swimsuitColorHex = swimsuitColorHex;
-        this.swimcapColorHex = swimcapColorHex;
-        this.similarity = similarity;
+        this.suitHexColor = suitHexColor;
+        this.capHexColor = capHexColor;
+        this.similarityScore = similarityScore;
     }
 }

@@ -8,5 +8,5 @@ public class RecommendListDto {
     private String suitHexColor;
     private String swimcapId;
     private String capHexColor;
-    private Double similarity;
+    private Double similarityScore;
 }

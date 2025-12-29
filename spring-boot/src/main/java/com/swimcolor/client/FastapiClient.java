@@ -80,6 +80,7 @@ public class FastapiClient {
                     requestDto,
                     RecommendResponseDto.class
             );
+//            log.info("Raw 응답: {}", response.getBody());  // 실제 JSON 확인
             return response.getBody();
         } catch (Exception e) {
             log.error("fastapi-service의 getRecommendSwimcap 호출 중 에러 발생", e);

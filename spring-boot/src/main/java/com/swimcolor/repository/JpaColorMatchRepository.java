@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface JpaColorMatchRepository extends JpaRepository<ColorMatch, Long> {
-    List<ColorMatch> findBySwimsuitIdOrderBySimilarityDesc(String swimsuitId);
+    List<ColorMatch> findBySwimsuitIdOrderBySimilarityScoreDesc(String swimsuitId);
 }

@@ -3,6 +3,7 @@ package com.swimcolor.service;
 import com.swimcolor.client.FastapiClient;
 import com.swimcolor.domain.ColorMatch;
 import com.swimcolor.domain.Swimcap;
+import com.swimcolor.dto.RecommendListDto;
 import com.swimcolor.dto.RecommendResponseDto;
 import com.swimcolor.dto.SwimcapListDto;
 import com.swimcolor.mapper.SwimcapMapper;
@@ -19,16 +20,16 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SwimcapRecommendationService {
+public class RecommendationService {
     private final FastapiClient fastapiClient;
     private final ColorMatchService colorMatchService;
     private final JpaColorMatchRepository colorMatchRepository;
     private final JpaSwimcapRepository swimcapRepository;
     private final SwimcapMapper swimcapMapper;
 
-    public List<SwimcapListDto> recommendSwimcaps(String id) {
+    public List<SwimcapListDto> recommendSwimcaps(String swimsuitId, List<String> colors) {
         // 1. SwimsuitCapSimilarity에 값이 있는지 확인하기
-        List<ColorMatch> colorMatchList = colorMatchRepository.findBySwimsuitIdOrderBySimilarityDesc(id);
+        List<ColorMatch> colorMatchList = colorMatchRepository.findBySwimsuitIdOrderBySimilarityScoreDesc(swimsuitId);
 
         // 2-1. 있는 경우 그대로 수모를 추천하기
         if (!colorMatchList.isEmpty()) {
@@ -40,14 +41,16 @@ public class SwimcapRecommendationService {
         }
 
         // 2-2. 없는 경우 fastapi를 호출하여 값을 가져오기
-        RecommendResponseDto similarSwimCap = fastapiClient.getRecommendSwimcap(id, null);
+        RecommendResponseDto recommendResponseDto = fastapiClient.getRecommendSwimcap(swimsuitId, colors);
+        log.info("\n추천값 조회하기{}\n", recommendResponseDto);
+        List<RecommendListDto> similarList = recommendResponseDto.getSimilarList();
 
         // 3. 리턴받은 값을 저장하고
-        if (!similarSwimCap.getSimilarList().isEmpty()) {
-            colorMatchService.saveColorMatch(similarSwimCap);
+        if (similarList!=null && !similarList.isEmpty()) {
+            colorMatchService.saveColorMatch(similarList);
         }
-        List<String> swimcapIds = similarSwimCap.getSimilarList().stream()
-                .map(c->c.getSwimcapId())
+        List<String> swimcapIds = similarList.stream()
+                .map(c -> c.getSwimcapId())
                 .toList();
 
         // 4. 수모를 리턴하기
@@ -56,7 +59,7 @@ public class SwimcapRecommendationService {
 
     @Nonnull
     private List<SwimcapListDto> getSwimcapListDtoList(List<String> swimcapIds) {
-        List<Swimcap> swimcapList = swimcapRepository.findByIdIn(swimcapIds);
+        List<Swimcap> swimcapList = swimcapRepository.findByIdsWithColors(swimcapIds);
         return swimcapList.stream()
                 .map(s -> swimcapMapper.toDto(s))
                 .collect(Collectors.toList());

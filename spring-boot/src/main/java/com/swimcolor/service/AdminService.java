@@ -17,7 +17,6 @@ public class AdminService {
     private final FastapiClient fastapiClient;
     private final SwimsuitService swimsuitService;
     private final SwimcapService swimcapService;
-    private final ColorMatchService colorMatchService;
 
     public void crawlSwimsuits(String url) {
         CrawlResponseDto crawlResponseDto = fastapiClient.crawlSwimsuits(url);
@@ -30,10 +29,4 @@ public class AdminService {
         int count = swimcapService.saveSwimcap(crawlResponseDto);
         log.debug("#### 저장된 row {} ", count);
     }
-
-    public void recommendSwimcaps(String swimsuitId, List<String> colors) {
-        RecommendResponseDto recommendSwimcap = fastapiClient.getRecommendSwimcap(swimsuitId, colors);
-        colorMatchService.saveColorMatch(recommendSwimcap);
-    }
-
 }
