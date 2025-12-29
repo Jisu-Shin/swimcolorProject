@@ -279,9 +279,7 @@ class ColorExtractor:
 if __name__ == '__main__':
 
     # 1. 색상 추출기 초기화
-    extractor = ColorExtractor()
-    # extractor = SwimwearColorExtractor('yolov8n.pt')
-    # 커스텀 모델 사용 시: SwimwearColorExtractor('runs/detect/train/weights/best.pt')
+    extractor = ColorExtractor("../../ml/runs/segment/swimsuit-seg2/weights/best.pt")
 
     # 2. 이미지 처리 (URL 또는 로컬 경로)
     image_path = '/Users/zsu/MyProject/training_set/swimsuit_25_데이지 테이.jpg'  # 또는 'https://example.com/image.jpg'

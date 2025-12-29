@@ -1,15 +1,10 @@
 from fastapi import FastAPI, HTTPException, Depends
-from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from app.services.crawler_service import crawl_swimsuit_and_extract_colors, crawl_swimcap_and_extract_colors
 from app.db import get_db
-
-class CrawlRequest(BaseModel):
-    url: str
-
-class CrawlResponse(BaseModel):
-    products: list
+from app.schemas import CrawlRequest, SwimsuitRequest
+from app.services.crawler_service import crawl_swimsuit_and_extract_colors, crawl_swimcap_and_extract_colors
+from app.services.similarity_service import recommend_swim_caps
 
 app = FastAPI(
     title="Swimcolor API",
@@ -46,7 +41,7 @@ async def root(db: Session = Depends(get_db)):  # db 추가
 async def health_check():
     return {"status": "healthy"}
 
-# 수영복크롤링
+# 수영복 크롤링
 @app.post("/crawl/swimsuits")
 async def crawl_swimsuit(request: CrawlRequest):
     # print(urlInfo.url)
@@ -54,14 +49,24 @@ async def crawl_swimsuit(request: CrawlRequest):
         products = crawl_swimsuit_and_extract_colors(request.url)
         return {"products": products}
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
-# 크롤링
+# 수모 크롤링
 @app.post("/crawl/swimcaps")
 async def crawl_swimcap(request: CrawlRequest):
     # print(urlInfo.url)
     try :
         products = crawl_swimcap_and_extract_colors(request.url)
+        return {"products": products}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# 수모 추천
+@app.post("/crawl/swimcaps")
+async def crawl_swimcap(request: SwimsuitRequest, db: Session = Depends(get_db)):
+    try :
+        products = recommend_swim_caps(db, request.swimsuit_id, request.swimsuit_colors)
         return {"products": products}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

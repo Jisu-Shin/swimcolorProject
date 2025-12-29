@@ -10,8 +10,8 @@ def main():
 
     # 2. 바로 학습 시작
     results = model.train(
-        data="/Users/zsu/MyProject/roboflow_1221/data.yaml",
-        epochs=50,
+        data="/Users/zsu/MyProject/roboflow/roboflow_1221/data.yaml",
+        epochs=30,
         imgsz=640,
         batch=4,
         name="swimsuit-seg",
