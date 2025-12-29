@@ -1,7 +1,7 @@
 package com.swimcolor.service;
 
 import com.swimcolor.domain.ColorMatch;
-import com.swimcolor.dto.SimilarResponseDto;
+import com.swimcolor.dto.RecommendResponseDto;
 import com.swimcolor.mapper.ColorMatchMapper;
 import com.swimcolor.repository.JpaColorMatchRepository;
 import jakarta.transaction.Transactional;
@@ -20,10 +20,10 @@ public class ColorMatchService {
     private final ColorMatchMapper colorMatchMapper;
 
     @Transactional
-    public int saveColorMatch(SimilarResponseDto responseDto) {
+    public int saveColorMatch(RecommendResponseDto responseDto) {
         List<ColorMatch> colorMatchList = responseDto.getSimilarList()
                 .stream()
-                .map(s-> colorMatchMapper.toEntity(s, responseDto.getSwimsuitId()))
+                .map(s-> colorMatchMapper.toEntity(s))
                 .toList();
         colorMatchRepository.saveAll(colorMatchList);
 

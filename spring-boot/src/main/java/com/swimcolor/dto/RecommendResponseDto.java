@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class SimilarResponseDto {
+public class RecommendResponseDto {
     private String swimsuitId;
-    private List<SimilarListDto> similarList;
+    private List<RecommendListDto> similarList;
 }

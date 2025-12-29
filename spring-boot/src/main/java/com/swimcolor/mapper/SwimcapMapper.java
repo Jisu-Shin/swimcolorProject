@@ -8,6 +8,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface SwimcapMapper {
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "colors", target = "colors")
     SwimcapListDto toDto(Swimcap swimcap);
 
     @Mapping(source = "img_url", target = "imageUrl")

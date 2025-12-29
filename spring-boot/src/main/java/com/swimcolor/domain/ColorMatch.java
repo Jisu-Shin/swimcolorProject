@@ -21,20 +21,20 @@ public class ColorMatch {
     private String swimcapId;
 
     @Column(length = 7, nullable = false)
-    private String suitHexColor;
+    private String swimsuitColorHex;
 
     @Column(length = 7, nullable = false)
-    private String capHexColor;
+    private String swimcapColorHex;
 
     @Column(nullable = false)
     private Double similarity;
 
     @Builder
-    private ColorMatch(String swimsuitId, String swimcapId, String suitHexColor, String capHexColor, Double similarity) {
+    private ColorMatch(String swimsuitId, String swimcapId, String swimsuitColorHex, String swimcapColorHex, Double similarity) {
         this.swimsuitId = swimsuitId;
         this.swimcapId = swimcapId;
-        this.suitHexColor = suitHexColor;
-        this.capHexColor = capHexColor;
+        this.swimsuitColorHex = swimsuitColorHex;
+        this.swimcapColorHex = swimcapColorHex;
         this.similarity = similarity;
     }
 }

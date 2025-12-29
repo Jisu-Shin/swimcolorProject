@@ -3,9 +3,8 @@ package com.swimcolor.service;
 import com.swimcolor.client.FastapiClient;
 import com.swimcolor.domain.ColorMatch;
 import com.swimcolor.domain.Swimcap;
-import com.swimcolor.dto.SimilarResponseDto;
+import com.swimcolor.dto.RecommendResponseDto;
 import com.swimcolor.dto.SwimcapListDto;
-import com.swimcolor.mapper.ColorMatchMapper;
 import com.swimcolor.mapper.SwimcapMapper;
 import com.swimcolor.repository.JpaColorMatchRepository;
 import com.swimcolor.repository.JpaSwimcapRepository;
@@ -41,7 +40,7 @@ public class SwimcapRecommendationService {
         }
 
         // 2-2. 없는 경우 fastapi를 호출하여 값을 가져오기
-        SimilarResponseDto similarSwimCap = fastapiClient.getSimilarSwimCap(id);
+        RecommendResponseDto similarSwimCap = fastapiClient.getRecommendSwimcap(id, null);
 
         // 3. 리턴받은 값을 저장하고
         if (!similarSwimCap.getSimilarList().isEmpty()) {
