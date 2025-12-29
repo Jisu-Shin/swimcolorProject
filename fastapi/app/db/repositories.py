@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.db.models import Swimsuit, Swimcap
+from .models import Swimsuit, Swimcap, SwimsuitPalette, SwimcapPalette
 
 ##### fastapi 에서는 조회만 가능함 #####
 
@@ -11,6 +11,9 @@ def get_swimsuit(db: Session, id: str):
 
 def get_swimcaps(db: Session):
     return db.query(Swimcap).all()
+
+def get_all_swimcap_pallete(db: Session):
+    return db.query(SwimcapPalette).all()
 
 def get_swimcap(db: Session, id: str):
     return db.query(Swimcap).filter(Swimcap.id == id).first()
