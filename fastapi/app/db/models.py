@@ -1,5 +1,5 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, UniqueConstraint
-from app.database import Base
+from sqlalchemy import Column, Integer, String
+from app.db.connection import Base
 
 
 class Swimsuit(Base):

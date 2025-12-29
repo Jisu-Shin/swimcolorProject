@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from .schemas import Swimsuit, Swimcap
+from app.db.models import Swimsuit, Swimcap
 
 ##### fastapi 에서는 조회만 가능함 #####
 

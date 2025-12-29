@@ -29,3 +29,8 @@
       "colors": []
     },
 ```
+
+## 수모 크롤링 url
+```
+https://swim.co.kr/categories/918606/products?childCategoryNo=919019&brands=%255B43160578%255D&pageNumber=1
+```

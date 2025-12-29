@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SECRET_FILE = os.path.join(BASE_DIR, 'secrets.json')
+SECRET_FILE = os.path.join(BASE_DIR, '../secrets.json')
 
 # secrets.json 파일 안전하게 읽기
 with open(SECRET_FILE, 'r', encoding='utf-8') as f:

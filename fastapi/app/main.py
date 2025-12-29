@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from .services.crawler_service import crawl_and_extract_colors
-# from .database import get_db
+from app.services.crawler_service import crawl_swimsuit_and_extract_colors, crawl_swimcap_and_extract_colors
+from app.db import get_db
 
 class CrawlRequest(BaseModel):
     url: str
@@ -46,12 +46,22 @@ async def root(db: Session = Depends(get_db)):  # db 추가
 async def health_check():
     return {"status": "healthy"}
 
-# 크롤링
-@app.post("/crawl")
-async def crawl(request: CrawlRequest):
+# 수영복크롤링
+@app.post("/crawl/swimsuits")
+async def crawl_swimsuit(request: CrawlRequest):
     # print(urlInfo.url)
     try :
-        products = crawl_and_extract_colors(request.url)
+        products = crawl_swimsuit_and_extract_colors(request.url)
+        return {"products": products}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# 크롤링
+@app.post("/crawl/swimcaps")
+async def crawl_swimcap(request: CrawlRequest):
+    # print(urlInfo.url)
+    try :
+        products = crawl_swimcap_and_extract_colors(request.url)
         return {"products": products}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
