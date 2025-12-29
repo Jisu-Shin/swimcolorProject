@@ -50,23 +50,23 @@ def recommend_swim_caps(db, swimsuit_id, swimsuit_colors):
 
             if distance < min_distance:
                 recommendations.append({
-                    'swimsuit_id': swimsuit_id,
-                    "swimcap_id": pallete.swimcap_id,
-                    'swimsuit_color_hex': suit_info['hex_color'],
-                    'swimcap_color_hex': pallete.colors,
-                    'similarity_score': round(distance, 4),
+                    'swimsuitId': swimsuit_id,
+                    "swimcapId": pallete.swimcap_id,
+                    'suitHexColor': suit_info['hex_color'],
+                    'capHexColor': pallete.colors,
+                    'similarityScore': round(distance, 4),
                 })
 
     # 유사도 순 정렬
-    recommendations.sort(key=lambda x: x['similarity_score'])
+    recommendations.sort(key=lambda x: x['similarityScore'])
 
     # 동일 swimcap_id 제거 (상위 유사도만 유지)
     seen_ids = set()
     unique_recommendations = []
 
     for rec in recommendations:
-        if rec['swimcap_id'] not in seen_ids:
+        if rec['swimcapId'] not in seen_ids:
             unique_recommendations.append(rec)
-            seen_ids.add(rec['swimcap_id'])
+            seen_ids.add(rec['swimcapId'])
 
     return unique_recommendations[:5]

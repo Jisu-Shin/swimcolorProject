@@ -66,8 +66,9 @@ async def crawl_swimcap(request: CrawlRequest):
 @app.post("/recommend")
 async def recommend_swimcaps(request: SwimsuitRequest, db: Session = Depends(get_db)):
     try :
-        products = recommend_swim_caps(db, request.swimsuit_id, request.swimsuit_colors)
-        return {"products": products}
+        similarList = recommend_swim_caps(db, request.swimsuitId, request.colors)
+        print(similarList)
+        return {"similarList": similarList}
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
