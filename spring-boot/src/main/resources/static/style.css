@@ -6,18 +6,28 @@
 }
 
 :root {
+    /* 기존 변수 유지 */
     --primary-blue: #99E6FF;
     --sky-blue: #CCF2FF;
     --light-blue: #F2FCFF;
     --white: #ffffff;
     --light-gray: #f5f5f5;
-    --dark-text: #000000;
+    --dark-text: #004d61; /* 너무 검은색보다 짙은 청록색이 세련됨 */
     --accent-color: #ff6b6b;
+
+    /* 감각적인 포인트 변수 추가 */
+    --deep-blue: #0077B6;      /* 강조 텍스트용 */
+    --glass-white: rgba(255, 255, 255, 0.7); /* 유리 효과 배경 */
+    --soft-shadow: 0 12px 30px rgba(30, 90, 150, 0.1); /* 부드러운 물결 그림자 */
+
     --max-content-width: 900px;
     --header-height: 64px;
     --card-radius: 12px;
     --shadow-1: 0 4px 12px rgba(30, 90, 150, 0.08);
     --shadow-2: 0 8px 24px rgba(30, 90, 150, 0.14);
+
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --deep-water: #0077B6; /* 포인트 컬러로 깊은 물색 추가 */
 }
 
 @font-face {
@@ -85,13 +95,14 @@
 
 /* 바디 배경: 하늘색 -> 흰색 그라데이션 (부드럽게) */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; /* Pretendard 우선 적용 */
     background: linear-gradient(135deg,var(--sky-blue) 0%, var(--light-blue) 30%, var(--white) 100%);
     color: var(--dark-text);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
+    letter-spacing: -0.01em;
 }
 
 /* 컨테이너 (너무 퍼지지 않도록) */
@@ -104,7 +115,12 @@ body {
 
 /* ===== 헤더 ===== */
 .header {
-    background: linear-gradient(135deg, var(--sky-blue) 0%, var(--light-blue) 100%);
+    /*background: linear-gradient(135deg, var(--sky-blue) 0%, var(--light-blue) 100%);*/
+    background: var(--glass-white);
+    backdrop-filter: blur(10px); /* 유리 뒤로 물결이 비치는 듯한 효과 */
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+
     padding: 5px 0;
     position: sticky;
     top: 0;
@@ -210,12 +226,11 @@ body {
 
 /* ===== 히어로 섹션 ===== */
 .hero {
-    background: linear-gradient(135deg, var(--light-blue) 0%, var(--white) 100%);
+    background: linear-gradient(135deg, var(--sky-blue) 0%, var(--white) 100%);
     padding: 72px 24px;
     text-align: center;
-    border-radius: var(--card-radius);
     margin: 28px auto;
-    color: var(--dark-text);
+    border-radius: var(--card-radius);
     box-shadow: var(--shadow-2);
 
     /* PC에서 너무 퍼지지 않도록 너비 제한 추가 */
@@ -224,39 +239,46 @@ body {
 }
 
 .hero-content h1 {
-    font-size: 30px;
-    margin-bottom: 12px;
+    color: var(--dark-text);
+    font-size: 34px;
+    letter-spacing: -0.04em; /* 큰 제목은 더 촘촘하게 */
     font-weight: 800;
-    text-shadow: 1px 1px 6px rgba(0,0,0,0.08);
-    line-height: 1.05;
 }
+
 .hero-content p {
-    font-size: 16px;
+    /*font-size: 16px;
     margin-bottom: 18px;
-    opacity: 0.95;
+    opacity: 0.95;*/
+    font-weight: 300;
+    opacity: 0.8;
 }
 
 /* CTA 버튼 (기본) */
 .cta-button {
-    background-color: var(--accent-color);
-    color: var(--white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border: none;
-    padding: 12px 34px;
-    font-weight: 700;
-    border-radius: 10px;
     cursor: pointer;
-    box-shadow: 0 6px 18px rgba(255,107,107,0.18);
-    transition: transform .18s ease, box-shadow .18s ease;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+    /* 모바일 터치 접근성 최적화 */
+    min-height: 54px;
+    padding: 12px 30px;
+    margin-top: 10px;
+    border-radius: 12px;
 }
 .cta-button:hover { transform: translateY(-3px); }
 .cta-button:focus { outline: 3px solid rgba(255,107,107,0.22); outline-offset: 2px; }
 
-/* secondary 타입 (예: '모든 수영복 보기') */
-.cta-button.secondary {
-    background: transparent;
-    color: var(--primary-blue);
-    border: 2px solid rgba(147,190,204,0.9);
-    box-shadow: none;
+
+/* 1. Primary (시선 강탈: 핑크 액센트) */
+.cta-button {
+    background-color: var(--accent-color);
+    color: var(--white);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.2);
 }
 
 /* ===== 기본 태그 ===== */
@@ -293,10 +315,12 @@ h2 {
 /* 카드 스타일 */
 .feature-card {
     background-color: var(--white);
+    border: 1px solid var(--light-blue);
     padding: 22px;
     border-radius: var(--card-radius);
     box-shadow: var(--shadow-1);
-    transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s;
+    /*transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s;*/
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 .feature-card:hover {
     transform: translateY(-8px);
@@ -322,11 +346,6 @@ h2 {
     margin: 44px 0;
 }
 
-/* ===== 수영복 목록 ===== */
-.swimsuit-products {
-    padding: 15px 0;
-}
-
 /* 제품 그리드: 데스크탑 4열, 태블릿/모바일 2열(이미지 비율 유지) */
 .products-preview-grid {
     display: grid;
@@ -348,6 +367,7 @@ h2 {
     object-fit: cover;
     display: block;
 }
+
 .product-preview-info {
     padding: 10px;
 }
@@ -355,6 +375,23 @@ h2 {
 .product-preview-info p {
     font-size: 10px;
     color: var(--dark-text);
+}
+
+.all-products-cta {
+    margin-top: 40px; /* 위아래 여백을 넉넉히 주어 숨통을 틔워줍니다 */
+    text-align: center;
+}
+
+/* 2. Secondary (청량함 강조: 블루 테마) */
+.cta-button.secondary {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    box-shadow: 0 6px 18px rgba(153, 230, 255, 0.35);
+}
+
+/* ==== 수영복 목록 페이지 ==== */
+.swimsuit-products {
+    padding: 15px 0;
 }
 
 /* ==== 상세 페이지 ==== */

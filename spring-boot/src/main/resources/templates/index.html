@@ -49,17 +49,19 @@
     <div class="products-preview-grid">
       <div class="product-preview-card" th:each="product : ${products}" th:onclick="goToSwimsuitDetail([[${product.id}]])">
         <img th:src="${product.imageUrl}" th:alt="${product.name}">
+
         <div class="product-preview-info">
-          <p th:text="${product.id}">id</p>
+          <p th:text="${product.id}" hidden>id</p>
           <p th:text="${product.brand}">수영복 브랜드</p>
           <p th:text="${product.name}">수영복 이름</p>
           <p th:text="|${#numbers.formatInteger(product.price, 3, 'COMMA')}원|">0원</p>
-          <div class="preview-action">수모 추천 보기 →</div>
         </div>
       </div>
     </div>
     <div class="all-products-cta">
-      <button class="cta-button secondary" onclick="goToProducts()">모든 수영복 보기</button>
+      <button class="cta-button secondary" onclick="goToProducts()">
+        <span>모든 수영복 보기</span>
+        <i class="bi bi-arrow-right"></i> </button>
     </div>
   </section>
 </main>
