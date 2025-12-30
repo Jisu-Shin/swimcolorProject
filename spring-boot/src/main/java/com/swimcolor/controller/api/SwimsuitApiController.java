@@ -1,5 +1,6 @@
 package com.swimcolor.controller.api;
 
+import com.swimcolor.dto.RecommendRequestDto;
 import com.swimcolor.dto.SwimcapListDto;
 import com.swimcolor.dto.SwimsuitListDto;
 import com.swimcolor.service.RecommendationService;
@@ -23,8 +24,8 @@ public class SwimsuitApiController {
         return swimsuitService.getSwimsuit(id);
     }
 
-//    @PostMapping("/{id}/recommended-swimcaps")
-//    public ResponseEntity<List<SwimcapListDto>> getRecommendedSwimcaps(@PathVariable String id) {
-//        return ResponseEntity.ok(recommendationService.recommendSwimcaps(id));
-//    }
+    @PostMapping("/{id}/recommended-swimcaps")
+    public ResponseEntity<List<SwimcapListDto>> getRecommendSwimcaps(@PathVariable String id, @RequestBody RecommendRequestDto requestDto) {
+        return ResponseEntity.ok(recommendationService.recommendSwimcaps(id, requestDto.getColors()));
+    }
 }
