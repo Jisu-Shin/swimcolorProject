@@ -26,7 +26,71 @@ function goBack() {
     window.history.back();
 }
 
+const swimsuitModule = {
+    // 추천 수모를 불러와서 화면에 그리는 함수
+    initRecommendCaps: function(swimsuitId, colors) {
+        console.log(swimsuitId);
+        console.log(colors);
+        const data = {
+            itemId: swimsuitId,
+            colors: colors
+        };
+
+        // 기존에 만드신 공통 ajax 호출
+        oper.ajax("POST", data, "/api/swimsuits/"+swimsuitId+"/recommended-swimcaps", callback.recommendCaps);
+    },
+
+    // 데이터를 받아서 HTML을 생성하는 함수
+    renderCaps: function(caps) {
+        const $container = $('#recommend-cap-list');
+        if ($container.length === 0) return; // 요소가 없으면 중단
+
+        $container.empty();
+        if (caps && caps.length > 0) {
+//            console.log(caps);
+            caps.forEach(cap => {
+                // 1. 색상 칩 HTML을 먼저 생성합니다.
+                let colorChipsHtml = '';
+                if (cap.colors && cap.colors.length > 0) {
+                    cap.colors.forEach(color => {
+                        // 서버에서 보냈던 타임리프 로직을 JS 문법으로 대체
+                        colorChipsHtml += `
+                            <span class="color-chip"
+                                  style="background-color: ${color};"
+                                  data-color="${color}"></span>`;
+                    });
+                }
+
+                $container.append(`
+                    <div class="cap-item">
+                        <img src="${cap.imageUrl}" alt="${cap.name}">
+                        <div class="cap-info">
+                            <p>${cap.brand}</p>
+                            <p>${cap.name}</p>
+                            <p>${Number(cap.price).toLocaleString()}원</p>
+                        </div>
+
+                        <div class="color-palette">
+                            <span>대표 색상:</span>
+                            <div class="chips-wrapper">
+                                ${colorChipsHtml}
+                            </div>
+                        </div>
+                    </div>
+
+
+                `);
+            });
+        } else {
+            $container.append('<p>추천할 수모가 없습니다.</p>');
+        }
+    }
+};
+
 var callback = {
+    recommendCaps : function(response) {
+        swimsuitModule.renderCaps(response);
+    }
 
 }
 
@@ -50,7 +114,7 @@ var oper = {
         $.ajax({
             'type': type,
             'url':url,
-//            'dataType':'json',
+            'dataType':'json',
             'contentType':'application/json; charset=utf-8',
             'data': type === "GET" ? null : JSON.stringify(data)
         })

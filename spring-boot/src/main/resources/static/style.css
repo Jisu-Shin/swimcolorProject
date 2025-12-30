@@ -371,7 +371,7 @@ h2 {
 .detail-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    gap: 30px;
     background-color: var(--white);
     padding: 20px;
     border-radius:  12px;
@@ -409,6 +409,7 @@ h2 {
 
 /* 색상 칩 (동그란 원) */
 .color-chip {
+    display: inline-block;
     width: 20px;
     height: 20px;
     border-radius: 50%;
@@ -423,7 +424,7 @@ h2 {
 
 .detail-right h3 {
     font-size: 18px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     color: var(--dark-text);
 }
 
@@ -436,8 +437,7 @@ h2 {
 .cap-item {
     background-color: var(--light-gray);
     border-radius: 12px;
-    padding: 12px;
-    text-align:  center;
+    padding: 10px;
     transition: 0.3s;
     cursor: pointer;
 }
@@ -452,13 +452,13 @@ h2 {
     height: 150px;
     object-fit: cover;
     border-radius: 8px;
-    margin-bottom: 10px;
 }
 
-.cap-item p {
+.cap-item .cap-info {
     color: var(--dark-text);
     font-weight: bold;
     font-size: 12px;
+    padding: 0 5px;
 }
 
 
@@ -619,7 +619,7 @@ a:focus, button:focus, input:focus {
     }
     .detail-right h3 {
         font-size: 16px;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
     }
     .caps-grid {
         gap: 12px;
