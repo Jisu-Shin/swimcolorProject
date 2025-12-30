@@ -26,6 +26,31 @@ function goBack() {
     window.history.back();
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const searchBtn = document.querySelector('.search-btn');
+    const searchBar = document.querySelector('.search-bar');
+    const searchInput = document.querySelector('.search-bar input');
+    const header = document.querySelector('.header');
+
+    searchBtn.addEventListener('click', (e) => {
+        // 모바일(767px 이하)에서만 확장 로직 작동
+        if (window.innerWidth <= 767) {
+            if (!header.classList.contains('search-active')) {
+                e.preventDefault(); // 검색 실행 대신 창 확장
+                header.classList.add('search-active');
+                searchInput.focus(); // 바로 타이핑 가능하게 포커스
+            }
+        }
+    });
+
+    // 검색창 외 영역 클릭 시 다시 축소 (선택 사항)
+    document.addEventListener('click', (e) => {
+        if (header.classList.contains('search-active') && !searchBar.contains(e.target)) {
+            header.classList.remove('search-active');
+        }
+    });
+});
+
 const swimsuitModule = {
     // 추천 수모를 불러와서 화면에 그리는 함수
     initRecommendCaps: function(swimsuitId, colors) {

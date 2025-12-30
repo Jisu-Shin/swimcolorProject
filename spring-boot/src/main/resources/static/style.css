@@ -115,113 +115,103 @@ body {
 
 /* ===== 헤더 ===== */
 .header {
-    /*background: linear-gradient(135deg, var(--sky-blue) 0%, var(--light-blue) 100%);*/
+    height: var(--header-height);
     background: var(--glass-white);
-    backdrop-filter: blur(10px); /* 유리 뒤로 물결이 비치는 듯한 효과 */
+    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-
-    padding: 5px 0;
     position: sticky;
     top: 0;
     z-index: 120;
     box-shadow: 0 2px 10px rgba(30, 90, 150, 0.12);
+    display: flex;
+    align-items: center; /* 세로 중앙 정렬 보장 */
 }
 
 .header-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between; /* 왼쪽(메뉴+로고) --- 오른쪽(검색) */
     max-width: var(--max-content-width);
     margin: 0 auto;
-    padding: 0 16px;
-    gap: 8px;
+    width: 100%;
+    padding: 0 20px;
+    gap: 16px;
 }
 
 .header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px; /* 메뉴와 로고 사이 간격 */
+    flex-shrink: 0; /* 로고가 찌그러지지 않게 보호 */
 }
 
 /* 햄버거 (접근성 고려한 크기/포커스) */
 .hamburger {
-    width: 30px;
-    height: 30px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
+    background: none;
     border: none;
     cursor: pointer;
     padding: 8px;
-    border-radius: 8px;
-    transition: background .18s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    margin-left: -8px; /* 여백 최적화 */
 }
-.hamburger:focus {
-    outline: 3px solid rgba(255,255,255,0.25);
-    outline-offset: 2px;
+
+.hamburger i {
+    font-size: 20px; /* 아이콘 크기를 확실하게 키움 */
+    color: var(--dark-text);
 }
-.hamburger span {
-    display: block;
-    width: 20px;
-    height: 2px;
-    background: rgba(255,255,255,0.95);
-    margin: 3px 0;
-    border-radius: 2px;
+
+.hamburger:active {
+    transform: scale(0.9); /* 클릭 시 피드백 */
 }
 
 /* 로고 */
 .logo a{
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 700;
     white-space: nowrap;
     text-decoration: none;
     color: var(--dark-text);
+    letter-spacing: -0.04em;
 }
 
 /* 검색바 */
 .search-bar {
+    background: var(--light-blue);
+    border-radius: 50px;
+    padding: 2px 4px 2px 12px;
     display: flex;
     align-items: center;
-    background-color: rgba(255,255,255,0.95);
-    border-radius: 28px;
-    padding: 4px 8px;
-    flex: 1;
-    min-width: 0; /* 중요: flex 자식이 부모보다 커지는 것을 방지 */
-    max-width: 480px;
-    gap: 4px;
+    transition: all 0.3s ease;
+    width: 300px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .search-bar input {
     border: none;
     background: transparent;
-    padding: 8px 4px;
-    flex: 1;
-    min-width: 0;
-    font-size: 14px;
-    color: #222;
-    width: 100%; /* 부모 너비에 맞춤 */
-}
-.search-bar input::placeholder {
-    color: #9aa6b2;
-}
-.search-bar input:focus {
+    padding: 6px 0;
+    font-size: 13px;
     outline: none;
+    width: 100%; /* 유동적으로 변함 */
 }
+
 .search-bar .search-btn {
-    flex-shrink: 0; /* 버튼이 찌그러지지 않게 고정 */
+    flex-shrink: 0;
     background: var(--primary-blue);
     color: var(--white);
     border: none;
-    padding: 6px 10px;
-    border-radius: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%; /* 둥근 버튼으로 변경 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-weight: 600;
-    box-shadow: var(--shadow-1);
-}
-.search-bar .search-btn:focus {
-    outline: 3px solid rgba(135,206,235,0.28);
-    outline-offset: 2px;
+    font-size: 14px;
 }
 
 /* ===== 히어로 섹션 ===== */
@@ -353,8 +343,9 @@ h2 {
     gap: 18px;
     margin: 18px 0;
 }
+
 .product-preview-card {
-    background-color: var(--white);
+    background-color: transparent;
     overflow: hidden;
     transition: transform .18s ease;
     box-shadow: var(--shadow-1);
@@ -363,9 +354,12 @@ h2 {
 .product-preview-card:hover { transform: translateY(-6px); }
 .product-preview-card img {
     width: 100%;
-    height: 240px;
+    height: auto;
+    aspect-ratio: 3 / 4; /* 수영복 모델컷에 최적인 비율 */
+    background-color: var(--light-blue); /* 이미지 로딩 전 청량한 배경색 */
     object-fit: cover;
     display: block;
+    box-shadow: var(--soft-shadow);
 }
 
 .product-preview-info {
@@ -394,6 +388,21 @@ h2 {
     padding: 15px 0;
 }
 
+.swimsuit-products h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--dark-text);
+    letter-spacing: -0.03em;
+    padding-left: 4px;
+}
+
+.swimsuits-container {
+    background-color: var(--white);
+    box-shadow: 0 4px 12px rgba(30, 90, 150, 0.15);
+    margin-bottom: 40px;
+    padding: 5px 20px;
+}
+
 /* ==== 상세 페이지 ==== */
 .back-btn {
     background-color: transparent; /* 투명 */
@@ -403,28 +412,32 @@ h2 {
     font-size: 12.5px;
     font-weight: bold;
     transition: 0.2s;
+    margin: 5px 0 10px;
 }
 
 .detail-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
     background-color: var(--white);
-    padding: 20px;
-    border-radius:  12px;
     box-shadow: 0 4px 12px rgba(30, 90, 150, 0.15);
     margin-bottom: 40px;
+
+    display: flex;
+    flex-direction: row; /* 좌우 배치 */
+    gap: 30px;
+    align-items: flex-start;
+    padding: 20px;
 }
 
-.detail-left {
-    display: flex;
-    flex-direction: column;
+/* 데스크탑에서 정확히 절반씩 차지하도록 설정 */
+.detail-left, .detail-right {
+    flex: 1;
+    width: 50%;
 }
 
 .detail-left img {
+    width: 100%;
     height: 400px;
     object-fit: cover;
-    border-radius: 12px;
+    box-shadow: var(--shadow-2);
     margin-bottom: 15px;
 }
 
@@ -502,27 +515,41 @@ h2 {
 
 /* ===== 푸터 ===== */
 .footer {
-    background: var(--sky-blue);
-    color: var(--dark-text);
-    padding: 15px 0;
+    background-color: var(--light-blue); /* 전체 톤 유지 */
+    padding: 50px 0 20px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    margin-top: 80px; /* 본문과 확실한 거리두기 */
 }
+
 .footer-content {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
     max-width: var(--max-content-width);
     margin: 0 auto;
     padding: 0 16px 28px;
 }
-.footer-section h4 {
-    font-size: 16px;
-    margin-bottom: 8px;
-    font-weight: 800;
+
+.footer-section {
+    font-size: 11px;
 }
+
+.footer-section h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--deep-blue);
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
 .footer-bottom {
+    max-width: var(--max-content-width);
+    margin: 40px auto 0;
+    padding: 20px;
+    border-top: 1px solid rgba(0,0,0,0.05);
     text-align: center;
-    padding-bottom: 18px;
-    color: rgba(255,255,255,0.92);
+    font-size: 12px;
+    color: #999;
 }
 
 /* ===== 사이드바 (오프캔버스) - 모바일 접근성에 최적화 ===== */
@@ -612,6 +639,66 @@ a:focus, button:focus, input:focus {
 }
 
 @media (max-width: 767px) {
+
+    .header {
+        height: 64px; /* 모바일에서 조금 더 슬림하게 */
+    }
+
+    .header-container {
+        padding: 0 16px;
+        gap: 8px;
+    }
+
+    .header-left {
+        gap: 8px; /* 모바일 간격 좁히기 */
+    }
+
+    .logo a {
+        font-size: 18px; /* 로고 크기 살짝 조정 */
+    }
+
+    /* 1. 평소 상태: 검색바를 아이콘 크기로 축소 */
+    .search-bar {
+        width: 40px;
+        background: transparent;
+        padding: 0;
+        justify-content: flex-end;
+    }
+
+    .search-bar input {
+        width: 0;
+        opacity: 0;
+        padding: 0;
+        transition: all 0.3s ease;
+    }
+
+    /* 2. 활성화 상태 (search-active 클래스가 붙었을 때) */
+    .header.search-active .header-left {
+        display: none; /* 로고와 햄버거 숨기기 */
+    }
+
+    .header.search-active .search-bar {
+        width: 100%; /* 헤더 전체 차지 */
+        background: var(--light-blue);
+        border-radius: 50px;
+        padding: 4px 12px;
+    }
+
+    .header.search-active .search-bar input {
+        display: block;
+        width: 100%;
+        opacity: 1;
+        padding: 8px 10px;
+    }
+
+    .header.search-active .search-btn {
+        background: var(--primary-blue);
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+    }
+
     /* 히어로 텍스트 축소 (모바일 가독성 유지) */
     .hero {
         padding: 40px 14px;
@@ -641,35 +728,58 @@ a:focus, button:focus, input:focus {
     }
     .product-preview-card img { height: 160px; }
 
-    /* 상세 페이지: 모바일에서 상하 배치 */
+    /* 모바일 수영복 목록 페이지 */
+    .swimsuit-products h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .product-preview-info p:nth-child(2) {
+        font-size: 14px; /* 모바일에서 폰트 살짝 조정 */
+    }
+
+    /* 모바일 상세 페이지 */
     .detail-container {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 12px;
+        flex-direction: column; /* 상하 배치로 변경 */
+        gap: 30px;
     }
-    .detail-left img {
-        height: 280px;
-        width: 100%;
+
+    .detail-left, .detail-right {
+        width: 100%; /* 전체 너비 사용 */
     }
+
+    /* 모바일에서는 수영복 상세 텍스트가 조금 더 정돈되어 보이게 */
     .detail-info {
         font-size: 11px;
+        padding: 15px 0 0 0;
     }
+
+    .detail-info p:nth-child(3) { /* 상품명 */
+        font-size: 20px; /* 모바일 크기에 맞게 살짝 축소 */
+    }
+
     .detail-right h3 {
         font-size: 16px;
         margin-bottom: 10px;
     }
+
     .caps-grid {
-        gap: 12px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
     }
+
     .cap-item img {
         height: 120px;
     }
 
     /* 푸터 1열 */
-    .footer-content {
-        grid-template-columns: 1fr;
+    .footer-container {
+        grid-template-columns: 1fr; /* 세로로 쌓기 */
         text-align: center;
-        gap: 20px;
+        gap: 30px;
+    }
+    .social-icons {
+        justify-content: center;
     }
 
     /* 햄버거와 검색바 정렬 최적화 */
@@ -678,8 +788,25 @@ a:focus, button:focus, input:focus {
     .search-bar { max-width: none; margin-left: 6px; }
 }
 
-/* 초소형 기기(360px 이하) 추가 축소 */
-@media (max-width: 360px) {
+/* 초소형 기기(380px 이하) 추가 축소 */
+@media (max-width: 380px) {
+    .header-container {
+        padding: 0 12px; /* 좌우 여백 축소 */
+        gap: 6px;
+    }
+
+    .header-left {
+        gap: 4px; /* 햄버거와 로고 사이를 더 붙임 */
+    }
+
+    .logo a {
+        font-size: 17px; /* 짤리지 않도록 로고 크기 조정 */
+    }
+
+    .header.search-active .header-container {
+        padding: 0 10px;
+    }
+
     .hero-content h1 { font-size: 22px; }
     .hero { padding: 28px 12px; }
     .feature-card h3 { font-size: 13px; }

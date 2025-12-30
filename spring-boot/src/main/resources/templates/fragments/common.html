@@ -13,7 +13,7 @@
     <div class="header-container">
         <div class="header-left">
             <button class="hamburger" id="hamburger" aria-label="메뉴 열기" aria-controls="sidebar" aria-expanded="false">
-                <i class="bi bi-three-dots fs-10"></i>
+                <i class="bi bi-three-dots"></i>
             </button>
             <div class="logo"><a th:href="@{/}" >🏊 SwimColor</a></div>
         </div>
@@ -44,20 +44,15 @@
 <footer th:fragment="common_footer" class="footer">
     <div class="footer-content">
         <div class="footer-section">
-            <h4>SwimPerfect</h4>
-            <p>수영복에 맞는 수모를 추천해드립니다</p>
+            <h4>🏊 SwimColor</h4>
+            <p class="footer-slogan">수영복과 수모의 완벽한 컬러 매칭,<br>당신의 수영에 색을 더하세요.</p>
         </div>
         <div class="footer-section">
-            <h4>링크</h4>
-            <ul>
-                <li><a th:href="@{/}">홈</a></li>
-                <li><a th:href="@{/products}">수영복 추천</a></li>
-            </ul>
-        </div>
-        <div class="footer-section">
-            <h4>문의</h4>
-            <p>📧 contact@swimperfect.com</p>
-            <p>📱 010-XXXX-XXXX</p>
+            <h4>💌 문의</h4>
+            <p>📧 shinjs1997@gmail.com</p>
+            <div class="social-icons">
+                <i class="bi bi-instagram"></i> swimcolor.style
+            </div>
         </div>
     </div>
     <div class="footer-bottom">
