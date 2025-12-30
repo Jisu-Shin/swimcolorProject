@@ -38,7 +38,7 @@ def recommend_swim_caps(db, swimsuit_id, swimsuit_colors):
     ]
 
     # 색상 유사도 필터링을 위한 최소거리
-    min_distance = 15.0
+    min_distance = 9.0
 
     for pallete in all_swimcap_pallete:
         cap_lab_color = hex_to_lab(pallete.colors)
