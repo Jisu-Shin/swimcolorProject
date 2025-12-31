@@ -7,7 +7,7 @@ WORKDIR /app
 # 3. 빌드된 JAR 파일을 이미지 내부로 복사
 # Gradle은 보통 build/libs/ 아래에 -plain.jar와 일반 jar 두 개를 만드는데,
 # 실행 가능한 jar만 가져오기 위해 아래처럼 경로를 지정하는 게 안전해.
-ARG JAR_FILE=build/libs/*-SNAPSHOT.jar
+ARG JAR_FILE=spring-boot/build/libs/*-SNAPSHOT.jar
 COPY ${JAR_FILE} app.jar
 
 # 4. 실행 환경 변수 설정 (필요시)

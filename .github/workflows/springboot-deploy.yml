@@ -43,5 +43,5 @@ jobs:
           IMAGE_TAG: latest
         run: |
           # 👈 중요: Spring Boot 폴더 경로 지정!
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./spring-boot
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
