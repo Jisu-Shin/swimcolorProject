@@ -4,6 +4,8 @@ from selenium. webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import undetected_chromedriver as uc
+import os
+from dotenv import load_dotenv
 
 class SwimcapCrawler:
     """수모 크롤러 클래스"""
@@ -16,10 +18,14 @@ class SwimcapCrawler:
         self.driver = None
         self.headless = headless
         self.product_list = []
+        load_dotenv()
 
     def setup_driver(self):
         """크롬 드라이버 설정 및 실행"""
         options = uc.ChromeOptions()
+
+        # .env에 CHROME_PATH가 없으면 None을 반환함
+        chrome_path = os.getenv('CHROME_PATH')
 
         if self.headless:
             options.add_argument('--headless=new')  # 브라우저 창을 띄우지 않음
@@ -30,7 +36,7 @@ class SwimcapCrawler:
 
         self.driver = uc.Chrome(
             options=options
-            , browser_executable_path="/usr/bin/google-chrome"
+            , browser_executable_path=chrome_path
         )
 
     def quit_driver(self):
@@ -190,7 +196,7 @@ if __name__ == "__main__":
     # 기본 사용 (브라우저 안보임)
     crawler = SwimcapCrawler(headless=True)
 
-    url = "https://swim.co.kr/categories/918606/products?childCategoryNo=919019&brands=%255B43160576%255D&pageNumber=1"
+    url = "https://swim.co.kr/categories/918606/products?childCategoryNo=919019&categoryNos=%255B%2522923110%2522%255D&pageNumber=1"
 
     product_list = crawler.crawl(url)
 
