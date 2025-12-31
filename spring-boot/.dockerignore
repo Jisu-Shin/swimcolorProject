@@ -1,0 +1,29 @@
+# Git 관련 파일 제외
+.git
+.gitignore
+
+# 빌드 결과물 제외 (빌드는 도커 내부에서 새로 하거나, 외부 빌드물을 쓸 때 충돌 방지)
+target/
+build/
+out/
+
+# IDE 관련 설정 파일들 (이게 들어가면 빌드 환경이 꼬일 수 있어)
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# 테스트 결과물 및 로그
+/test-results/
+/logs/
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+
+# GitHub Actions 관련 (도커 안으로 들어갈 필요 없음)
+.github/
+
+# 도움말이나 마크다운 파일
+*.md
