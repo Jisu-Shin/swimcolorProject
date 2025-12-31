@@ -1,8 +1,0 @@
-# 테스트 관련 패키지
-pytest==8.0.0
-pytest-cov==4.1.0
-pytest-asyncio==0.23.0
-httpx==0.28.1  # FastAPI TestClient용 (이미 requirements.txt에 있음)
-
-# 기본 패키지 포함
--r requirements.txt

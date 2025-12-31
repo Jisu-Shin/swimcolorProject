@@ -4,17 +4,23 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SECRET_FILE = os.path.join(BASE_DIR, '../secrets.json')
+# 1. 우선 환경 변수(App Runner 설정값)가 있는지 확인합니다.
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# secrets.json 파일 안전하게 읽기
-with open(SECRET_FILE, 'r', encoding='utf-8') as f:
-    secrets = json.load(f)
+# 2. 환경 변수가 없다면 로컬 secrets.json 파일을 읽습니다.
+if not DATABASE_URL:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    # secrets.json 위치가 connection.py보다 한 단계 상위 폴더인 경우
+    SECRET_FILE = os.path.join(BASE_DIR, '../secrets.json')
 
-DB = secrets["DB"]
-
-# MySQL 데이터베이스 URL 생성
-DATABASE_URL = f"mysql+pymysql://{DB['user']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['database']}?charset=utf8mb4"
+    try:
+        with open(SECRET_FILE, 'r', encoding='utf-8') as f:
+            secrets = json.load(f)
+        DB = secrets["DB"]
+        DATABASE_URL = f"mysql+pymysql://{DB['user']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['database']}?charset=utf8mb4"
+    except FileNotFoundError:
+        # 둘 다 없을 경우를 대비한 방어 코드
+        raise Exception("환경 변수 'DATABASE_URL' 또는 'secrets.json' 파일이 필요합니다.")
 
 # SQLAlchemy 엔진 생성
 engine = create_engine(

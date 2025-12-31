@@ -30,6 +30,7 @@ class SwimcapCrawler:
 
         self.driver = uc.Chrome(
             options=options
+            , browser_executable_path="/usr/bin/google-chrome"
         )
 
     def quit_driver(self):
