@@ -15,7 +15,9 @@
     <div class="detail-container">
       <!-- 왼쪽:  수영복 정보 -->
       <div class="detail-left">
-        <img th:src="${swimsuit.imageUrl}" th:alt="${swimsuit.name}">
+        <div class="img-container">
+          <img th:src="${swimsuit.imageUrl}" th:alt="${swimsuit.name}">
+        </div>
         <div class="detail-info">
           <p id="swimsuit-id" th:text="${swimsuit.id}" hidden>id</p>
           <p th:text="${swimsuit.brand}">브랜드명</p>

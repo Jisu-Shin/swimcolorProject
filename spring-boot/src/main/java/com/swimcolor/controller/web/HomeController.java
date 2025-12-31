@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-public class HelloController {
+public class HomeController {
 
     private final SwimsuitService swimsuitService;
 
@@ -30,5 +30,10 @@ public class HelloController {
 
         model.addAttribute("products", list);
         return "index";
+    }
+
+    @GetMapping("/about")
+    public String about() {
+        return "about";
     }
 }

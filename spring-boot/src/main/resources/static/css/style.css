@@ -259,11 +259,10 @@ body {
     font-weight: 700;
     letter-spacing: -0.01em;
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-    font-size: 15px;
+    font-size: 18px;
 
     /* 모바일 터치 접근성 최적화 */
-    min-height: 54px;
-    padding: 12px 30px;
+    padding: 18px 30px;
     margin-top: 10px;
     border-radius: 12px;
 }
@@ -272,7 +271,7 @@ body {
 
 
 /* 1. Primary (시선 강탈: 핑크 액센트) */
-.cta-button {
+.cta-button.primary{
     background-color: var(--accent-color);
     color: var(--white);
     box-shadow: 0 6px 20px rgba(255, 107, 107, 0.2);
@@ -296,7 +295,7 @@ body {
     display: grid;
     grid-template-columns: repeat(3, minmax(220px, 1fr));
     gap: 24px;
-    align-items: start;
+    align-items: stretch;
     /* 최소 너비를 정해 '항목 3개'가 보장되도록 함(작은 화면은 스크롤) */
     min-width: calc(3 * 220px + 2 * 24px);
 }
@@ -408,7 +407,7 @@ body {
     border: none;
     padding: 0 15px;
     cursor: pointer;
-    font-size: 12.5px;
+    font-size: 14px;
     font-weight: bold;
     transition: 0.2s;
     margin: 5px 0 10px;
@@ -432,7 +431,7 @@ body {
     width: 50%;
 }
 
-.detail-left img {
+.img-container img {
     width: 100%;
     height: 400px;
     object-fit: cover;
@@ -441,7 +440,7 @@ body {
 }
 
 .detail-info {
-    font-size: 12px;
+    font-size: 15px;
     padding: 0 5px;
     font-weight: bold;
 }
@@ -453,7 +452,7 @@ body {
     margin-top: 8px;
     align-items: center;
     padding: 0 5px;
-    font-size: 12px;
+    font-size: 15px;
 }
 
 /* 색상 칩 (동그란 원) */
@@ -506,7 +505,7 @@ body {
 .cap-item .cap-info {
     color: var(--dark-text);
     font-weight: bold;
-    font-size: 12px;
+    font-size: 15px;
     padding: 0 5px;
 }
 
@@ -530,14 +529,14 @@ body {
 }
 
 .footer-section {
-    font-size: 11px;
+    font-size: 15px;
 }
 
 .footer-section h4 {
-    font-size: 13px;
+    font-size: 17px;
     font-weight: 700;
     color: var(--deep-blue);
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     text-transform: uppercase;
 }
 
@@ -632,12 +631,11 @@ a:focus, button:focus, input:focus {
     .hero {
         padding: 56px 18px;
     }
-    .hero-content h1 { font-size: 34px; }
     .features-grid { gap: 18px; min-width: calc(3 * 200px + 2 * 18px); grid-template-columns: repeat(3, minmax(200px, 1fr)); }
     .product-preview-card img { height: 220px; }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
 
     .header {
         height: 64px; /* 모바일에서 조금 더 슬림하게 */
@@ -702,7 +700,6 @@ a:focus, button:focus, input:focus {
     .hero {
         padding: 40px 14px;
     }
-    .hero-content h1 { font-size: 26px; }
     .hero-content p { font-size: 14px; }
 
     /* features-grid는 '무조건 3열' 요구에 맞춰 열 수 유지.
@@ -717,7 +714,6 @@ a:focus, button:focus, input:focus {
         padding: 12px;
     }
     .feature-icon { font-size: 24px; margin-bottom: 6px; }
-    .feature-card h3 { font-size: 14px; }
     .feature-card p { font-size: 12px; color: #6b7a82; display: block; }
 
     /* 인기 상품: 2열으로 전환 (이미지 크기 감소) */
@@ -749,12 +745,8 @@ a:focus, button:focus, input:focus {
 
     /* 모바일에서는 수영복 상세 텍스트가 조금 더 정돈되어 보이게 */
     .detail-info {
-        font-size: 11px;
+        font-size: 15px;
         padding: 15px 0 0 0;
-    }
-
-    .detail-info p:nth-child(3) { /* 상품명 */
-        font-size: 20px; /* 모바일 크기에 맞게 살짝 축소 */
     }
 
     .detail-right h3 {
@@ -788,7 +780,16 @@ a:focus, button:focus, input:focus {
 }
 
 /* 초소형 기기(380px 이하) 추가 축소 */
-@media (max-width: 380px) {
+@media (max-width: 400px) {
+    h1 {
+        font-size: 25px;
+    }
+
+    h2 {
+        font-size: 22px;
+        margin-bottom: 8px;
+    }
+
     .header-container {
         padding: 0 12px; /* 좌우 여백 축소 */
         gap: 6px;
@@ -806,10 +807,34 @@ a:focus, button:focus, input:focus {
         padding: 0 10px;
     }
 
-    .hero-content h1 { font-size: 22px; }
     .hero { padding: 28px 12px; }
-    .feature-card h3 { font-size: 13px; }
+
+    .cta-button {
+        font-size: 13px;
+        padding: 5px 20px;
+    }
+    .feature-card h3 { font-size: 15px; }
     .feature-card p { font-size: 11px; }
+
+    .product-preview-info p {
+        font-size: 14px;
+    }
+/*
+    .img-container {
+      width: 70%;      /* 모바일에서 화면 너비의 절반만 차지하게 하고 싶을 때 */
+      margin: 0 auto;  /* 가운데 정렬 */
+    }
+
+    /* 이미지: 부모인 .img-container의 너비에 무조건 맞춤 */
+    .img-container img {
+      width: 100%;     /* 부모 너비(50%)의 100%를 채움 */
+      height: auto;    /* 비율 유지 */
+      display: block;
+      object-fit: cover;
+      box-shadow: var(--shadow-2);
+      margin-bottom: 15px;
+    }
+ */
 }
 
 /* 유틸리티: 숨기기 / 중앙 정렬 등 */
