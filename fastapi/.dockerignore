@@ -1,0 +1,20 @@
+# .dockerignore
+venv/
+.venv/
+env/
+__pycache__/
+.git/
+.github/
+.vscode/
+.idea/
+
+# 테스트용 미디어 파일 (모델 파일인 .pt는 제외하지 않음)
+*.mp4
+*.avi
+*.jpg
+*.png
+*.gif
+
+# 운영체제 관련 파일
+.DS_Store
+Thumbs.db
