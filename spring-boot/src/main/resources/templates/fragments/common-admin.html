@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="admin_head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="_csrf" th:content="${_csrf?.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <script th:src="@{/js/admin.js}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<nav class="admin-navbar" th:fragment="admin_navbar">
+    <div class="nav-logo">SwimColor Admin</div>
+    <ul class="nav-menu">
+        <li><a href="/admin" class="active">크롤링</a></li>
+        <li><a href="/admin/logs">크롤링 로그 보러가기</a></li>
+    </ul>
+    <div class="nav-user-container">
+        <span class="user-name">관리자 님</span>
+        <form th:action="@{/admin/logout}" method="post" class="logout-form">
+            <button type="submit" class="btn-logout">로그아웃</button>
+        </form>
+    </div>
+</nav>
+
+</html>

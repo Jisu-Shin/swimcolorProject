@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/common-admin :: admin_head}"></th:block>
+    <title>Crawling Logs - SwimColor Admin</title>
+    <style>
+        .status-success { color: #28a745; font-weight: bold; }
+        .status-failure { color: #dc3545; font-weight: bold; }
+        .error-text { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/common-admin :: admin_navbar}"></div>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🚀 크롤링 실행 로그</h2>
+        <button class="btn btn-outline-secondary btn-sm" onclick="location.reload()">새로고침</button>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>분류</th>
+                    <th>상태</th>
+                    <th>수집 개수</th>
+                    <th>소요 시간</th>
+                    <th>실행 일시</th>
+                    <th>에러 메시지</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="log : ${logs}">
+                    <td th:text="${log.id}">1</td>
+                    <td>
+                        <span class="badge bg-info text-dark" th:text="${log.itemType}">SWIMSUIT</span>
+                    </td>
+                    <td>
+                        <span th:class="${log.status.name() == 'SUCCESS' ? 'status-success' : 'status-failure'}"
+                              th:text="${log.status}">SUCCESS</span>
+                    </td>
+                    <td><span th:text="${log.totalCount}">0</span>개</td>
+                    <td><span th:text="${log.executionTime}">0</span>ms</td>
+<!--                    <td th:text="${#temporals.format(log.crawledAt, 'yyyy-MM-dd HH:mm:ss')}">2025-12-31</td>-->
+                    <td th:text="${log.crawledAt}">2025-12-31</td>
+                    <td>
+                        <div class="error-text" th:if="${log.errorMessage}"
+                             th:title="${log.errorMessage}" th:text="${log.errorMessage}">-</div>
+                        <span th:unless="${log.errorMessage}">-</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(logs)}">
+                    <td colspan="7" class="text-center py-5 text-muted">최근 실행된 크롤링 로그가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 에러 메시지 클릭 시 전체 내용 보여주는 간단한 이벤트
+    $(document).on('click', '.error-text', function() {
+        alert($(this).attr('title'));
+    });
+</script>
+
+</body>
+</html>

@@ -128,30 +128,41 @@ var oper = {
         }
     },
 
+    // 공통 AJAX 함수
     ajax : function(type, data, url, callback) {
-        // GET이면 쿼리스트링으로 붙이고 data는 제거
-        if (type === "GET" && data && Object.keys(data).length > 0) {
-            const queryString = $.param(data); // itemId=123&bookingStatus=BOOK
+
+        // 1. Spring Security CSRF 토큰 가져오기 (나중을 위해 미리 세팅)
+        // HTML 메타 태그에 csrf 정보가 있다면 가져옵니다.
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+        // GET이면 쿼리스트링 처리
+        if (type.toUpperCase() === "GET" && data && Object.keys(data).length > 0) {
+            const queryString = new URLSearchParams(data).toString();
             url += (url.includes("?") ? "&" : "?") + queryString;
             data = null;
         }
 
         $.ajax({
-            'type': type,
-            'url':url,
-            'dataType':'json',
-            'contentType':'application/json; charset=utf-8',
-            'data': type === "GET" ? null : JSON.stringify(data)
+            type: type,
+            url: url,
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            data: (type.toUpperCase() === "GET") ? null : JSON.stringify(data),
+            // 2. 요청 헤더에 CSRF 토큰 추가 (시큐리티 대응)
+            beforeSend: function(xhr) {
+                if (csrfToken && csrfHeader) {
+                    xhr.setRequestHeader(csrfHeader, csrfToken);
+                }
+            }
         })
-        .done(function(response){
-            callback(response);
+        .done(function(response) {
+            if (callback) callback(response);
         })
         .fail(function(xhr, status, error) {
-            // 요청이 실패했을 때 실행되는 코드
             console.error('요청 실패:', xhr);
             let errMsg = xhr.responseJSON?.message || xhr.responseText || error || '알 수 없는 오류';
 
-            // Validation 에러인 경우 필드별 에러도 표시
             if (xhr.responseJSON?.errors) {
                 let fieldErrors = xhr.responseJSON.errors;
                 let errorDetails = '\n';
@@ -160,12 +171,8 @@ var oper = {
                 }
                 errMsg += errorDetails;
             }
-
-            alert(errMsg);
-        })
-//        .always(function(){
-//            console.log("ajax always 로그");
-//        });
+            alert("에러 발생: " + errMsg);
+        });
     },
 
     getTodayDt : function() {

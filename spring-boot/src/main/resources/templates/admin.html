@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/common-admin :: admin_head}"></th:block>
+    <title>SwimColor Admin</title>
+</head>
+<body>
+<div th:replace="~{fragments/common-admin :: admin_navbar}"></div>
+
+<main class="admin-main">
+    <section class="crawl-section">
+        <h2>수동 크롤링 실행</h2>
+        <p class="section-desc">수집할 페이지의 URL을 입력하고 해당 카테고리 버튼을 클릭하세요.</p>
+
+        <div class="crawl-group">
+            <div class="input-row">
+                <input type="text" id="swimsuitUrl" placeholder="수영복 크롤링 URL을 입력하세요 (http://...)">
+                <button class="btn-crawl swimsuit" id="btn-crawl-swimsuit" onclick="runSwimsuitCrawl()">수영복 크롤링</button>
+            </div>
+
+            <div class="input-row">
+                <input type="text" id="swimcapUrl" placeholder="수모 크롤링 URL을 입력하세요 (http://...)">
+                <button class="btn-crawl swimcap" id="btn-crawl-swimcap" onclick="runSwimcapCrawl()">수모 크롤링</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

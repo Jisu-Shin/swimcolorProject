@@ -20,7 +20,7 @@
     --glass-white: rgba(255, 255, 255, 0.7); /* 유리 효과 배경 */
     --soft-shadow: 0 12px 30px rgba(30, 90, 150, 0.1); /* 부드러운 물결 그림자 */
 
-    --max-content-width: 900px;
+    --max-content-width: 1100px;
     --header-height: 64px;
     --card-radius: 12px;
     --shadow-1: 0 4px 12px rgba(30, 90, 150, 0.08);
@@ -91,6 +91,21 @@
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Black.woff2') format('woff2');
     font-weight: 900;
     font-display: swap;
+}
+
+/* ===== 기본 태그 ===== */
+h1 {
+    color: var(--dark-text);
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.04em; /* 큰 제목은 더 촘촘하게 */
+}
+
+h2 {
+    color: var(--dark-text);
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 15px;
 }
 
 /* 바디 배경: 하늘색 -> 흰색 그라데이션 (부드럽게) */
@@ -219,7 +234,7 @@ body {
     background: linear-gradient(135deg, var(--sky-blue) 0%, var(--white) 100%);
     padding: 72px 24px;
     text-align: center;
-    margin: 28px auto;
+    margin-top: 28px;
     border-radius: var(--card-radius);
     box-shadow: var(--shadow-2);
 
@@ -228,17 +243,8 @@ body {
     width: 100%;
 }
 
-.hero-content h1 {
-    color: var(--dark-text);
-    font-size: 34px;
-    letter-spacing: -0.04em; /* 큰 제목은 더 촘촘하게 */
-    font-weight: 800;
-}
-
 .hero-content p {
-    /*font-size: 16px;
-    margin-bottom: 18px;
-    opacity: 0.95;*/
+    font-size: 16px;
     font-weight: 300;
     opacity: 0.8;
 }
@@ -253,6 +259,7 @@ body {
     font-weight: 700;
     letter-spacing: -0.01em;
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    font-size: 15px;
 
     /* 모바일 터치 접근성 최적화 */
     min-height: 54px;
@@ -269,14 +276,6 @@ body {
     background-color: var(--accent-color);
     color: var(--white);
     box-shadow: 0 6px 20px rgba(255, 107, 107, 0.2);
-}
-
-/* ===== 기본 태그 ===== */
-h2 {
-    font-size: 25px;
-    margin-bottom: 15px;
-    color: var(--dark-text);
-    font-weight: 700;
 }
 
 /* ===== 서비스 소개 ===== */
@@ -367,7 +366,7 @@ h2 {
 }
 
 .product-preview-info p {
-    font-size: 10px;
+    font-size: 14px;
     color: var(--dark-text);
 }
 
