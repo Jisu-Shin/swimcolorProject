@@ -37,8 +37,12 @@ jobs:
       
       - name: Update App Runner Service Configuration
         run: |
-          # 서비스 ARN은 AWS 콘솔 상단에서 복사해서 GitHub Secrets에 저장하는 걸 추천합니다.
-          # 만약 귀찮다면 일단 따옴표 안에 실제 ARN을 직접 넣으셔도 됩니다.
+          # 1. AWS CLI 최신 버전으로 업데이트
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          sudo ./aws/install --update
+          
+          # 2. 업데이트된 CLI로 명령 실행
           aws apprunner update-service \
             --service-arn ${{ secrets.FASTAPI_SERVICE_ARN }} \
             --request-timeout 300 \

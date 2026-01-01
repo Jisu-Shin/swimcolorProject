@@ -6,6 +6,9 @@ import time
 import undetected_chromedriver as uc
 import os
 from dotenv import load_dotenv
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SwimwearCrawler:
     """수영복 크롤러 클래스"""
