@@ -42,8 +42,5 @@ ENV LOG_LEVEL=info
 EXPOSE 8000
 
 # 10. 🔥 FastAPI 실행 (Gunicorn + 300초 타임아웃)
-CMD ["gunicorn", "run:app",
-     "-k", "uvicorn.workers.UvicornWorker",
-     "--workers", "1",
-     "--bind", "0.0.0.0:8000",
-     "--timeout", "300"]
+CMD ["gunicorn","run:app","-k","uvicorn.workers.UvicornWorker","--workers","1","--bind","0.0.0.0:8000","--timeout","300"]
+
