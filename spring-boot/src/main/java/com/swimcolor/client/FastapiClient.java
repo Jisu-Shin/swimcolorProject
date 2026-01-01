@@ -59,8 +59,8 @@ public class FastapiClient {
             );
             return response.getBody();
         } catch (Exception e) {
-            log.error("fastapi-service의 crawlProducts 호출 중 에러 발생", e);
-            throw new IllegalStateException();
+            log.error("fastapi-service 호출 실패 - URL: {}, 사유: {}", url, e.getMessage());
+            throw new IllegalStateException("FastAPI 크롤링 통신 중 상태 오류 발생", e);
         }
     }
 

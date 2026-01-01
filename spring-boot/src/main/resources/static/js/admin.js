@@ -12,7 +12,7 @@ function waitForCompletion(category) {
                 } else if (status === "FAILED") {
                     reject(new Error("크롤링 중 서버 에러 발생")); // 약속 파기!
                 } else {
-                    setTimeout(check, 4000); // 4초 뒤 재시도
+                    setTimeout(check, 5000); // 4초 뒤 재시도
                 }
             });
         };
