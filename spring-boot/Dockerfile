@@ -1,20 +1,25 @@
-# 1. Java 17 버전 베이스 이미지 (프로젝트 버전에 맞춰 수정 가능)
+# ============================================
+# 실행 전용 Dockerfile (GitHub Actions에서 빌드 완료)
+# ============================================
 FROM amazoncorretto:17-alpine
 
-# 2. 작업 디렉토리 설정
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# 3. 빌드된 JAR 파일을 이미지 내부로 복사
-# Gradle은 보통 build/libs/ 아래에 -plain.jar와 일반 jar 두 개를 만드는데,
-# 실행 가능한 jar만 가져오기 위해 아래처럼 경로를 지정하는 게 안전해.
-ARG JAR_FILE=spring-boot/build/libs/*-SNAPSHOT.jar
-COPY ${JAR_FILE} app.jar
+# GitHub Actions에서 빌드된 JAR 파일 복사
+COPY spring-boot/build/libs/*-SNAPSHOT.jar app.jar
 
-# 4. 실행 환경 변수 설정 (필요시)
+# 타임존 설정
 ENV TZ=Asia/Seoul
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
+    echo "Asia/Seoul" > /etc/timezone
 
-# 5. 포트 설정 (Spring Boot 기본값은 8080)
+# 애플리케이션 포트 노출
 EXPOSE 8080
 
-# 6. JAR 실행
-ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "/app.jar"]
+# JVM 옵션 설정 (메모리 최적화)
+ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseContainerSupport"
+
+# 애플리케이션 실행
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -Dspring.profiles.active=prod -jar /app/app.jar"]
