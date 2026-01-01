@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'fastapi/**' # 👈 중요: 이 폴더 안의 파일이 변할 때만 이 스크립트 실행!
+      - 'fastapi/**'
 
 jobs:
   deploy:
@@ -25,25 +25,24 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push to ECR
+        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: swimcolor-fastapi # 👈 FastAPI용 ECR 이름
+          ECR_REPOSITORY: swimcolor-fastapi
           IMAGE_TAG: latest
         run: |
-          # 👈 중요: 빌드할 때 폴더 경로(fastapi-server)를 지정해줘야 해!
           cd fastapi
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-      
-      - name: Update App Runner Service Configuration
-        run: |
-          # 1. AWS CLI 최신 버전 설치
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip -q awscliv2.zip
-          sudo ./aws/install --update
-          
-          # 2. 새로 설치된 '최신 경로(/usr/local/bin/aws)'를 직접 사용하여 명령 실행
-          /usr/local/bin/aws apprunner update-service \
-            --service-arn ${{ secrets.FASTAPI_SERVICE_ARN }} \
-            --request-timeout 300 \
-            --region ap-northeast-1
+          # 다음 단계에서 쓸 수 있게 이미지 주소를 결과값으로 저장
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Deploy to App Runner
+        uses: awslabs/amazon-app-runner-deploy@main
+        with:
+          service: swimcolor-fastapi
+          # 위 단계에서 빌드한 이미지를 정확히 지칭
+          image: ${{ steps.build-image.outputs.image }}
+          region: ap-northeast-1
+          # 타임아웃 5분 설정
+          request-timeout: 300

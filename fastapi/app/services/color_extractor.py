@@ -9,6 +9,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from app.config import settings
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -238,24 +239,24 @@ class ColorExtractor:
         logger.debug(f"   이미지 크기: {original_image.shape[1]}x{original_image.shape[0]}px\n")
 
         # 2. YOLO로 수영복 탐지 & 크롭
-        logger.debug("2️⃣ YOLO로 수영복 탐지 중...")
+        logger.debug("2️⃣ YOLO로 수영복/수모 탐지 중...")
         cropped_image = self.crop_swimsuit_only(
             original_image,
             conf_threshold=conf_threshold
         )
-        logger.debug()
+        logger.debug("\n")
 
         # 3. K-means로 색상 추출
         logger.debug("3️⃣ K-means로 주요 색상 추출 중...")
         colors = self.extract_colors_kmeans(cropped_image, n_colors=n_colors)
-        logger.debug()
+        logger.debug("\n")
 
         # 4. 결과 출력
         logger.debug("📊 추출된 색상 정보:")
         logger.debug("-" * 50)
         for i, color in enumerate(colors, 1):
             logger.debug(f"{i}. RGB{tuple(color['rgb'])} | {color['hex']} | {color['ratio'] * 100:.1f}%")
-        logger.debug()
+        logger.debug("\n")
 
         # 5. 시각화
         if visualize:
@@ -279,11 +280,20 @@ class ColorExtractor:
 
 if __name__ == '__main__':
 
+    # model_path = settings.swimcap_yolo_model_path
+    model_path = "../../" + settings.swimcap_yolo_model_path
+    print(f"모델 경로: {model_path}")
+
+    if not os.path.exists(model_path):
+        print(f"❌ 모델 파일을 찾을 수 없습니다: {model_path}")
+        exit(1)
+
     # 1. 색상 추출기 초기화
-    extractor = ColorExtractor("../../ml/runs/segment/swimsuit-seg2/weights/best.pt")
+    # extractor = ColorExtractor("../../ml/runs/segment/swimsuit-seg2/weights/best.pt")
+    extractor = ColorExtractor(str(model_path))
 
     # 2. 이미지 처리 (URL 또는 로컬 경로)
-    image_path = '/Users/zsu/MyProject/training_set/swimsuit_25_데이지 테이.jpg'  # 또는 'https://example.com/image.jpg'
+    image_path = '/Users/zsu/MyProject/크롤링 사진/swimcap_1228/0016_피닉스_퍼피벌룬 실.jpg';
 
     try:
         # 수영복 크롭 & 색상 추출
@@ -293,34 +303,6 @@ if __name__ == '__main__':
             conf_threshold=0.5,  # 탐지 임계값 (낮추면 더 많이 탐지)
             visualize=True  # 결과 시각화
         )
-
-        # # 3. 수모 추천
-        # print("\n🎯 수모 추천 시스템")
-        # print("=" * 60 + "\n")
-        #
-        # # 수모 데이터베이스 (예시)
-        # cap_database = [
-        #     {'id': 1, 'name': '스피도 실리콘 캡 (블루)', 'color': [30, 144, 255], 'price': 15000},
-        #     {'id': 2, 'name': '아레나 프로 캡 (레드)', 'color': [220, 20, 60], 'price': 18000},
-        #     {'id': 3, 'name': '나이키 스윔 캡 (블랙)', 'color': [30, 30, 30], 'price': 12000},
-        #     {'id': 4, 'name': '미즈노 라텍스 캡 (옐로우)', 'color': [255, 215, 0], 'price': 10000},
-        #     {'id': 5, 'name': '아디다스 스윔 캡 (그린)', 'color': [50, 205, 50], 'price': 13000},
-        #     {'id': 6, 'name': '티어 실리콘 캡 (핑크)', 'color': [255, 105, 180], 'price': 16000},
-        #     {'id': 7, 'name': '조그스 프로 캡 (퍼플)', 'color': [138, 43, 226], 'price': 17000},
-        #     {'id': 8, 'name': '펀키 트런스 캡 (오렌지)', 'color': [255, 140, 0], 'price': 14000},
-        # ]
-        #
-        # # 추천 실행
-        # recommendations = recommend_swim_caps(colors, cap_database, top_n=3)
-        #
-        # print("💡 추천 결과 (상위 3개):")
-        # print("-" * 60)
-        # for i, rec in enumerate(recommendations, 1):
-        #     print(f"{i}. {rec['cap_name']}")
-        #     print(
-        #         f"   색상: {rec['cap_color_hex']} ← 수영복 {rec['matched_swimsuit_color']} ({rec['matched_color_ratio'] * 100:.1f}%)와 매칭")
-        #     print(f"   가격: {rec['price']}원")
-        #     print(f"   유사도: {rec['similarity_score']:.2f} (낮을수록 유사)\n")
 
     except ValueError as e:
         print(f"❌ 오류: {e}")

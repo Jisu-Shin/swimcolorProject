@@ -1,7 +1,6 @@
 from .swimwear_crawler import SwimwearCrawler
 from .swimcap_crawler import SwimcapCrawler
 from .color_extractor import ColorExtractor
-from .cap_color_extractor import CapColorExtractor
 from app.config import settings
 
 def crawl_swimsuit_and_extract_colors(url):
@@ -35,11 +34,12 @@ def crawl_swimcap_and_extract_colors(url):
     products = crawler.crawl(url)
     print(products[0])
 
-    extractor = CapColorExtractor()
+    print(settings.swimcap_yolo_model_path)
+    extractor = ColorExtractor(settings.swimcap_yolo_model_path)
 
     for product in products:
         try:
-            colors = extractor.process_swimcap_image(
+            colors = extractor.process_swimsuit_image(
                 image_source=product['img_url'],
                 n_colors=settings.default_n_colors,  # 상위 3개 색상
                 conf_threshold=settings.default_conf_threshold,  # 탐지 임계값 (낮추면 더 많이 탐지)
