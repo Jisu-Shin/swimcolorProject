@@ -19,7 +19,7 @@ public class SwimsuitIdGenerator implements BeforeExecutionGenerator {
                 .getClass()
                 .getSimpleName();
 
-        log.info("\n@@@@@@ dialectName 확인하기 : {} \n", dialectName);
+        log.debug("\n@@@@@@ dialectName 확인하기 : {} \n", dialectName);
 
         Long sequenceValue;
 

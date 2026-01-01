@@ -75,6 +75,41 @@ async function runSwimcapCrawl() {
     }
 }
 
+var main = {
+    init : function() {
+        var _this = this;
+
+        // 1. 페이지 로드 시 현재 URL에 맞는 메뉴 활성화 (새로고침 대응)
+        _this.loadActiveMenu();
+
+        // 2. 클릭 시 즉각적인 시각 효과 (페이지 이동 전)
+        $('.nav-menu a').on('click', function () {
+            _this.activate($(this));
+        });
+    },
+
+    activate: function (element) {
+        $('.nav-menu a').removeClass('active');
+        element.addClass('active');
+    },
+
+    loadActiveMenu: function () {
+        var currentPath = window.location.pathname;
+//        console.log("현재 경로:", currentPath);
+
+        $('.nav-menu a').each(function () {
+            var targetPath = $(this).attr('href');
+//            console.log("비교 대상:", targetPath);
+
+            // 경로가 정확히 일치하는지 확인
+            if (currentPath === targetPath) {
+                $(this).addClass('active');
+//                console.log("일치함! active 추가");
+            }
+        });
+    }
+}
+
 var oper = {
     // 값이 비어있는지 체크
     isEmpty : function(value) {
@@ -127,3 +162,8 @@ var oper = {
         });
     }
 };
+
+// 화면이 다 준비된 후에 실행해라!
+$(document).ready(function() {
+    main.init();
+});
