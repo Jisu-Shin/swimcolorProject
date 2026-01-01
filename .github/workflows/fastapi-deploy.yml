@@ -37,12 +37,23 @@ jobs:
           # 다음 단계에서 쓸 수 있게 이미지 주소를 결과값으로 저장
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Deploy to App Runner
-        uses: awslabs/amazon-app-runner-deploy@main
-        with:
-          service: swimcolor-fastapi
-          # 위 단계에서 빌드한 이미지를 정확히 지칭
-          image: ${{ steps.build-image.outputs.image }}
-          region: ap-northeast-1
-          # 타임아웃 5분 설정
-          request-timeout: 300
+      - name: Update App Runner Timeout (Force CLI Update)
+        run: |
+          # 1. 기존 구버전 경로와 파일 완전히 제거 (가장 중요!)
+          sudo rm -rf /usr/local/aws-cli
+          sudo rm -f /usr/local/bin/aws
+          sudo rm -f /usr/bin/aws
+
+          # 2. 최신 AWS CLI v2 설치
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          sudo ./aws/install
+          
+          # 3. 설치된 버전 확인 (로그에서 2.11.x 이상인지 확인용)
+          aws --version
+          
+          # 4. 이제 최신 버전으로 타임아웃 300초 업데이트 실행
+          aws apprunner update-service \
+            --service-arn ${{ secrets.FASTAPI_SERVICE_ARN }} \
+            --request-timeout 300 \
+            --region ap-northeast-1
