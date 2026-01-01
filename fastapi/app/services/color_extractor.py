@@ -8,6 +8,9 @@ from io import BytesIO
 from PIL import Image
 import matplotlib.pyplot as plt
 from app.config import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ColorExtractor:
@@ -19,7 +22,7 @@ class ColorExtractor:
     def __init__(self, yolo_model_path=settings.yolo_model_path):
         """YOLO 모델 초기화"""
         self.model = YOLO(yolo_model_path)
-        print(f"✓ YOLO 모델 로드 완료: {yolo_model_path}")
+        logger.info(f"✓ YOLO 모델 로드 완료: {yolo_model_path}")
 
     def load_image(self, image_source):
         """
@@ -73,18 +76,16 @@ class ColorExtractor:
         # 수영복 영역만 크롭
         mask = r.masks.data[best_detection].cpu().numpy()  # (H, W), 0~1
         mask = (mask * 255).astype("uint8")
-        print("수영복 영역만 mask를 통해 크롭 완료")
 
         # 크기 맞추기
         h, w = image.shape[:2]
         mask = cv2.resize(mask, (w, h))  # (width, height) 순서!
         # print(f"image shape: {image.shape}")  # (H, W, 3)
         # print(f"mask shape: {mask.shape}")  # (h, w) ← 다를 수 있음!
-        print("크기 맞추기 완료")
 
         # 3채널 마스크
         mask_3c = cv2.merge([mask, mask, mask])
-        print("3채널 마스크 완료")
+        # print("3채널 마스크 완료")
         # print(f"mask_3c shape: {mask_3c.shape}")  # (h, w, 3)
 
         swimsuit_only = cv2.bitwise_and(image, mask_3c)
@@ -155,7 +156,7 @@ class ColorExtractor:
         # 비율 순으로 정렬 (가장 많이 나타나는 색상 우선)
         colors.sort(key=lambda x: x['ratio'], reverse=True)
 
-        print(f"✓ {len(colors)}개의 주요 색상 추출 완료")
+        logger.info(f"✓ {len(colors)}개의 주요 색상 추출 완료")
 
         return colors
 
@@ -227,34 +228,34 @@ class ColorExtractor:
         - cropped_image: 크롭된 수영복 이미지
         - colors: 추출된 색상 리스트
         """
-        print("\n" + "=" * 60)
-        print("🏊 수영복 색상 추출 시작")
-        print("=" * 60 + "\n")
+        logger.debug("\n" + "=" * 60)
+        logger.debug("🏊 수영복 색상 추출 시작")
+        logger.debug("=" * 60 + "\n")
 
         # 1. 이미지 로드
-        print("1️⃣ 이미지 로드 중...")
+        logger.debug("1️⃣ 이미지 로드 중...")
         original_image = self.load_image(image_source)
-        print(f"   이미지 크기: {original_image.shape[1]}x{original_image.shape[0]}px\n")
+        logger.debug(f"   이미지 크기: {original_image.shape[1]}x{original_image.shape[0]}px\n")
 
         # 2. YOLO로 수영복 탐지 & 크롭
-        print("2️⃣ YOLO로 수영복 탐지 중...")
+        logger.debug("2️⃣ YOLO로 수영복 탐지 중...")
         cropped_image = self.crop_swimsuit_only(
             original_image,
             conf_threshold=conf_threshold
         )
-        print()
+        logger.debug()
 
         # 3. K-means로 색상 추출
-        print("3️⃣ K-means로 주요 색상 추출 중...")
+        logger.debug("3️⃣ K-means로 주요 색상 추출 중...")
         colors = self.extract_colors_kmeans(cropped_image, n_colors=n_colors)
-        print()
+        logger.debug()
 
         # 4. 결과 출력
-        print("📊 추출된 색상 정보:")
-        print("-" * 50)
+        logger.debug("📊 추출된 색상 정보:")
+        logger.debug("-" * 50)
         for i, color in enumerate(colors, 1):
-            print(f"{i}. RGB{tuple(color['rgb'])} | {color['hex']} | {color['ratio'] * 100:.1f}%")
-        print()
+            logger.debug(f"{i}. RGB{tuple(color['rgb'])} | {color['hex']} | {color['ratio'] * 100:.1f}%")
+        logger.debug()
 
         # 5. 시각화
         if visualize:

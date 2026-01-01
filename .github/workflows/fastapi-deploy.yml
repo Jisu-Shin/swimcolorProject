@@ -37,13 +37,13 @@ jobs:
       
       - name: Update App Runner Service Configuration
         run: |
-          # 1. AWS CLI 최신 버전으로 업데이트
+          # 1. AWS CLI 최신 버전 설치
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip -q awscliv2.zip
           sudo ./aws/install --update
           
-          # 2. 업데이트된 CLI로 명령 실행
-          aws apprunner update-service \
+          # 2. 새로 설치된 '최신 경로(/usr/local/bin/aws)'를 직접 사용하여 명령 실행
+          /usr/local/bin/aws apprunner update-service \
             --service-arn ${{ secrets.FASTAPI_SERVICE_ARN }} \
             --request-timeout 300 \
             --region ap-northeast-1
