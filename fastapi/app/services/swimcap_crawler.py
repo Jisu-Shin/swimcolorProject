@@ -6,6 +6,9 @@ import time
 import undetected_chromedriver as uc
 import os
 from dotenv import load_dotenv
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SwimcapCrawler:
     """수모 크롤러 클래스"""
@@ -43,7 +46,7 @@ class SwimcapCrawler:
         """드라이버 종료"""
         if self.driver:
             self.driver.quit()
-            print("✓ 드라이버 종료됨")
+            logger.info("✓ 드라이버 종료됨")
 
     def get_end_page(self):
         """마지막 페이지 번호 가져오기"""
@@ -53,7 +56,7 @@ class SwimcapCrawler:
             endPage = int(pageLastButton.find_element(By.TAG_NAME, 'span').text)
             return endPage
         except Exception as e:
-            print(f"페이지 번호 조회 실패:  {e}")
+            logger.exception("페이지 로딩 실패: %s", e)
             return 1
 
     def wait_for_load(self):
@@ -64,7 +67,7 @@ class SwimcapCrawler:
             )
             return True
         except Exception as e:
-            print(f"페이지 로딩 실패: {e}")
+            logger.exception("페이지 로딩 실패: %s", e)
             return False
 
     def extract_product_info(self, element):
@@ -108,21 +111,21 @@ class SwimcapCrawler:
             }
 
         except Exception as e:
-            print(f"상품 정보 추출 실패:  {e}")
+            logger.exception("상품 정보 추출 실패: %s", e)
             return None
 
     def crawl_page(self):
         """현재 페이지의 모든 상품 정보 추출"""
         try:
             elements = self.driver.find_elements(By.CLASS_NAME, 'cGXxzj')
-            print(f"📦 발견된 상품 수:  {len(elements)}")
+            logger.info(f"📦 발견된 상품 수:  {len(elements)}")
 
             for element in elements:
                 product_info = self.extract_product_info(element)
 
                 if product_info:
                     if product_info['is_sold_out']:
-                        print(f"  ✗ [품절] {product_info['brand']} - {product_info['name']}")
+                        logger.debug(f"  ✗ [품절] {product_info['brand']} - {product_info['name']}")
                     else:
                         # print(f"  ✓ {product_info['brand']} - {product_info['name']}")
                         self.product_list.append(product_info)
@@ -130,11 +133,10 @@ class SwimcapCrawler:
             return True
 
         except Exception as e:
-            print(f"페이지 크롤링 실패: {e}")
+            logger.exception(f"페이지 크롤링 실패: {e}")
             return False
 
     def crawl(self, url):
-        # print("\n\ncrawl에서 확인", url);
         """
         크롤링 실행 (메인 메서드)
 
@@ -144,7 +146,7 @@ class SwimcapCrawler:
         Returns:
             list: 추출된 상품 리스트
         """
-        print("🚀 크롤링 시작...")
+        logger.info("🚀 크롤링 시작...")
 
         # 드라이버 설정
         self.setup_driver()
@@ -154,7 +156,7 @@ class SwimcapCrawler:
             current_page = 1
 
             while True:
-                print(f"\n📄 페이지 {current_page} 처리 중...")
+                logger.debug(f"\n📄 페이지 {current_page} 처리 중...")
 
                 # URL 접속
                 full_url = f"{url}&pageNumber={current_page}"
@@ -162,7 +164,7 @@ class SwimcapCrawler:
 
                 # 페이지 로딩 대기
                 if not self.wait_for_load():
-                    print("⚠️ 페이지 로딩 실패, 재시도...")
+                    logger.warning("⚠️ 페이지 로딩 실패, 재시도...")
                     time.sleep(2)
                     continue
 
@@ -174,20 +176,20 @@ class SwimcapCrawler:
                 end_page = self.get_end_page()
 
                 if current_page >= end_page:
-                    print(f"✓ 마지막 페이지({end_page})에 도달")
+                    logger.debug(f"✓ 마지막 페이지({end_page})에 도달")
                     break
 
                 current_page += 1
                 time.sleep(1)  # 서버 부하 방지
 
         except Exception as e:
-            print(f"❌ 크롤링 중 오류 발생:  {e}")
+            logger.exception(f"❌ 크롤링 중 오류 발생:  {e}")
 
         finally:
             self.quit_driver()
 
-        print(f"\n✅ 크롤링 완료!")
-        print(f"📊 총 {len(self.product_list)}개 상품 수집")
+        logger.info(f"\n✅ 크롤링 완료!")
+        logger.info(f"📊 총 {len(self.product_list)}개 상품 수집")
 
         return self.product_list
 

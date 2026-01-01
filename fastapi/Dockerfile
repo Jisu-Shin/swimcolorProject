@@ -35,8 +35,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # .dockerignore 덕분에 venv는 제외되고 모델과 코드만 쏙 들어갑니다.
 COPY . .
 
-# 8. YOLO 환경 설정 및 포트 개방
+# 8. 환경 설정 및 포트 개방
 ENV YOLO_CONFIG_DIR=/tmp
+ENV LOG_LEVEL=info
 EXPOSE 8000
 
 # 9. 실행 (run.py 내부에서 포트 설정을 확인하세요)
