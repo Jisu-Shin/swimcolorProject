@@ -83,7 +83,9 @@ class SwimwearCrawler:
             desc_split = desc.split('\n')
             brand = desc_split[0]
             name = desc_split[1]
-            price = desc_split[2].replace(",", "").replace("원", "")
+            price = desc_split[2] if len(desc_split) == 3 else desc_split[3]
+
+            price = price.replace(",", "").replace("원", "")
 
             # 이미지 URL 추출
             img_url = element.find_element(By.TAG_NAME, 'img').get_attribute('src')
