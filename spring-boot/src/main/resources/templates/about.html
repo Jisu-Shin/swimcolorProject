@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:replace="~{fragments/common :: common_head}"></th:block>
     <title>About | swimcolor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/about.css}">
-    <th:block th:replace="~{fragments/common-admin :: admin_head}"></th:block>
 </head>
 <body>
 
@@ -14,7 +12,9 @@
 
 <div class="main-container">
     <header class="about-header">
-        <img alt="swimcolor logo" class="logo-img" th:src="@{/images/swimcolor-logo.png}">
+        <div class="about-img-container">
+            <img alt="swimcolor logo" class="logo-img" th:src="@{/images/swimcolor-logo.png}">
+        </div>
         <h1>About swimcolor</h1>
         <p>기술로 제안하는 가장 나다운 수영 색깔</p>
     </header>
@@ -57,12 +57,8 @@
             <li><strong>큐레이션 채널:</strong> 인스타그램을 통해 트렌디한 추천 아이템을 매일 공유</li>
         </ul>
     </section>
-
-    <footer>
-        <p>Created by a Passionate Solo Developer.</p>
-        <p>© 2025 swimcolor. All rights reserved.</p>
-    </footer>
 </div>
+<div th:replace="~{fragments/common :: common_footer}"></div>
 
 </body>
 </html>

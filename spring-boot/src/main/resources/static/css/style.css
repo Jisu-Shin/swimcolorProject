@@ -529,7 +529,7 @@ body {
 }
 
 .footer-section {
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .footer-section h4 {
@@ -546,7 +546,7 @@ body {
     padding: 20px;
     border-top: 1px solid rgba(0,0,0,0.05);
     text-align: center;
-    font-size: 12px;
+    font-size: 14px;
     color: #999;
 }
 
@@ -824,6 +824,7 @@ a:focus, button:focus, input:focus {
       width: 70%;      /* 모바일에서 화면 너비의 절반만 차지하게 하고 싶을 때 */
       margin: 0 auto;  /* 가운데 정렬 */
     }
+*/
 
     /* 이미지: 부모인 .img-container의 너비에 무조건 맞춤 */
     .img-container img {
@@ -833,6 +834,10 @@ a:focus, button:focus, input:focus {
       object-fit: cover;
       box-shadow: var(--shadow-2);
       margin-bottom: 15px;
+    }
+
+    .footer-content {
+        gap: 5px;
     }
  */
 }

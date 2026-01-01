@@ -1,37 +1,3 @@
- /* 메인 페이지에서 가져온 핵심 변수 및 초기화 */
-:root {
-    --primary-blue: #99E6FF;
-    --sky-blue: #CCF2FF;
-    --light-blue: #F2FCFF;
-    --white: #ffffff;
-    --dark-text: #004d61;
-    --accent-color: #ff6b6b;
-    --deep-blue: #0077B6;
-    --glass-white: rgba(255, 255, 255, 0.7);
-    --soft-shadow: 0 12px 30px rgba(30, 90, 150, 0.1);
-    --max-content-width: 1100px;
-    --card-radius: 12px;
-    --shadow-1: 0 4px 12px rgba(30, 90, 150, 0.08);
-    --shadow-2: 0 8px 24px rgba(30, 90, 150, 0.14);
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-/* 메인 페이지의 시그니처 그라데이션 적용 */
-body {
-    font-family: 'Pretendard', sans-serif;
-    background: linear-gradient(135deg, var(--sky-blue) 0%, var(--light-blue) 30%, var(--white) 100%);
-    color: var(--dark-text);
-    line-height: 1.7;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-}
-
-.main-container {
-    max-width: 850px; /* 읽기 편하도록 본문 폭 최적화 */
-    margin: 0 auto;
-    padding: 80px 20px;
-}
 
 /* 헤더 스타일 (로고 강조) */
 .about-header {
@@ -39,11 +5,20 @@ body {
     margin-bottom: 60px;
 }
 
-h1 {
-    font-size: 36px;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    margin-bottom: 10px;
+.about-img-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 24px;
+    width: 100%; /* 부모 너비를 따르되 */
+}
+
+.about-header img {
+    width: 100%;        /* 기본적으로 부모 너비에 맞추되 */
+    max-height: 140px;   /* 데스크탑에서도 최대 200px까지만 커지도록 제한 */
+    height: auto;       /* 비율 유지 */
+    object-fit: contain;
+    transition: transform 0.3s ease;
 }
 
 /* 섹션 공통 스타일 (Glassmorphism 적용) */
@@ -122,20 +97,4 @@ h2 {
     position: absolute;
     left: 0;
     font-size: 14px;
-}
-
-footer {
-    text-align: center;
-    margin-top: 60px;
-    padding-top: 30px;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    color: #8899a6;
-    font-size: 14px;
-}
-
-/* 반응형 */
-@media (max-width: 768px) {
-    .tech-grid { grid-template-columns: 1fr; }
-    .content-section { padding: 25px; }
-    h1 { font-size: 28px; }
 }
