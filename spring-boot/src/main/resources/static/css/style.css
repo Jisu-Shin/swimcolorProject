@@ -410,7 +410,7 @@ body {
     font-size: 14px;
     font-weight: bold;
     transition: 0.2s;
-    margin: 5px 0 10px;
+    margin: 10px 0 15px;
 }
 
 .detail-container {
@@ -431,25 +431,40 @@ body {
     width: 50%;
 }
 
+.img-container {
+    /* 데스크탑: 세로가 긴 비율 유지 */
+    aspect-ratio: 3 / 4;
+    /* 데스크탑: 화면의 60%만 차지하도록 제한 */
+    max-height: 60vh;
+    /* 너무 넓어지지 않게 가로폭 제한 */
+    max-width: 450px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    /* 모바일의 고정 높이 해제 */
+    height: auto;
+}
+
 .img-container img {
-    width: 100%;
-    height: 400px;
-    object-fit: cover;
-    box-shadow: var(--shadow-2);
-    margin-bottom: 15px;
+    /* 데스크탑: 잘리지 않게 전체 다 보여주기 */
+    object-fit: contain;
+    /* 모바일의 고정 높이 해제 */
+    height: 100%;
 }
 
 .detail-info {
     font-size: 15px;
     padding: 0 5px;
     font-weight: bold;
+    margin-bottom: 10px;
 }
 
 /* 색상 팔레트 컨테이너 */
 .color-palette {
     display: flex;
     gap: 6px;
-    margin-top: 8px;
+    margin-bottom: 10px;
     align-items: center;
     padding: 0 5px;
     font-size: 15px;
@@ -507,6 +522,7 @@ body {
     font-weight: bold;
     font-size: 15px;
     padding: 0 5px;
+    margin-bottom: 8px;
 }
 
 
@@ -736,7 +752,7 @@ a:focus, button:focus, input:focus {
     /* 모바일 상세 페이지 */
     .detail-container {
         flex-direction: column; /* 상하 배치로 변경 */
-        gap: 30px;
+        gap: 20px;
     }
 
     .detail-left, .detail-right {
@@ -746,12 +762,17 @@ a:focus, button:focus, input:focus {
     /* 모바일에서는 수영복 상세 텍스트가 조금 더 정돈되어 보이게 */
     .detail-info {
         font-size: 15px;
-        padding: 15px 0 0 0;
+        padding: 0 5px;
     }
 
     .detail-right h3 {
         font-size: 16px;
         margin-bottom: 10px;
+    }
+
+    .cap-item .color-palette {
+        flex-direction: column;   /* 위아래(세로)로 배치 변경 */
+        align-items: flex-start;  /* 왼쪽 정렬 */
     }
 
     .caps-grid {
@@ -777,6 +798,11 @@ a:focus, button:focus, input:focus {
     .header-container { gap: 8px; }
     .logo { font-size: 18px; }
     .search-bar { max-width: none; margin-left: 6px; }
+
+    .footer-bottom {
+        margin: 20px auto 0;
+        padding: 20px;
+    }
 }
 
 /* 초소형 기기(380px 이하) 추가 축소 */
@@ -819,21 +845,24 @@ a:focus, button:focus, input:focus {
     .product-preview-info p {
         font-size: 14px;
     }
-/*
-    .img-container {
-      width: 70%;      /* 모바일에서 화면 너비의 절반만 차지하게 하고 싶을 때 */
-      margin: 0 auto;  /* 가운데 정렬 */
-    }
-*/
 
-    /* 이미지: 부모인 .img-container의 너비에 무조건 맞춤 */
+    .img-container {
+        width: 100%;
+        overflow: hidden;
+        background-color: #fff;
+        border-radius: 8px;
+        /* 모바일에서 아래 요소와의 간격 */
+        margin-bottom: 15px;
+    }
+
     .img-container img {
-      width: 100%;     /* 부모 너비(50%)의 100%를 채움 */
-      height: auto;    /* 비율 유지 */
-      display: block;
-      object-fit: cover;
-      box-shadow: var(--shadow-2);
-      margin-bottom: 15px;
+        width: 100%;
+        /* 모바일: 요청하신 고정 높이 400px */
+        height: 400px;
+        /* 모바일: 꽉 채우기 */
+        object-fit: cover;
+        object-position: top;
+        box-shadow: var(--shadow-2);
     }
 
     .footer-content {

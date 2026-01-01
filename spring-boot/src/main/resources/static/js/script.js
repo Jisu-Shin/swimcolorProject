@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
 const swimsuitModule = {
     // 추천 수모를 불러와서 화면에 그리는 함수
     initRecommendCaps: function(swimsuitId, colors) {
-        console.log(swimsuitId);
-        console.log(colors);
+//        console.log(swimsuitId);
+//        console.log(colors);
         const data = {
             itemId: swimsuitId,
             colors: colors

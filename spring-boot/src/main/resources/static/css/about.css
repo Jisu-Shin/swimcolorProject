@@ -60,12 +60,19 @@ h2 {
     margin-bottom: 15px;
 }
 
+.content-section {
+    padding: 25px;
+}
+
 /* 기술 카드 그리드 */
 .tech-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    /* minmax(0, 1fr)은 내부 콘텐츠가 아무리 길어도
+       그리드 폭을 넘지 못하게 강제하는 마법의 코드입니다. */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
     margin-top: 25px;
+    width: 100%; /* 부모 너비 꽉 채우기 */
 }
 
 .tech-item {
@@ -73,6 +80,19 @@ h2 {
     padding: 20px;
     border-radius: 10px;
     border: 1px solid var(--sky-blue);
+
+    /* [너비 불일치 해결 핵심] */
+    min-width: 0;         /* flex/grid 환경에서 너비 오버플로 방지 */
+    word-wrap: break-word; /* 너무 긴 단어는 강제로 줄바꿈 */
+    overflow-wrap: break-word;
+}
+
+.tech-item h3 {
+    font-size: 17px;
+    margin-bottom: 8px;
+    color: var(--dark-text);
+    /* 제목이 길어서 너비를 밀어내는 경우 방지 */
+    white-space: normal;
 }
 
 .tech-item h3 {
@@ -97,4 +117,33 @@ h2 {
     position: absolute;
     left: 0;
     font-size: 14px;
+}
+
+/* [모바일 대응] - 화면 너비가 767px 이하일 때 */
+@media (max-width: 767px) {
+    /* 1. 로고 크기 축소 */
+    .about-header img {
+        max-height: 80px; /* 모바일에서는 80px 정도로 콤팩트하게! */
+    }
+
+    /* 2. 헤더 여백 조정 (선택사항) */
+    .about-header {
+        margin-bottom: 30px; /* 데스크탑(60px)보다 여백을 줄여 본문을 끌어올림 */
+    }
+
+    h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .tech-grid {
+        /* 한 줄에 하나씩만 나오도록 1열로 변경 */
+        grid-template-columns: 1fr;
+        gap: 15px; /* 세로로 쌓일 때의 간격 */
+    }
+
+    .tech-item {
+        /* 모바일에서는 텍스트 가독성을 위해 패딩 살짝 조정 */
+        padding: 20px;
+    }
 }
