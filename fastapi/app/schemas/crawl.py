@@ -1,7 +1,12 @@
 from pydantic import BaseModel
 
 class CrawlRequest(BaseModel):
-    url: str
+    logId: int
+    crawlingUrl: str
+    callbackUrl: str
 
 class CrawlResponse(BaseModel):
+    logId: int
+    crawlStatus: str
+    errorMsg: str
     products: list
