@@ -105,7 +105,8 @@ public class FastapiWebClient implements FastapiClient {
         CrawlRequestDto requestDto = new CrawlRequestDto();
         requestDto.setCrawlingUrl(url);
         requestDto.setLogId(logId);
-        requestDto.setCallbackUrl(url);
+        // todo 환경변수 필요
+        requestDto.setCallbackUrl("https://localhost:8080/api/crawling/callback/swimsuits");
 
         return webClient.post()
                 .uri("/api/crawl/swimsuits")

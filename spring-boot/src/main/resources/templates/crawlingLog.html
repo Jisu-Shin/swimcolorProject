@@ -35,8 +35,8 @@
                             <span class="badge bg-info text-dark" th:text="${log.itemType}">SWIMSUIT</span>
                         </td>
                         <td>
-                            <span th:class="${log.status.name() == 'SUCCESS' ? 'status-success' : 'status-failure'}"
-                                  th:text="${log.status}">SUCCESS</span>
+                            <span th:class="${log.status.name() == 'COMPLETED' ? 'status-success' : 'status-failure'}"
+                                  th:text="${log.status}">COMPLETED</span>
                         </td>
                         <td><span th:text="${log.totalCount}">0</span>개</td>
                         <td><span th:text="${log.executionTime}">0</span>ms</td>

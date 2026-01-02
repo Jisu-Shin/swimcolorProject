@@ -28,10 +28,8 @@ public class AdminService {
     public void crawlSwimsuits(String url) {
         log.info("#### [SWIMSUIT] 크롤링 시작: {}", url);
 
-
         // 1. 크롤링 로그 저장
         Long logId = saveLog(url, ItemType.SWIMSUIT);
-
 
         crawlStatusService.runSwimsuitCrawling();
 

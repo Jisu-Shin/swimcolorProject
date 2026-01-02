@@ -16,7 +16,7 @@ public class CrawlingApiController {
 
     private final AdminService adminService;
 
-    @PostMapping("/response/swimsuits")
+    @PostMapping("/callback/swimsuits")
     public ResponseEntity<Void> getSwimsuitCrawlingResult(@RequestBody CrawlResponseDto crawlResponseDto) {
         adminService.responseCrawlSwimsuits(crawlResponseDto);
         return ResponseEntity.ok().build();
