@@ -1,5 +1,6 @@
 package com.swimcolor.service;
 
+import com.swimcolor.domain.CrawlStatus;
 import com.swimcolor.domain.CrawlingLog;
 import com.swimcolor.dto.CrawlingLogResponseDto;
 import com.swimcolor.mapper.CrawlingLogMapper;
@@ -8,7 +9,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,8 +22,8 @@ public class CrawlingLogService {
     private final CrawlingLogMapper crawlingLogMapper;
 
     @Transactional
-    public void saveCrawlingLog(CrawlingLog crawlingLog){
-        jpaCrawlingLogRepository.save(crawlingLog);
+    public Long saveCrawlingLog(CrawlingLog crawlingLog){
+        return jpaCrawlingLogRepository.save(crawlingLog).getId();
     }
 
     public List<CrawlingLogResponseDto> findAllCrawlingLog(){
@@ -27,5 +31,16 @@ public class CrawlingLogService {
         return logList.stream()
                 .map(l->crawlingLogMapper.toDto(l))
                 .toList();
+    }
+
+    // 크롤링요청한 id를 통해 엔티티 조회 후 데이터 수정
+    @Transactional
+    public void updateCrawlingLog(Long id, CrawlStatus crawlStatus, int count, String errMsg){
+        CrawlingLog crawlingLog = jpaCrawlingLogRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("크롤링 로그가 없습니다 id: " + id));
+
+        Long duration = Duration.between(crawlingLog.getCrawledAt(), LocalDateTime.now()).toMillis();
+
+        crawlingLog.update(crawlStatus, count, errMsg, duration);
     }
 }

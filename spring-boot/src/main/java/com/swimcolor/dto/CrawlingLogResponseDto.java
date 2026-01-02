@@ -1,6 +1,6 @@
 package com.swimcolor.dto;
 
-import com.swimcolor.domain.CrawlingStatus;
+import com.swimcolor.domain.CrawlStatus;
 import com.swimcolor.domain.ItemType;
 import lombok.Data;
 
@@ -11,7 +11,7 @@ public class CrawlingLogResponseDto {
     private String crawledAt;
     private int totalCount;
     private ItemType itemType;
-    private CrawlingStatus status;
+    private CrawlStatus status;
     private String errorMessage;
     private Long executionTime;
 }

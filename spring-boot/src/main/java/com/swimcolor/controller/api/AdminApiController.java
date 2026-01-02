@@ -17,13 +17,13 @@ public class AdminApiController {
 
     @PostMapping("/crawlSwimsuits")
     public ResponseEntity<String> crawlSwimsuits(@RequestBody CrawlRequestDto requestDto) {
-        adminService.crawlSwimsuits(requestDto.getUrl());
+        adminService.crawlSwimsuits(requestDto.getCrawlingUrl());
         return ResponseEntity.ok("작업 시작됨");
     }
 
     @PostMapping("/crawlSwimcaps")
     public ResponseEntity<String> cralSwimcaps(@RequestBody CrawlRequestDto requestDto) {
-        adminService.crawlSwimcaps(requestDto.getUrl());
+        adminService.crawlSwimcaps(requestDto.getCrawlingUrl());
         return ResponseEntity.ok("작업 시작됨");
     }
 
