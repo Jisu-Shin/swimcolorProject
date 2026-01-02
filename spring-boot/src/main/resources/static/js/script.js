@@ -8,7 +8,7 @@ var main = {
 
 // 수영복 상세 페이지로 이동하는 함수
 function goToSwimsuitDetail(id) {
-    console.log(id);
+//    console.log(id);
     if (oper.isEmpty(id)) {
         alert('상품 정보를 찾을 수 없습니다.');
         return;

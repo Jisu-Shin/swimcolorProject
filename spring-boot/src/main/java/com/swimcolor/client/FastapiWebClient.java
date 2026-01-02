@@ -80,7 +80,7 @@ public class FastapiWebClient implements FastapiClient {
             requestDto.setColors(colors);
 
             RecommendResponseDto response = webClient.post()
-                    .uri("/api/recommend/swimcap")
+                    .uri("/recommend")
                     .bodyValue(requestDto)
                     .retrieve()
                     .bodyToMono(RecommendResponseDto.class)
@@ -106,10 +106,10 @@ public class FastapiWebClient implements FastapiClient {
         requestDto.setCrawlingUrl(url);
         requestDto.setLogId(logId);
         // todo 환경변수 필요
-        requestDto.setCallbackUrl("https://localhost:8080/api/crawling/callback/swimsuits");
+        requestDto.setCallbackUrl("http://localhost:8080/api/crawling/callback/swimsuits");
 
         return webClient.post()
-                .uri("/api/crawl/swimsuits")
+                .uri("/crawl/swimsuits")
                 .bodyValue(requestDto)
                 .retrieve()
                 .bodyToMono(CrawlResponseDto.class)
