@@ -41,6 +41,6 @@ ENV LOG_LEVEL=info
 # 9. 포트
 EXPOSE 8000
 
-# 10. 🔥 FastAPI 실행 (Gunicorn + 300초 타임아웃)
-CMD ["gunicorn","run:app","-k","uvicorn.workers.UvicornWorker","--workers","1","--bind","0.0.0.0:8000","--timeout","300"]
+# 10. 🔥 FastAPI 실행 (Gunicorn + 120초 타임아웃)
+CMD ["gunicorn","run:app","-k","uvicorn.workers.UvicornWorker","--workers","2","--bind","0.0.0.0:8000","--timeout","120"]
 

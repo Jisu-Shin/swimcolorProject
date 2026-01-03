@@ -239,40 +239,46 @@ class ColorExtractor:
         logger.debug(f"   이미지 크기: {original_image.shape[1]}x{original_image.shape[0]}px\n")
 
         # 2. YOLO로 수영복 탐지 & 크롭
-        logger.debug("2️⃣ YOLO로 수영복/수모 탐지 중...")
-        cropped_image = self.crop_swimsuit_only(
-            original_image,
-            conf_threshold=conf_threshold
-        )
-        logger.debug("\n")
-
-        # 3. K-means로 색상 추출
-        logger.debug("3️⃣ K-means로 주요 색상 추출 중...")
-        colors = self.extract_colors_kmeans(cropped_image, n_colors=n_colors)
-        logger.debug("\n")
-
-        # 4. 결과 출력
-        logger.debug("📊 추출된 색상 정보:")
-        logger.debug("-" * 50)
-        for i, color in enumerate(colors, 1):
-            logger.debug(f"{i}. RGB{tuple(color['rgb'])} | {color['hex']} | {color['ratio'] * 100:.1f}%")
-        logger.debug("\n")
-
-        # 5. 시각화
-        if visualize:
-            print("4️⃣ 결과 시각화 중...")
-            self.visualize_extraction(
+        try :
+            logger.debug("2️⃣ YOLO로 수영복/수모 탐지 중...")
+            cropped_image = self.crop_swimsuit_only(
                 original_image,
-                cropped_image,
-                colors
+                conf_threshold=conf_threshold
             )
 
-        print("=" * 60)
-        print("✅ 색상 추출 완료!")
-        print("=" * 60 + "\n")
+            # ⭐ 핵심 1: 원본 이미지는 크롭 직후 바로 메모리에서 삭제!
+            # (이미지 한 장이 5~10MB라면, 연산 과정에서 수십 배로 불어남)
+            del original_image
 
-        return colors
+            # 3. K-means로 색상 추출
+            logger.debug("3️⃣ K-means로 주요 색상 추출 중...")
+            colors = self.extract_colors_kmeans(cropped_image, n_colors=n_colors)
 
+            # ⭐ 핵심 2: 크롭 이미지도 사용 직후 삭제
+            del cropped_image
+
+            # ⭐ 핵심 3: 가비지 컬렉터 강제 호출 (파이썬이 메모리를 즉시 반환하게 함)
+            import gc
+            gc.collect()
+
+            # 4. 결과 출력
+            logger.debug("📊 추출된 색상 정보:")
+            print("📊 추출된 색상 정보:")
+            logger.debug("-" * 50)
+            for i, color in enumerate(colors, 1):
+                logger.debug(f"{i}. RGB{tuple(color['rgb'])} | {color['hex']} | {color['ratio'] * 100:.1f}%")
+                print(f"{i}. RGB{tuple(color['rgb'])} | {color['hex']} | {color['ratio'] * 100:.1f}%")
+            logger.debug("\n")
+
+            return colors
+
+        except Exception as e:
+            # 에러 발생 시에도 메모리는 비워줘야 함
+            if 'original_image' in locals(): del original_image
+            if 'cropped_image' in locals(): del cropped_image
+            import gc
+            gc.collect()
+            raise e
 
 # ============================================================
 # 사용 예시
@@ -293,19 +299,18 @@ if __name__ == '__main__':
     extractor = ColorExtractor(str(model_path))
 
     # 2. 이미지 처리 (URL 또는 로컬 경로)
-    image_path = '/Users/zsu/MyProject/크롤링 사진/swimcap_1228/0016_피닉스_퍼피벌룬 실.jpg';
+    image_path = '/Users/zsu/MyProject/크롤링 사진/swimcap_1228/0011_피닉스_불사조 실리.jpg'
 
     try:
         # 수영복 크롭 & 색상 추출
-        cropped_swimsuit, colors = extractor.process_swimsuit_image(
+        colors = extractor.process_swimsuit_image(
             image_source=image_path,
             n_colors=5,  # 상위 5개 색상
             conf_threshold=0.5,  # 탐지 임계값 (낮추면 더 많이 탐지)
-            visualize=True  # 결과 시각화
+            visualize=False  # 결과 시각화
         )
 
     except ValueError as e:
         print(f"❌ 오류: {e}")
-        print("   → 신뢰도 임계값(conf_threshold)을 낮춰보세요.")
     except Exception as e:
         print(f"❌ 예상치 못한 오류: {e}")
