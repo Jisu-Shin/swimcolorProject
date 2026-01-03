@@ -37,8 +37,8 @@ async function runSwimsuitCrawl() {
         // [Step 2] 크롤링 시작 요청 (POST)
         // oper.ajax가 내부적으로 Promise를 반환하지 않는다면 아래처럼 감쌀 수 있어요.
         const data = {
-                    crawlingUrl: url
-                };
+                        crawlingUrl: url
+                     };
         await new Promise((res) => oper.ajax("POST", data, "/api/admin/crawlSwimsuits", res));
 
         // [Step 3] 완료될 때까지 대기
@@ -67,7 +67,11 @@ async function runSwimcapCrawl() {
     $('#swimcapUrl').prop('disabled', true);
 
     try {
-        await new Promise((res) => oper.ajax("POST", {url: url}, "/api/admin/crawlSwimcaps", res));
+        const data = {
+                        crawlingUrl: url
+                     };
+        await new Promise((res) => oper.ajax("POST", data, "/api/admin/crawlSwimcaps", res));
+
         await waitForCompletion('SWIMCAP');
         alert("수모 크롤링이 완료되었습니다!");
     } catch (error) {

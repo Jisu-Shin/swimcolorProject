@@ -16,28 +16,9 @@ public class RestClientConfig {
     @Value("${fastapi}")
     private String fastApiUrl;
 
-    @Value("${api.fastapi.read-timeout}")
-    private int readTimeout;
-
-    @Value("${api.fastapi.connect-timeout}")
-    private int connectTimeout;
-
     @Bean
     public RestClient fastApiRestClient() {
-        // Apache HC5 상세 설정
-        var connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
-                .setDefaultConnectionConfig(ConnectionConfig.custom()
-                        .setConnectTimeout(Timeout.ofMilliseconds(connectTimeout))
-                        .setSocketTimeout(Timeout.ofMilliseconds(readTimeout))
-                        .build())
-                .build();
-
-        var httpClient = HttpClients.custom()
-                .setConnectionManager(connectionManager)
-                .build();
-
         return RestClient.builder()
-                .requestFactory(new HttpComponentsClientHttpRequestFactory(httpClient))
                 .baseUrl(fastApiUrl)
                 .build();
     }

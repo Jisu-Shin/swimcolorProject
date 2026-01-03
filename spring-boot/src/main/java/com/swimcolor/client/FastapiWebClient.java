@@ -22,7 +22,7 @@ public class FastapiWebClient implements FastapiClient {
 
     private final WebClient webClient;
 
-    @Value("crawling.callbackUrl")
+    @Value("${crawling.callbackUrl}")
     private String crawlingCallbackUrl;
 
     @Override
@@ -125,7 +125,9 @@ public class FastapiWebClient implements FastapiClient {
         log.info("Async crawling swimcaps from URL: {}", url);
 
         CrawlRequestDto requestDto = new CrawlRequestDto(logId, url);
-        requestDto.setCallbackUrl(crawlingCallbackUrl.concat("/swimcaps"));
+        requestDto.setCallbackUrl(crawlingCallbackUrl+"/swimcaps");
+
+        log.info("Async crawling swimcaps from callbackUrl: {}", requestDto.getCallbackUrl());
 
         return webClient.post()
                 .uri("/crawl/swimcaps")
