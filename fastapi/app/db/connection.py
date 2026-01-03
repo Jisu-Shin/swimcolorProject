@@ -1,26 +1,30 @@
-import json
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
-# 1. 우선 환경 변수(App Runner 설정값)가 있는지 확인합니다.
+# .env 파일 로드
+load_dotenv()
+
+# 환경 변수에서 DATABASE_URL 직접 가져오기 (우선순위 1)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# 2. 환경 변수가 없다면 로컬 secrets.json 파일을 읽습니다.
+# DATABASE_URL이 없으면 개별 환경 변수로 구성 (우선순위 2)
 if not DATABASE_URL:
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    # secrets.json 위치가 connection.py보다 한 단계 상위 폴더인 경우
-    SECRET_FILE = os.path.join(BASE_DIR, '../secrets.json')
-
-    try:
-        with open(SECRET_FILE, 'r', encoding='utf-8') as f:
-            secrets = json.load(f)
-        DB = secrets["DB"]
-        DATABASE_URL = f"mysql+pymysql://{DB['user']}:{DB['password']}@{DB['host']}:{DB['port']}/{DB['database']}?charset=utf8mb4"
-    except FileNotFoundError:
-        # 둘 다 없을 경우를 대비한 방어 코드
-        raise Exception("환경 변수 'DATABASE_URL' 또는 'secrets.json' 파일이 필요합니다.")
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_HOST = os.getenv("DB_HOST", "localhost")
+    DB_PORT = os.getenv("DB_PORT", "3306")
+    DB_DATABASE = os.getenv("DB_DATABASE")
+    
+    if not all([DB_USER, DB_PASSWORD, DB_DATABASE]):
+        raise Exception(
+            "환경 변수가 설정되지 않았습니다. "
+            ".env 파일에 DATABASE_URL 또는 DB_USER, DB_PASSWORD, DB_DATABASE를 설정하세요."
+        )
+    
+    DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}?charset=utf8mb4"
 
 # SQLAlchemy 엔진 생성
 engine = create_engine(
@@ -35,7 +39,7 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# 세션 의존성 제공 함수
+
 def get_db():
     """
     데이터베이스 세션을 생성하고 제공하는 의존성 함수
@@ -46,3 +50,4 @@ def get_db():
         yield db
     finally:
         db.close()
+
