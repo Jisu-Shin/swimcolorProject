@@ -21,4 +21,10 @@ public class CrawlingApiController {
         adminService.responseCrawlSwimsuits(crawlResponseDto);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/callback/swimcaps")
+    public ResponseEntity<Void> getSwimcapCrawlingResult(@RequestBody CrawlResponseDto crawlResponseDto) {
+        adminService.responseCrawlSwimcaps(crawlResponseDto);
+        return ResponseEntity.ok().build();
+    }
 }

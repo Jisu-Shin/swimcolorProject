@@ -7,7 +7,6 @@ import com.swimcolor.domain.ItemType;
 import com.swimcolor.dto.CrawlResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
@@ -21,25 +20,22 @@ public class AdminService {
     private final CrawlingLogService crawlingLogService;
     private final CrawlStatusService crawlStatusService;
 
-    @Async
     public void crawlSwimsuits(String url) {
         log.info("#### [SWIMSUIT] 크롤링 시작: {}", url);
 
-        // 1. 크롤링 로그 저장
-        Long logId = saveLog(url, ItemType.SWIMSUIT);
-
+        // 1. 크롤링 상태 저장
         crawlStatusService.runSwimsuitCrawling();
 
-        // 1. FastAPI 호출
-//            CrawlResponseDto crawlResponseDto = fastapiClient.crawlSwimsuits(url);
+        // 2. 크롤링 로그 저장
+        Long logId = saveLog(url, ItemType.SWIMSUIT);
+
+        // 3. FastAPI 호출
         fastapiClient.crawlSwimsuitsAsync(url, logId)
                 .subscribe(
                         success -> {
-                            // FastAPI가 "알겠어!"라고 대답했을 때 실행
                             log.info("#### [SWIMSUIT] FastAPI 접수 완료: logId={}", logId);
                         },
                         error -> {
-                            // FastAPI 서버가 죽었거나, 타임아웃 났을 때 실행
                             log.error("#### [SWIMSUIT] FastAPI 호출 실패: ", error);
 
                             // 여기서 실패 처리를 직접 해줘야 함!
@@ -71,36 +67,52 @@ public class AdminService {
 
     }
 
-    @Async
     public void crawlSwimcaps(String url) {
-        long startTime = System.currentTimeMillis(); // 소요 시간 측정 시작
-        Long crawlingLogId = saveLog(url, ItemType.SWIMCAP);
+        log.info("#### [SWIMCAP] 크롤링 시작: {}", url);
 
-        try {
-            log.info("#### [SWIMCAP] 크롤링 시작: {}", url);
+        // 1. 크롤링 상태 저장
+        crawlStatusService.runSwimcapCrawling();
 
-            // 1. FastAPI 호출
-            CrawlResponseDto crawlResponseDto = fastapiClient.crawlSwimcaps(url);
+        // 2. 크롤링 로그 저장
+        Long logId = saveLog(url, ItemType.SWIMCAP);
 
-            // 2. 크롤 상태 값 변경
+        // 3. fastapi 호출
+        fastapiClient.crawlSwimcapsAsync(url, logId)
+                .subscribe(
+                        success -> {
+                            log.info("#### [SWIMCAP] FastAPI 접수 완료: logId={}", logId);
+                        },
+                        error -> {
+                            // FastAPI 서버가 죽었거나, 타임아웃 났을 때 실행
+                            log.error("#### [SWIMCAP] FastAPI 호출 실패: ", error);
+
+                            // 여기서 실패 처리를 직접 해줘야 함!
+                            crawlStatusService.failSwimcapCrawling();
+                            crawlingLogService.updateCrawlingLog(logId, CrawlStatus.FAILED, 0, "FastAPI 연결 실패: " + error.getMessage());
+                        }
+                );
+    }
+
+    public void responseCrawlSwimcaps(CrawlResponseDto crawlResponseDto) {
+        if (crawlResponseDto.getCrawlStatus() == CrawlStatus.COMPLETED) {
             crawlStatusService.completeSwimcapCrawling();
 
             // 2. DB 저장
             int count = swimcapService.saveSwimcap(crawlResponseDto);
 
-            long duration = System.currentTimeMillis() - startTime; // 소요 시간 계산(ms)
-
             // 3. 성공 로그 저장
-            log.info("#### [SWIMCAP] 저장 완료: {} 건, 소요시간: {}ms", count, duration);
+            log.info("#### [SWIMCAP] 저장 완료: {} 건", count);
+            crawlingLogService.updateCrawlingLog(crawlResponseDto.getLogId(), CrawlStatus.COMPLETED, count, null);
+        }
 
-        } catch (Exception e) {
-            log.error("#### [SWIMCAP] 크롤링 중 에러 발생: ", e);
-            long duration = System.currentTimeMillis() - startTime;
-            // 2. 크롤 상태 값 변경
+        if (crawlResponseDto.getCrawlStatus() == CrawlStatus.FAILED) {
             crawlStatusService.failSwimcapCrawling();
 
-            // 4. 실패 로그 저장 (에러 메시지 포함)
+            // 3. 실패 로그 저장
+            log.info("#### [SWIMCAP] fastapi 크롤 결과 실패");
+            crawlingLogService.updateCrawlingLog(crawlResponseDto.getLogId(), CrawlStatus.FAILED, 0, crawlResponseDto.getErrorMsg());
         }
+
     }
 
     // 로그 저장 로직이 중복되니 별도 메서드로 추출하는 게 깔끔합니다!

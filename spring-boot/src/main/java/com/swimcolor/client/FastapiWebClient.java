@@ -6,6 +6,7 @@ import com.swimcolor.dto.RecommendRequestDto;
 import com.swimcolor.dto.RecommendResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,9 +22,11 @@ public class FastapiWebClient implements FastapiClient {
 
     private final WebClient webClient;
 
+    @Value("crawling.callbackUrl")
+    private String crawlingCallbackUrl;
+
     @Override
     public CrawlResponseDto crawlSwimsuits(String url) {
-        // todo 파라미터 변경 필요 예상 url -> CrawlRequestDto
         log.info("Crawling swimsuits from URL: {}", url);
 
         try {
@@ -99,20 +102,17 @@ public class FastapiWebClient implements FastapiClient {
      * 비동기 방식으로 수영복 크롤링 (Reactive)
      */
     @Override
-    public Mono<CrawlResponseDto> crawlSwimsuitsAsync(String url, Long logId) {
+    public Mono<Void> crawlSwimsuitsAsync(String url, Long logId) {
         log.info("Async crawling swimsuits from URL: {}", url);
 
-        CrawlRequestDto requestDto = new CrawlRequestDto();
-        requestDto.setCrawlingUrl(url);
-        requestDto.setLogId(logId);
-        // todo 환경변수 필요
-        requestDto.setCallbackUrl("http://localhost:8080/api/crawling/callback/swimsuits");
+        CrawlRequestDto requestDto = new CrawlRequestDto(logId, url);
+        requestDto.setCallbackUrl(crawlingCallbackUrl.concat("/swimsuits"));
 
         return webClient.post()
                 .uri("/crawl/swimsuits")
                 .bodyValue(requestDto)
                 .retrieve()
-                .bodyToMono(CrawlResponseDto.class)
+                .bodyToMono(Void.class)
                 .doOnSuccess(response -> log.info("Async swimsuit crawling completed: {}", response))
                 .doOnError(error -> log.error("Async swimsuit crawling failed for URL: {}", url, error));
     }
@@ -120,17 +120,18 @@ public class FastapiWebClient implements FastapiClient {
     /**
      * 비동기 방식으로 수모 크롤링 (Reactive)
      */
-    public Mono<CrawlResponseDto> crawlSwimcapAsync(String url) {
+    @Override
+    public Mono<Void> crawlSwimcapsAsync(String url, Long logId) {
         log.info("Async crawling swimcaps from URL: {}", url);
 
-        CrawlRequestDto requestDto = new CrawlRequestDto();
-        requestDto.setCrawlingUrl(url);
+        CrawlRequestDto requestDto = new CrawlRequestDto(logId, url);
+        requestDto.setCallbackUrl(crawlingCallbackUrl.concat("/swimcaps"));
 
         return webClient.post()
-                .uri("/api/crawl/swimcaps")
+                .uri("/crawl/swimcaps")
                 .bodyValue(requestDto)
                 .retrieve()
-                .bodyToMono(CrawlResponseDto.class)
+                .bodyToMono(Void.class)
                 .doOnSuccess(response -> log.info("Async swimcap crawling completed: {}", response))
                 .doOnError(error -> log.error("Async swimcap crawling failed for URL: {}", url, error));
     }
