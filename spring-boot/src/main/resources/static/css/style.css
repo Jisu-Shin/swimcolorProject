@@ -166,12 +166,10 @@ body {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.2s ease;
-    margin-left: -8px; /* 여백 최적화 */
 }
 
 .hamburger i {
@@ -185,7 +183,7 @@ body {
 
 /* 로고 */
 .logo a{
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
     white-space: nowrap;
     text-decoration: none;
@@ -382,11 +380,11 @@ body {
 }
 
 /* ==== 수영복 목록 페이지 ==== */
-.swimsuit-products {
+.swimsuit-list {
     padding: 15px 0;
 }
 
-.swimsuit-products h2 {
+.swimsuit-list h2 {
     font-size: 24px;
     font-weight: 800;
     color: var(--dark-text);
@@ -640,37 +638,52 @@ a:focus, button:focus, input:focus {
     outline-offset: 2px;
 }
 
-/* ==============================
-   반응형 조정 (모바일: 글자 크기 축소, 3열 유지)
-   ============================== */
+/* ============================================================
+   [1] 태블릿 환경 (1024px 이하 ~ 411px)
+   - 넓은 화면에서 좁아지는 구간 대응
+   ============================================================ */
 @media (max-width: 1024px) {
     .hero {
         padding: 56px 18px;
     }
-    .features-grid { gap: 18px; min-width: calc(3 * 200px + 2 * 18px); grid-template-columns: repeat(3, minmax(200px, 1fr)); }
-    .product-preview-card img { height: 220px; }
+
+    /* 3열 유지하되 가로 스크롤 대비 */
+    .features-grid {
+        gap: 18px;
+        min-width: calc(3 * 200px + 2 * 18px);
+        grid-template-columns: repeat(3, minmax(200px, 1fr));
+    }
+
+    .product-preview-card img {
+        height: 220px;
+    }
 }
 
-@media (max-width: 768px) {
-
+/* ============================================================
+   [2] 모바일 환경 (430 이하)
+   - 아이폰 16 Pro(402px) 및 최신 기기 대응
+   - 기존 768px/400px의 모바일 스타일 통합
+   ============================================================ */
+@media (max-width: 430px) {
+    /* --- 헤더 & 네비게이션 --- */
     .header {
-        height: 64px; /* 모바일에서 조금 더 슬림하게 */
+        height: 64px;
     }
 
     .header-container {
-        padding: 0 16px;
-        gap: 8px;
+        padding: 0 12px;
+        gap: 6px;
     }
 
     .header-left {
-        gap: 8px; /* 모바일 간격 좁히기 */
+        gap: 4px;
     }
 
     .logo a {
-        font-size: 18px; /* 로고 크기 살짝 조정 */
+        font-size: 20px;
     }
 
-    /* 1. 평소 상태: 검색바를 아이콘 크기로 축소 */
+    /* 검색바 활성화 로직 */
     .search-bar {
         width: 40px;
         background: transparent;
@@ -685,13 +698,12 @@ a:focus, button:focus, input:focus {
         transition: all 0.3s ease;
     }
 
-    /* 2. 활성화 상태 (search-active 클래스가 붙었을 때) */
     .header.search-active .header-left {
-        display: none; /* 로고와 햄버거 숨기기 */
+        display: none;
     }
 
     .header.search-active .search-bar {
-        width: 100%; /* 헤더 전체 차지 */
+        width: 100%;
         background: var(--light-blue);
         border-radius: 50px;
         padding: 4px 12px;
@@ -704,173 +716,106 @@ a:focus, button:focus, input:focus {
         padding: 8px 10px;
     }
 
-    .header.search-active .search-btn {
-        background: var(--primary-blue);
-        color: white;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-    }
-
-    /* 히어로 텍스트 축소 (모바일 가독성 유지) */
+    /* --- 히어로 섹션 --- */
     .hero {
-        padding: 40px 14px;
-    }
-    .hero-content p { font-size: 14px; }
-
-    /* features-grid는 '무조건 3열' 요구에 맞춰 열 수 유지.
-       폭이 좁을 경우 가로 스크롤이 생기도록 .features-wrapper를 사용.
-       대신 카드 내부 텍스트는 작게 줄여서 한 번 더 공간 확보. */
-    .features-grid {
-        grid-template-columns: repeat(3, minmax(160px, 1fr));
-        gap: 12px;
-        min-width: calc(3 * 160px + 2 * 12px);
-    }
-    .feature-card {
-        padding: 12px;
-    }
-    .feature-icon { font-size: 24px; margin-bottom: 6px; }
-    .feature-card p { font-size: 12px; color: #6b7a82; display: block; }
-
-    /* 인기 상품: 2열으로 전환 (이미지 크기 감소) */
-    .products-preview-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-    }
-    .product-preview-card img { height: 160px; }
-
-    /* 모바일 수영복 목록 페이지 */
-    .swimsuit-products h2 {
-        font-size: 20px;
-        margin-bottom: 20px;
+        padding: 28px 12px;
     }
 
-    .product-preview-info p:nth-child(2) {
-        font-size: 14px; /* 모바일에서 폰트 살짝 조정 */
-    }
-
-    /* 모바일 상세 페이지 */
-    .detail-container {
-        flex-direction: column; /* 상하 배치로 변경 */
-        gap: 20px;
-    }
-
-    .detail-left, .detail-right {
-        width: 100%; /* 전체 너비 사용 */
-    }
-
-    /* 모바일에서는 수영복 상세 텍스트가 조금 더 정돈되어 보이게 */
-    .detail-info {
-        font-size: 15px;
-        padding: 0 5px;
-    }
-
-    .detail-right h3 {
-        font-size: 16px;
-        margin-bottom: 10px;
-    }
-
-    .cap-item .color-palette {
-        flex-direction: column;   /* 위아래(세로)로 배치 변경 */
-        align-items: flex-start;  /* 왼쪽 정렬 */
-    }
-
-    .caps-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
-
-    .cap-item img {
-        height: 120px;
-    }
-
-    /* 푸터 1열 */
-    .footer-container {
-        grid-template-columns: 1fr; /* 세로로 쌓기 */
-        text-align: center;
-        gap: 30px;
-    }
-    .social-icons {
-        justify-content: center;
-    }
-
-    /* 햄버거와 검색바 정렬 최적화 */
-    .header-container { gap: 8px; }
-    .logo { font-size: 18px; }
-    .search-bar { max-width: none; margin-left: 6px; }
-
-    .footer-bottom {
-        margin: 20px auto 0;
-        padding: 20px;
-    }
-}
-
-/* 초소형 기기(380px 이하) 추가 축소 */
-@media (max-width: 400px) {
     h1 {
         font-size: 25px;
     }
 
-    h2 {
-        font-size: 22px;
-        margin-bottom: 8px;
+    .hero-content p {
+        font-size: 14px;
     }
-
-    .header-container {
-        padding: 0 12px; /* 좌우 여백 축소 */
-        gap: 6px;
-    }
-
-    .header-left {
-        gap: 4px; /* 햄버거와 로고 사이를 더 붙임 */
-    }
-
-    .logo a {
-        font-size: 17px; /* 짤리지 않도록 로고 크기 조정 */
-    }
-
-    .header.search-active .header-container {
-        padding: 0 10px;
-    }
-
-    .hero { padding: 28px 12px; }
 
     .cta-button {
         font-size: 13px;
         padding: 5px 20px;
     }
-    .feature-card h3 { font-size: 15px; }
-    .feature-card p { font-size: 11px; }
+
+    /* --- 특징(Features) 섹션 (3열 유지) --- */
+    .features-grid {
+        grid-template-columns: repeat(3, minmax(110px, 1fr)); /* 폭 더 축소 */
+        gap: 8px;
+        min-width: 500px;
+    }
+
+    .feature-card {
+        padding: 10px;
+    }
+
+    .feature-card h3 {
+        font-size: 14px;
+    }
+
+    .feature-card p {
+        font-size: 11px;
+        display: block;
+    }
+
+    .feature-icon {
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+
+    /* --- 상품 리스트/그리드 --- */
+    .products-preview-grid, .caps-grid {
+        grid-template-columns: repeat(2, 1fr); /* 모바일은 기본 2열 */
+        gap: 12px;
+    }
+
+    .product-preview-card img, .cap-item img {
+        height: 200px;
+    }
 
     .product-preview-info p {
         font-size: 14px;
     }
 
+    /* --- 상세 페이지 --- */
+    .detail-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .detail-left, .detail-right {
+        width: 100%;
+    }
+
     .img-container {
         width: 100%;
-        overflow: hidden;
-        background-color: #fff;
-        border-radius: 8px;
-        /* 모바일에서 아래 요소와의 간격 */
         margin-bottom: 15px;
     }
 
     .img-container img {
         width: 100%;
-        /* 모바일: 요청하신 고정 높이 400px */
-        height: 400px;
-        /* 모바일: 꽉 채우기 */
+        height: 400px; /* 요청하신 고정 높이 */
         object-fit: cover;
         object-position: top;
-        box-shadow: var(--shadow-2);
+    }
+
+    .cap-item .color-palette {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* --- 푸터 --- */
+    .footer-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 25px;
+    }
+
+    .social-icons {
+        justify-content: center;
     }
 
     .footer-content {
         gap: 5px;
     }
- */
 }
 
-/* 유틸리티: 숨기기 / 중앙 정렬 등 */
+/* 유틸리티 */
 .hide-mobile { display: none; }
 .center { text-align: center; }

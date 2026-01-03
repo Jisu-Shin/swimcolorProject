@@ -1,98 +1,17 @@
-/** 1. 공통 폴링 함수 (Promise 기반)
- * 특정 카테고리가 COMPLETED가 될 때까지 2초마다 확인합니다.
- */
-function waitForCompletion(category) {
-    return new Promise((resolve, reject) => {
-        const check = () => {
-            oper.ajax("GET", null, `/api/admin/crawlStatus/${category}`, function(status) {
-                console.log(`${category} 현재 상태: ${status}`);
-
-                if (status === "COMPLETED") {
-                    resolve(); // 약속 이행!
-                } else if (status === "FAILED") {
-                    reject(new Error("크롤링 중 서버 에러 발생")); // 약속 파기!
-                } else {
-                    setTimeout(check, 5000); // 4초 뒤 재시도
-                }
-            });
-        };
-        check();
-    });
-}
-
 /**
- * 2. 수영복 크롤링 함수
+ * [A] 페이지 초기화 및 상태 복구 로직
  */
-async function runSwimsuitCrawl() {
-    const $btn = $('#btn-crawl-swimsuit'); // ID로 직접 지정
-    const url = $('#swimsuitUrl').val();
-
-    if(oper.isEmpty(url)) return alert("수영복 URL을 입력해 주세요.");
-
-    // [Step 1] UI 잠금
-    $btn.prop('disabled', true).text("크롤링 중...");
-    $('#swimsuitUrl').prop('disabled', true);
-
-    try {
-        // [Step 2] 크롤링 시작 요청 (POST)
-        // oper.ajax가 내부적으로 Promise를 반환하지 않는다면 아래처럼 감쌀 수 있어요.
-        const data = {
-                        crawlingUrl: url
-                     };
-        await new Promise((res) => oper.ajax("POST", data, "/api/admin/crawlSwimsuits", res));
-
-        // [Step 3] 완료될 때까지 대기
-        await waitForCompletion('SWIMSUIT');
-
-        alert("수영복 크롤링이 완료되었습니다!");
-    } catch (error) {
-        alert("크롤링 실패: " + error.message);
-    } finally {
-        // [Step 4] 무조건 버튼 복구
-        $btn.prop('disabled', false).text("수영복 크롤링");
-        $('#swimsuitUrl').prop('disabled', false).val('');
-    }
-}
-
-/**
- * 3. 수모 크롤링 함수 (복사해서 ID와 카테고리만 바꾸면 끝!)
- */
-async function runSwimcapCrawl() {
-    const $btn = $('#btn-crawl-swimcap');
-    const url = $('#swimcapUrl').val();
-
-    if(oper.isEmpty(url)) return alert("수모 URL을 입력해 주세요.");
-
-    $btn.prop('disabled', true).text("크롤링 중...");
-    $('#swimcapUrl').prop('disabled', true);
-
-    try {
-        const data = {
-                        crawlingUrl: url
-                     };
-        await new Promise((res) => oper.ajax("POST", data, "/api/admin/crawlSwimcaps", res));
-
-        await waitForCompletion('SWIMCAP');
-        alert("수모 크롤링이 완료되었습니다!");
-    } catch (error) {
-        alert("실패: " + error.message);
-    } finally {
-        $btn.prop('disabled', false).text("수모 크롤링");
-        $('#swimcapUrl').prop('disabled', false).val('');
-    }
-}
-
 var main = {
-    init : function() {
-        var _this = this;
-
-        // 1. 페이지 로드 시 현재 URL에 맞는 메뉴 활성화 (새로고침 대응)
+    init: function() {
+        const _this = this;
         _this.loadActiveMenu();
 
-        // 2. 클릭 시 즉각적인 시각 효과 (페이지 이동 전)
         $('.nav-menu a').on('click', function () {
             _this.activate($(this));
         });
+
+        // 페이지 로드 시 진행 중인 작업이 있는지 서버에 확인
+        checkCurrentStatus();
     },
 
     activate: function (element) {
@@ -101,40 +20,149 @@ var main = {
     },
 
     loadActiveMenu: function () {
-        var currentPath = window.location.pathname;
-//        console.log("현재 경로:", currentPath);
-
+        const currentPath = window.location.pathname;
         $('.nav-menu a').each(function () {
-            var targetPath = $(this).attr('href');
-//            console.log("비교 대상:", targetPath);
-
-            // 경로가 정확히 일치하는지 확인
-            if (currentPath === targetPath) {
+            if (currentPath === $(this).attr('href')) {
                 $(this).addClass('active');
-//                console.log("일치함! active 추가");
+            }
+        });
+    }
+};
+
+/**
+ * [B] 크롤링 상태 관리 엔진
+ */
+
+// 1. 현재 진행 중인 작업 복구 (새로고침 대응)
+async function checkCurrentStatus() {
+    const categories = ['SWIMSUIT', 'SWIMCAP'];
+
+    for (const category of categories) {
+        oper.ajax("GET", null, `/api/admin/crawlStatus/${category}`, async function(status) {
+            if (status === "RUNNING") {
+                console.log(`[복구] ${category} 작업이 진행 중입니다.`);
+
+                const isSwimsuit = (category === 'SWIMSUIT');
+                const $btn = isSwimsuit ? $('#btn-crawl-swimsuit') : $('#btn-crawl-swimcap');
+                const $input = isSwimsuit ? $('#swimsuitUrl') : $('#swimcapUrl');
+                const storageKey = isSwimsuit ? 'lastSwimsuitUrl' : 'lastSwimcapUrl';
+
+                // UI 잠금 및 대기 시작
+                $btn.prop('disabled', true).text("수집 중(복구됨)...");
+                $input.prop('disabled', true);
+
+                const savedUrl = localStorage.getItem(storageKey);
+                if (savedUrl) {
+                    $input.val(savedUrl);
+                }
+
+                try {
+                    await waitForCompletion(category);
+                    alert(`${category} 크롤링이 완료되었습니다!`);
+                } catch (e) {
+                    alert(`${category} 작업 중 문제가 발견되었습니다.`);
+                } finally {
+                    // 완료 후 정리
+                    $btn.prop('disabled', false).text(isSwimsuit ? "수영복 크롤링" : "수모 크롤링");
+                    $input.prop('disabled', false).val('');
+                    localStorage.removeItem(isSwimsuit ? 'lastSwimsuitUrl' : 'lastSwimcapUrl');
+                }
             }
         });
     }
 }
 
+// 2. 특정 상태가 될 때까지 폴링하는 약속(Promise)
+function waitForCompletion(category) {
+    return new Promise((resolve, reject) => {
+        const check = () => {
+            oper.ajax("GET", null, `/api/admin/crawlStatus/${category}`, function(status) {
+                if (status === "COMPLETED") {
+                    resolve();
+                } else if (status === "FAILED") {
+                    reject(new Error("서버에서 작업 실패 응답을 받았습니다."));
+                } else {
+                    setTimeout(check, 5000); // 5초 간격
+                }
+            });
+        };
+        check();
+    });
+}
+
+/**
+ * [C] 크롤링 실행 함수
+ */
+
+// 수영복 크롤링 실행
+async function runSwimsuitCrawl() {
+    const $btn = $('#btn-crawl-swimsuit');
+    const $input = $('#swimsuitUrl');
+    const url = $input.val();
+
+    if(oper.isEmpty(url)) return alert("수영복 URL을 입력해 주세요.");
+
+    // UI 잠금 및 로컬 저장
+    $btn.prop('disabled', true).text("크롤링 중...");
+    $input.prop('disabled', true);
+    localStorage.setItem('lastSwimsuitUrl', url);
+
+    try {
+        // 1. 비동기 시작 요청 (POST)
+        await new Promise((res) => oper.ajax("POST", { crawlingUrl: url }, "/api/admin/crawlSwimsuits", res));
+
+        // 2. 완료 대기
+        await waitForCompletion('SWIMSUIT');
+        alert("수영복 크롤링 완료!");
+    } catch (error) {
+        alert("크롤링 실패: " + error.message);
+        console.error(error);
+    } finally {
+        // 3. UI 복구
+        $btn.prop('disabled', false).text("수영복 크롤링");
+        $input.prop('disabled', false).val('');
+        localStorage.removeItem('lastSwimsuitUrl');
+    }
+}
+
+// 수모 크롤링 실행 (수영복과 동일 로직)
+async function runSwimcapCrawl() {
+    const $btn = $('#btn-crawl-swimcap');
+    const $input = $('#swimcapUrl');
+    const url = $input.val();
+
+    if(oper.isEmpty(url)) return alert("수모 URL을 입력해 주세요.");
+
+    $btn.prop('disabled', true).text("크롤링 중...");
+    $input.prop('disabled', true);
+    localStorage.setItem('lastSwimcapUrl', url);
+
+    try {
+        await new Promise((res) => oper.ajax("POST", { crawlingUrl: url }, "/api/admin/crawlSwimcaps", res));
+        await waitForCompletion('SWIMCAP');
+        alert("수모 크롤링 완료!");
+    } catch (error) {
+        alert("크롤링 실패: " + error.message);
+        console.error(error);
+    } finally {
+        $btn.prop('disabled', false).text("수모 크롤링");
+        $input.prop('disabled', false).val('');
+        localStorage.removeItem('lastSwimcapUrl');
+    }
+}
+
+/**
+ * [D] 유틸리티 및 공통 AJAX
+ */
 var oper = {
-    // 값이 비어있는지 체크
-    isEmpty : function(value) {
-        return (value == "" || value == null || value == undefined);
-    },
+    isEmpty: (v) => v == "" || v == null || v == undefined,
 
-    // 공통 AJAX 함수
-    ajax : function(type, data, url, callback) {
-
-        // 1. Spring Security CSRF 토큰 가져오기 (나중을 위해 미리 세팅)
-        // HTML 메타 태그에 csrf 정보가 있다면 가져옵니다.
+    ajax: function(type, data, url, callback) {
         const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
 
-        // GET이면 쿼리스트링 처리
-        if (type.toUpperCase() === "GET" && data && Object.keys(data).length > 0) {
-            const queryString = new URLSearchParams(data).toString();
-            url += (url.includes("?") ? "&" : "?") + queryString;
+        if (type.toUpperCase() === "GET" && data) {
+            url += (url.includes("?") ? "&" : "?") + new URLSearchParams(data).toString();
             data = null;
         }
 
@@ -142,35 +170,17 @@ var oper = {
             type: type,
             url: url,
             contentType: 'application/json; charset=utf-8',
-            data: (type.toUpperCase() === "GET") ? null : JSON.stringify(data),
-            // 2. 요청 헤더에 CSRF 토큰 추가 (시큐리티 대응)
+            data: data ? JSON.stringify(data) : null,
             beforeSend: function(xhr) {
-                if (csrfToken && csrfHeader) {
-                    xhr.setRequestHeader(csrfHeader, csrfToken);
-                }
+                if (csrfToken && csrfHeader) xhr.setRequestHeader(csrfHeader, csrfToken);
             }
         })
-        .done(function(response) {
-            if (callback) callback(response);
-        })
-        .fail(function(xhr, status, error) {
-            console.error('요청 실패:', xhr);
-            let errMsg = xhr.responseJSON?.message || xhr.responseText || error || '알 수 없는 오류';
-
-            if (xhr.responseJSON?.errors) {
-                let fieldErrors = xhr.responseJSON.errors;
-                let errorDetails = '\n';
-                for (let field in fieldErrors) {
-                    errorDetails += `- ${fieldErrors[field]}\n`;
-                }
-                errMsg += errorDetails;
-            }
-            alert("에러 발생: " + errMsg);
+        .done((res) => { if(callback) callback(res); })
+        .fail((xhr) => {
+            console.error('AJAX Error:', xhr);
+            alert("에러 발생: " + (xhr.responseJSON?.message || "서버 통신 실패"));
         });
     }
 };
 
-// 화면이 다 준비된 후에 실행해라!
-$(document).ready(function() {
-    main.init();
-});
+$(document).ready(() => main.init());

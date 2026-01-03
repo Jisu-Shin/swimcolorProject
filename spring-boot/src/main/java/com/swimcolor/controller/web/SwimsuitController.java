@@ -3,10 +3,12 @@ package com.swimcolor.controller.web;
 import com.swimcolor.dto.SwimsuitListDto;
 import com.swimcolor.service.SwimsuitService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -16,9 +18,9 @@ public class SwimsuitController {
     private final SwimsuitService swimsuitService;
 
     @GetMapping("/swimsuits")
-    public String getSwimsuitList(Model model){
-        List<SwimsuitListDto> allSwimsuit = swimsuitService.getAllSwimsuit();
-        model.addAttribute("products",allSwimsuit);
+    public String getSwimsuitList(Model model, @RequestParam(value="page", defaultValue="0") int page){
+        Page<SwimsuitListDto> products = swimsuitService.getSwimsuitList(page);
+        model.addAttribute("products",products);
         return "swimsuitList";
     }
 

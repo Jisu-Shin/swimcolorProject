@@ -13,7 +13,7 @@
     <div class="hero-content">
       <h1>당신의 수영복에 완벽한 수모를 찾아보세요</h1>
       <p>수영복과 수모의 완벽한 매칭으로 스타일을 완성하세요</p>
-      <button class="cta-button primary" onclick="goToProducts()">지금 시작하기</button>
+      <button class="cta-button primary" onclick="nav.goToSwimsuits()">지금 시작하기</button>
     </div>
   </section>
 
@@ -47,7 +47,7 @@
   <section class="popular-products">
     <h2>인기있는 수영복</h2>
     <div class="products-preview-grid">
-      <div class="product-preview-card" th:each="product : ${products}" th:onclick="goToSwimsuitDetail([[${product.id}]])">
+      <div class="product-preview-card" th:each="product : ${products}" th:onclick="nav.goToSwimsuitDetail([[${product.id}]])">
         <img th:src="${product.imageUrl}" th:alt="${product.name}">
 
         <div class="product-preview-info">
@@ -59,7 +59,7 @@
       </div>
     </div>
     <div class="all-products-cta">
-      <button class="cta-button secondary" onclick="goToProducts()">
+      <button class="cta-button secondary" onclick="nav.goToSwimsuits()">
         <span>모든 수영복 보기</span>
         <i class="bi bi-arrow-right"></i> </button>
     </div>

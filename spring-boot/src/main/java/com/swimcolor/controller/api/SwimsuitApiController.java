@@ -6,6 +6,7 @@ import com.swimcolor.dto.SwimsuitListDto;
 import com.swimcolor.service.RecommendationService;
 import com.swimcolor.service.SwimsuitService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,11 @@ public class SwimsuitApiController {
 
     private final SwimsuitService swimsuitService;
     private final RecommendationService recommendationService;
+
+    @GetMapping("/next")
+    public Page<SwimsuitListDto> getNextSwimsuits(@RequestParam(value="page", defaultValue="0") int page) {
+        return swimsuitService.getSwimsuitList(page);
+    }
 
     @GetMapping("/{id}")
     public SwimsuitListDto getSwimsuit(@PathVariable String id) {
