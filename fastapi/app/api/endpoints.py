@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 router = APIRouter()
 
 # 전역 변수로 쓰레드 풀 생성 (동시 작업 수 제한)
-executor = ThreadPoolExecutor(max_workers=2)
+executor = ThreadPoolExecutor(max_workers=1)
 
 @router.get("/")
 async def root(db: Session = Depends(get_db)):
