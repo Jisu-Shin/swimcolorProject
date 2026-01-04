@@ -27,20 +27,27 @@ class SwimcapCrawler:
         """크롬 드라이버 설정 및 실행"""
         options = uc.ChromeOptions()
 
-        # .env에 CHROME_PATH가 없으면 None을 반환함
-        chrome_path = os.getenv('CHROME_PATH')
-
-        if self.headless:
-            options.add_argument('--headless=new')  # 브라우저 창을 띄우지 않음
-
+        # 리눅스 서버 환경 필수 옵션
         options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--disable-dev-shm-usage')  # 중요!
+        options.add_argument('--disable-gpu')
         options.add_argument('--window-size=1920,1080')
 
-        self.driver = uc.Chrome(
-            options=options
-            , browser_executable_path=chrome_path
-        )
+        chrome_path = os.getenv('CHROME_PATH')  # 기본값 설정
+
+        print(f"--- 드라이버 실행 시도 (Path: {chrome_path}) ---")
+
+        try:
+            self.driver = uc.Chrome(
+                options=options,
+                browser_executable_path=chrome_path,
+                headless=self.headless,  # options에 넣지 말고 여기에 직접!
+                use_subprocess=True  # 리눅스 환경에서 충돌 방지 핵심
+            )
+            print("--- 드라이버 실행 성공! ---")
+        except Exception as e:
+            print(f"--- 드라이버 실행 실패: {str(e)} ---")
+            raise e
 
     def quit_driver(self):
         """드라이버 종료"""
@@ -62,7 +69,7 @@ class SwimcapCrawler:
     def wait_for_load(self):
         """페이지 로딩 대기"""
         try:
-            WebDriverWait(self.driver, 15).until(
+            WebDriverWait(self.driver, 20).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'sc-2667f19f-45'))
             )
             return True
@@ -163,10 +170,10 @@ class SwimcapCrawler:
                 self.driver.get(full_url)
 
                 # 페이지 로딩 대기
+                # --- 재시도 없이 바로 체크 ---
                 if not self.wait_for_load():
-                    logger.warning("⚠️ 페이지 로딩 실패, 재시도...")
-                    time.sleep(2)
-                    continue
+                    # 여기서 바로 에러를 던지면 finally로 가서 드라이버 끄고 끝남!
+                    raise Exception(f"페이지 로딩 실패 (URL: {full_url})")
 
                 # 현재 페이지의 상품 크롤링
                 if not self.crawl_page():
@@ -184,6 +191,9 @@ class SwimcapCrawler:
 
         except Exception as e:
             logger.exception(f"❌ 크롤링 중 오류 발생:  {e}")
+
+            # ⭐ 핵심: 에러를 다시 던져야 아래 return 문으로 안 내려가!
+            raise e
 
         finally:
             self.quit_driver()
