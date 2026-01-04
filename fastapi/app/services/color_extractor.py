@@ -36,6 +36,10 @@ class ColorExtractor:
             # URL에서 다운로드
             response = requests.get(image_source)
             img = Image.open(BytesIO(response.content))
+
+            # 색상 분석용으로 이미지를 작게 리사이징
+            img.thumbnail((400, 400), Image.LANCZOS)
+
             return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
         else:
             # 로컬 파일
@@ -130,8 +134,8 @@ class ColorExtractor:
         kmeans = KMeans(
             n_clusters=n_clusters,
             random_state=42,
-            n_init=10,
-            max_iter=300
+            n_init=1,
+            max_iter=50
         )
         kmeans.fit(pixels)
 
