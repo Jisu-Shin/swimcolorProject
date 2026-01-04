@@ -32,6 +32,7 @@ class SwimcapCrawler:
         options.add_argument('--disable-dev-shm-usage')  # 중요!
         options.add_argument('--disable-gpu')
         options.add_argument('--window-size=1920,1080')
+        options.add_argument('--blink-settings=imagesEnabled=false') # 이미지 로딩 끄기
 
         chrome_path = os.getenv('CHROME_PATH')  # 기본값 설정
 

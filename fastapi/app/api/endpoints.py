@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 router = APIRouter()
 
 # 전역 변수로 쓰레드 풀 생성 (동시 작업 수 제한)
-executor = ThreadPoolExecutor(max_workers=1)
+executor = ThreadPoolExecutor(max_workers=None)
 
 @router.get("/")
 async def root(db: Session = Depends(get_db)):
@@ -84,24 +84,14 @@ async def run_crawling_task(log_id: int, url: str, callback_url: str, item_type:
         item_type: 아이템 타입 (SWIMSUIT 또는 SWIMCAP)
     """
 
-    loop = asyncio.get_running_loop()
-
     try:
-        # 3. ⭐ 핵심: 일반 함수(def)인 크롤링 로직만 executor로 격리 실행
-        # 여기서 'await'를 붙여줘야 크롤링이 끝날 때까지 이 함수 내에서만 기다려
         if item_type == ItemType.SWIMCAP:
-            extracted_products = await loop.run_in_executor(
-                executor,
-                crawl_swimcap_and_extract_colors,  # 일반 함수
-                url  # 인자
-            )
+            # 직접 호출 (함수 내부에서 run_in_executor를 이미 쓰고 있으니까!)
+            extracted_products = await crawl_swimcap_and_extract_colors(url)
+
         elif item_type == ItemType.SWIMSUIT:
-            extracted_products = await loop.run_in_executor(
-                executor,
-                crawl_swimsuit_and_extract_colors,  # 일반 함수
-                url  # 인자
-            )
-        # (기타 타입 처리...)
+            # 수영복 함수도 async로 고쳤다면 똑같이 await
+            extracted_products = await crawl_swimsuit_and_extract_colors(url)
 
         response_data = CrawlResponse(logId=log_id, crawlStatus="COMPLETED", errorMsg="", products=extracted_products)
 
