@@ -61,7 +61,7 @@ async def crawl_swimcap_and_extract_colors(url):
     # 4. 결과 매핑
     for product, colors in zip(products, all_colors_results):
         if isinstance(colors, Exception):
-            print(f"❌ 색상 추출 실패 ({product.get('name', 'Unknown')}): {colors}")
+            print(f"❌ 색상 추출 실패 ({product.get('name', 'Unknown')})")
             product['colors'] = []
         else:
             product['colors'] = [color['hex'] for color in colors]
