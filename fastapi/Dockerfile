@@ -44,6 +44,6 @@ ENV PYTHONUNBUFFERED=1
 # 9. 포트
 EXPOSE 8000
 
-# 10. 🔥 FastAPI 실행 (Gunicorn + 120초 타임아웃)
-CMD ["gunicorn","run:app","-k","uvicorn.workers.UvicornWorker","--workers","1","--bind","0.0.0.0:8000","--timeout","600"]
+# 10. 🔥 FastAPI 실행 (Gunicorn + 1800초 타임아웃)
+CMD ["gunicorn","run:app","-k","uvicorn.workers.UvicornWorker","--workers","2","--bind","0.0.0.0:8000","--timeout","1800"]
 
