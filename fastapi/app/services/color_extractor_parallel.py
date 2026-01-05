@@ -7,14 +7,18 @@ import requests
 from io import BytesIO
 from PIL import Image
 import matplotlib.pyplot as plt
+from concurrent.futures import ThreadPoolExecutor
 from app.config import settings
 import logging
 import os
+import asyncio
+import gc
+import time
 
 logger = logging.getLogger(__name__)
 
 
-class ColorExtractor:
+class ColorExtractorParallel:
     """
     YOLO로 수영복 탐지 → 해당 영역만 크롭 → K-means로 색상 추출
     바운딩 박스 그리기가 아닌, 객체 추출 용도로 YOLO 사용
@@ -24,6 +28,9 @@ class ColorExtractor:
         """YOLO 모델 초기화"""
         self.model = YOLO(yolo_model_path)
         logger.info(f"✓ YOLO 모델 로드 완료: {yolo_model_path}")
+
+        # 다운로드 전용 ThreadPoolExecutor
+        self.download_executor = ThreadPoolExecutor(max_workers=6)
 
     def load_image(self, image_source):
         """
@@ -39,11 +46,46 @@ class ColorExtractor:
 
             # 색상 분석용으로 이미지를 작게 리사이징
             img.thumbnail((160, 160), Image.LANCZOS)
-
             return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
         else:
             # 로컬 파일
             return cv2.imread(image_source)
+
+    async def load_images_parallel(self, image_urls):
+        """
+        여러 이미지 병렬 다운로드 & 로드
+
+        Args:
+            image_urls: 이미지 URL 리스트
+
+        Returns:
+            List[np.ndarray]: OpenCV 이미지 리스트 (모두 160x160)
+        """
+        if not image_urls:
+            return []
+
+        loop = asyncio.get_running_loop()
+
+        # 클래스 레벨 executor로 병렬 로드
+        images = await asyncio.gather(
+            *[loop.run_in_executor(
+                self.download_executor,
+                self.load_image,
+                url
+            ) for url in image_urls],
+            return_exceptions=True  # 예외도 리스트로 받기
+        )
+
+        # 예외 필터링
+        valid_images = []
+        for i, img in enumerate(images):
+            if isinstance(img, Exception):
+                logger.warning(f"이미지 로드 실패 [{i}]: {image_urls[i]} - {img}")
+            else:
+                valid_images.append(img)
+
+        logger.info(f"이미지 로드 완료: {len(valid_images)}/{len(image_urls)} 성공")
+        return valid_images
 
     def crop_swimsuit_only(self, image, conf_threshold=0.5, target_class=0):
         """
@@ -111,8 +153,13 @@ class ColorExtractor:
         # BGR → RGB 변환
         rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
+        # 여기에 한 줄 추가 (채도 높은 픽셀만) - 회색 픽셀 제거
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        sat_mask = hsv[:, :, 1] > 20  # 채도 20 이상만 (높을수록 진한색만 추출)
+
         # 이미지를 1차원 픽셀 배열로 변환
-        pixels = rgb_image.reshape(-1, 3)
+        rgb_pixels = rgb_image.reshape(-1, 3)
+        pixels = rgb_pixels[sat_mask.flatten()]  # 필터링된 픽셀만!
 
         # 극단적인 색상 제거 (선택적)
         if remove_extreme:
@@ -120,7 +167,7 @@ class ColorExtractor:
             brightness = np.mean(pixels, axis=1)
 
             # 너무 밝거나 어두운 픽셀 제거 (배경/그림자 제거)
-            mask = (brightness > 25) & (brightness < 230)
+            mask = (brightness > 15) & (brightness < 240)
             pixels_filtered = pixels[mask]
 
             if len(pixels_filtered) < 100:  # 필터링 후 픽셀이 너무 적으면
@@ -134,7 +181,7 @@ class ColorExtractor:
         kmeans = KMeans(
             n_clusters=n_clusters,
             random_state=42,
-            n_init=1,
+            n_init=5,
             max_iter=50
         )
         kmeans.fit(pixels)
@@ -218,78 +265,96 @@ class ColorExtractor:
             plt.savefig(save_path, dpi=150, bbox_inches='tight')
         plt.show()
 
-    def process_swimsuit_image(self, image_source, n_colors=5,
-                               conf_threshold=0.5, visualize=True):
+    async def extract_segment_colors(self, image_urls, n_colors=5,
+                               conf_threshold=0.5, visualize=False):
         """
-        전체 파이프라인: 이미지 → 수영복 크롭 → 색상 추출
+        전체 파이프라인: 이미지 전체 다운로드 → (수영복/수모 크롭 → 색상 추출)
 
         Parameters:
-        - image_source: 이미지 경로 또는 URL
+        - image_urls: 이미지 URL 리스트
         - n_colors: 추출할 색상 개수
         - conf_threshold: 탐지 신뢰도 임계값
         - visualize: 결과 시각화 여부
 
         Returns:
-        - cropped_image: 크롭된 수영복 이미지
-        - colors: 추출된 색상 리스트
+        - List[Dict]: 각 이미지별 {'colors': [...], 'image_url': str}
         """
         logger.debug("\n" + "=" * 60)
-        logger.debug("🏊 수영복 색상 추출 시작")
+        logger.debug("🏊 상품 색상 추출 시작")
         logger.debug("=" * 60 + "\n")
 
+        if not image_urls:
+            return []
+
+        start_time = time.time()
+
         # 1. 이미지 로드
-        logger.debug("1️⃣ 이미지 로드 중...")
-        original_image = self.load_image(image_source)
-        logger.debug(f"   이미지 크기: {original_image.shape[1]}x{original_image.shape[0]}px\n")
+        print("1️⃣ 이미지 병렬 다운로드 중...")
+        images = await self.load_images_parallel(image_urls)
 
-        # 2. YOLO로 수영복 탐지 & 크롭
-        try :
-            logger.debug("2️⃣ YOLO로 수영복/수모 탐지 중...")
-            cropped_image = self.crop_swimsuit_only(
-                original_image,
-                conf_threshold=conf_threshold
-            )
+        # 🚀 2. YOLO 배치 탐지 (4개씩)
+        # print("2️⃣ YOLO 배치 탐지 중...")
+        # yolo_start = time.time()
+        # yolo_results = self.detect_swimsuits_batch(images, conf_threshold)
+        # logger.debug(f"   ✅ 배치 탐지 완료 ({time.time() - yolo_start:.1f}s)")
 
-            # ⭐ 핵심 1: 원본 이미지는 크롭 직후 바로 메모리에서 삭제!
-            # (이미지 한 장이 5~10MB라면, 연산 과정에서 수십 배로 불어남)
-            del original_image
+        # 🚀 3. 병렬 색상 추출
+        print("3️⃣ 병렬 색상 추출 중...")
+        color_start = time.time()
+        all_colors = await self.extract_colors_parallel(images, n_colors)
+        total_time = time.time() - start_time
 
-            # 3. K-means로 색상 추출
-            logger.debug("3️⃣ K-means로 주요 색상 추출 중...")
-            colors = self.extract_colors_kmeans(cropped_image, n_colors=n_colors)
+        print(f"🎉 전체 완료: {total_time:.1f}s ({len(all_colors)}장 성공)")
 
-            # ⭐ 핵심 2: 크롭 이미지도 사용 직후 삭제
-            del cropped_image
+        # 4. 결과 출력
+        # print("📊 추출된 색상 정보:")
+        # for i, color_list in enumerate(all_colors, 1):
+        #     for color_idx, color in enumerate(color_list, 1):
+        #         print(f"  {color_idx}. RGB{tuple(color['rgb'])} | {color['hex']} | {color['ratio'] * 100:.1f}%")
 
-            # ⭐ 핵심 3: 가비지 컬렉터 강제 호출 (파이썬이 메모리를 즉시 반환하게 함)
-            import gc
-            gc.collect()
+        return all_colors
 
-            # 4. 결과 출력
-            logger.debug("📊 추출된 색상 정보:")
-            print("📊 추출된 색상 정보:")
-            logger.debug("-" * 50)
-            for i, color in enumerate(colors, 1):
-                logger.debug(f"{i}. RGB{tuple(color['rgb'])} | {color['hex']} | {color['ratio'] * 100:.1f}%")
-                print(f"{i}. RGB{tuple(color['rgb'])} | {color['hex']} | {color['ratio'] * 100:.1f}%")
-            logger.debug("\n")
 
-            return colors
+    def detect_swimsuits_batch(self, images, conf_threshold=0.5):
+        """YOLO 배치 탐지 (핵심 성능 개선)"""
+        batch_size = 4
+        all_results = []
 
-        except Exception as e:
-            # 에러 발생 시에도 메모리는 비워줘야 함
-            if 'original_image' in locals(): del original_image
-            if 'cropped_image' in locals(): del cropped_image
-            import gc
-            gc.collect()
-            raise e
+        for i in range(0, len(images), batch_size):
+            batch = images[i:i + batch_size]
+            # 배치 추론 (4개 이미지 한 번에 처리)
+            batch_results = self.model(batch, verbose=False, conf=conf_threshold)
+            all_results.extend(batch_results)
+
+        return all_results
+
+
+    async def extract_colors_parallel(self, yolo_results, n_colors):
+        """YOLO 결과에서 색상 병렬 추출"""
+        async def process_single_image(img):
+            try:
+                # result = yolo_results[idx]
+                # 수정된 호출
+                cropped = self.crop_swimsuit_only(img, conf_threshold=0.5)
+                colors = self.extract_colors_kmeans(cropped, n_colors)
+
+                del cropped
+                gc.collect()
+
+                return colors  # 순서 보장됨
+            except Exception as e:
+                logger.error(f" extract_colors_parallel 이미지 처리 실패: {e}")
+                return []
+
+        tasks = [process_single_image(i) for i in yolo_results]
+        results = await asyncio.gather(*tasks)
+        return results
 
 # ============================================================
 # 사용 예시
 # ============================================================
 
-if __name__ == '__main__':
-
+async def main():
     # model_path = settings.swimcap_yolo_model_path
     model_path = "../../" + settings.swimcap_yolo_model_path
     print(f"모델 경로: {model_path}")
@@ -300,16 +365,17 @@ if __name__ == '__main__':
 
     # 1. 색상 추출기 초기화
     # extractor = ColorExtractor("../../ml/runs/segment/swimsuit-seg2/weights/best.pt")
-    extractor = ColorExtractor(str(model_path))
+    extractor = ColorExtractorParallel(str(model_path))
 
     # 2. 이미지 처리 (URL 또는 로컬 경로)
-    image_path = '/Users/zsu/MyProject/크롤링 사진/swimcap_1228/0011_피닉스_불사조 실리.jpg'
+    image_path = '/Users/zsu/MyProject/크롤링 사진/swimcap_1228/0024_피닉스_웨일드림 실.jpg'
+    image_urls = [image_path]  # 리스트로 감싸기!
 
     try:
         # 수영복 크롭 & 색상 추출
-        colors = extractor.process_swimsuit_image(
-            image_source=image_path,
-            n_colors=5,  # 상위 5개 색상
+        colors = await extractor.extract_segment_colors(
+            image_urls=image_urls,
+            n_colors=3,  # 상위 5개 색상
             conf_threshold=0.5,  # 탐지 임계값 (낮추면 더 많이 탐지)
             visualize=False  # 결과 시각화
         )
@@ -318,3 +384,6 @@ if __name__ == '__main__':
         print(f"❌ 오류: {e}")
     except Exception as e:
         print(f"❌ 예상치 못한 오류: {e}")
+
+if __name__ == '__main__':
+    asyncio.run(main())  # ✅ asyncio.run()으로 실행
