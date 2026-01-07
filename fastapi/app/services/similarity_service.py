@@ -69,4 +69,4 @@ def recommend_swim_caps(db, swimsuit_id, swimsuit_colors):
             unique_recommendations.append(rec)
             seen_ids.add(rec['swimcapId'])
 
-    return unique_recommendations[:5]
+    return unique_recommendations[:6]
