@@ -1,5 +1,11 @@
 from fastapi import FastAPI
 from app.api.endpoints import router
+from app.logging_config import setup_logging
+import logging
+
+setup_logging()
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Swimcolor API",

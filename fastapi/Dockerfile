@@ -36,7 +36,6 @@ COPY . .
 
 # 8. 환경 변수
 ENV YOLO_CONFIG_DIR=/tmp
-ENV LOG_LEVEL=info
 ENV CHROME_PATH=/usr/bin/google-chrome
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -45,5 +44,14 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
 # 10. 🔥 FastAPI 실행 (Gunicorn + 600초 타임아웃)
-CMD ["gunicorn", "run:app", "-k", "uvicorn.workers.UvicornWorker", "--workers", "2", "--bind", "0.0.0.0:8000", "--timeout", "600", "--access-logfile", "-", "--error-logfile", "-", "--capture-output", "--log-level", "debug"]
-
+CMD ["sh", "-c", "\
+gunicorn run:app \
+-k uvicorn.workers.UvicornWorker \
+--workers ${GUNICORN_WORKERS:-2} \
+--bind 0.0.0.0:8000 \
+--timeout ${GUNICORN_TIMEOUT:-600} \
+--access-logfile - \
+--error-logfile - \
+--capture-output \
+--log-level ${LOG_LEVEL:-info} \
+"]
