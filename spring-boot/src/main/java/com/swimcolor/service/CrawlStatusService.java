@@ -27,6 +27,10 @@ public class CrawlStatusService {
         crawlStatus.put(ItemType.SWIMSUIT.name(), CrawlStatus.FAILED.name());
     }
 
+    public void removeSwimsuitCrawling() {
+        crawlStatus.remove(ItemType.SWIMSUIT.name());
+    }
+
     public void runSwimcapCrawling() {
         crawlStatus.put(ItemType.SWIMCAP.name(), CrawlStatus.RUNNING.name());
     }
@@ -37,6 +41,10 @@ public class CrawlStatusService {
 
     public void failSwimcapCrawling() {
         crawlStatus.put(ItemType.SWIMCAP.name(), CrawlStatus.FAILED.name());
+    }
+
+    public void removeSwimcapCrawling() {
+        crawlStatus.remove(ItemType.SWIMCAP.name());
     }
 
     // 상태 확인 API를 위한 메서드

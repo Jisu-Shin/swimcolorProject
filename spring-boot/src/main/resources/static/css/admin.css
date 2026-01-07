@@ -158,15 +158,19 @@ input[type="text"]:focus {
     border-color: #3498db;
 }
 
-.btn-crawl {
-    padding: 0 25px;
+.btn-group {
+    display: flex;
+    gap: 5px;           /* 버튼 사이 간격 */
+}
+
+.btn-group button {
     border: none;
-    border-radius: 6px;
+    white-space: nowrap; /* 글자가 버튼 밖으로 나가는 것 방지 */
+    padding: 0 25px;
+    border-radius: 5px;
+    cursor: pointer;
     color: white;
     font-weight: bold;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: opacity 0.3s;
 }
 
 .btn-crawl:hover {
@@ -183,19 +187,13 @@ input[type="text"]:focus {
 .btn-crawl.swimsuit { background-color: #2980b9; }
 .btn-crawl.swimcap { background-color: #27ae60; }
 
+.btn-stop {
+    background-color: #e74c3c;
+}
+
 /* ==========================================================================
    데이터 테이블 스타일
    ========================================================================== */
-.status-success {
-    color: #28a745;
-    font-weight: bold;
-}
-
-.status-failure {
-    color: #dc3545;
-    font-weight: bold;
-}
-
 .error-text {
     max-width: 200px;
     overflow: hidden;

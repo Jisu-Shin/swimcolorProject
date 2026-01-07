@@ -38,7 +38,7 @@ async function checkCurrentStatus() {
     const categories = ['SWIMSUIT', 'SWIMCAP'];
 
     for (const category of categories) {
-        oper.ajax("GET", null, `/api/admin/crawlStatus/${category}`, async function(status) {
+        oper.ajax("GET", null, `/api/crawling/status/${category}`, async function(status) {
             if (status === "RUNNING") {
                 console.log(`[복구] ${category} 작업이 진행 중입니다.`);
 
@@ -46,9 +46,12 @@ async function checkCurrentStatus() {
                 const $btn = isSwimsuit ? $('#btn-crawl-swimsuit') : $('#btn-crawl-swimcap');
                 const $input = isSwimsuit ? $('#swimsuitUrl') : $('#swimcapUrl');
                 const storageKey = isSwimsuit ? 'lastSwimsuitUrl' : 'lastSwimcapUrl';
+                const $stopBtnId = isSwimsuit ? $('#btn-stop-swimsuit') : $('#btn-stop-swimcap');
 
                 // UI 잠금 및 대기 시작
                 $btn.prop('disabled', true).text("수집 중(복구됨)...");
+                $stopBtnId.prop('hidden',false);
+
                 $input.prop('disabled', true);
 
                 const savedUrl = localStorage.getItem(storageKey);
@@ -64,6 +67,8 @@ async function checkCurrentStatus() {
                 } finally {
                     // 완료 후 정리
                     $btn.prop('disabled', false).text(isSwimsuit ? "수영복 크롤링" : "수모 크롤링");
+                    $stopBtnId.prop('hidden', true);
+
                     $input.prop('disabled', false).val('');
                     localStorage.removeItem(isSwimsuit ? 'lastSwimsuitUrl' : 'lastSwimcapUrl');
                 }
@@ -76,11 +81,15 @@ async function checkCurrentStatus() {
 function waitForCompletion(category) {
     return new Promise((resolve, reject) => {
         const check = () => {
-            oper.ajax("GET", null, `/api/admin/crawlStatus/${category}`, function(status) {
+            oper.ajax("GET", null, `/api/crawling/status/${category}`, function(status) {
                 if (status === "COMPLETED") {
                     resolve();
                 } else if (status === "FAILED") {
                     reject(new Error("서버에서 작업 실패 응답을 받았습니다."));
+                } else if (status === "IDLE") {
+                    // 서버가 IDLE 상태라면 사용자가 중지했거나 작업이 취소된 것
+                    console.log(`[중단] 서버가 IDLE 상태이므로 ${category} 폴링을 중단합니다.`);
+                    reject(new Error("USER_STOP"));
                 } else {
                     setTimeout(check, 5000); // 5초 간격
                 }
@@ -97,6 +106,7 @@ function waitForCompletion(category) {
 // 수영복 크롤링 실행
 async function runSwimsuitCrawl() {
     const $btn = $('#btn-crawl-swimsuit');
+    const $btnStop = $('#btn-stop-swimsuit');
     const $input = $('#swimsuitUrl');
     const url = $input.val();
 
@@ -104,6 +114,8 @@ async function runSwimsuitCrawl() {
 
     // UI 잠금 및 로컬 저장
     $btn.prop('disabled', true).text("크롤링 중...");
+    $btnStop.prop('hidden', false);
+
     $input.prop('disabled', true);
     localStorage.setItem('lastSwimsuitUrl', url);
 
@@ -120,6 +132,8 @@ async function runSwimsuitCrawl() {
     } finally {
         // 3. UI 복구
         $btn.prop('disabled', false).text("수영복 크롤링");
+        $btnStop.prop('hidden', true);
+
         $input.prop('disabled', false).val('');
         localStorage.removeItem('lastSwimsuitUrl');
     }
@@ -128,12 +142,15 @@ async function runSwimsuitCrawl() {
 // 수모 크롤링 실행 (수영복과 동일 로직)
 async function runSwimcapCrawl() {
     const $btn = $('#btn-crawl-swimcap');
+    const $btnStop = $('#btn-stop-swimcap');
     const $input = $('#swimcapUrl');
     const url = $input.val();
 
     if(oper.isEmpty(url)) return alert("수모 URL을 입력해 주세요.");
 
     $btn.prop('disabled', true).text("크롤링 중...");
+    $btnStop.prop('hidden', false);
+
     $input.prop('disabled', true);
     localStorage.setItem('lastSwimcapUrl', url);
 
@@ -146,9 +163,33 @@ async function runSwimcapCrawl() {
         console.error(error);
     } finally {
         $btn.prop('disabled', false).text("수모 크롤링");
+        $btnStop.prop('hidden', true);
         $input.prop('disabled', false).val('');
         localStorage.removeItem('lastSwimcapUrl');
     }
+}
+
+function stopCrawl(category) {
+    // 1. 사용자에게 확인 받기
+    const message = `${category === 'SWIMSUIT' ? '수영복' : '수모'} 크롤링 조회를 중지하시겠습니까?`;
+
+    if (!confirm(message)) {
+        // 사용자가 '취소'를 누르면 여기서 함수 종료
+        return;
+    }
+
+    const isSwimsuit = (category === 'SWIMSUIT');
+    const $btn = isSwimsuit ? $('#btn-crawl-swimsuit') : $('#btn-crawl-swimcap');
+    const $input = isSwimsuit ? $('#swimsuitUrl') : $('#swimcapUrl');
+    const $stopBtnId = isSwimsuit ? $('#btn-stop-swimsuit') : $('#btn-stop-swimcap');
+
+    oper.ajax("DELETE", null, '/api/crawling/status/'+category);
+
+    localStorage.removeItem(isSwimsuit ? 'lastSwimsuitUrl' : 'lastSwimcapUrl');
+
+    $btn.prop('disabled', false).text(isSwimsuit ? "수영복 크롤링" : "수모 크롤링");
+    $input.prop('disabled', false).val('');
+    $stopBtnId.prop('hidden', true);
 }
 
 /**

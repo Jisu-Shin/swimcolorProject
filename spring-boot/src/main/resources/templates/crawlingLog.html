@@ -32,11 +32,11 @@
                     <tr th:each="log : ${logs}">
                         <td th:text="${log.id}">1</td>
                         <td>
-                            <span th:class="${log.itemType.name() == 'SWIMSUIT' ? 'badge bg-info text-dark' : 'badge bg-success'}"
+                            <span th:class="${log.itemType.name() == 'SWIMSUIT' ? 'badge bg-info text-dark' : 'badge bg-warning text-dark'}"
                                   th:text="${log.itemType}">SWIMSUIT</span>
                         </td>
                         <td>
-                            <span th:class="${log.status.name() == 'COMPLETED' ? 'status-success' : 'status-failure'}"
+                            <span th:class="${log.status.name() == 'COMPLETED' ? 'fw-bold text-success' : log.status.name() == 'FAILED' ? 'fw-bold text-danger' : 'fw-bold text-primary'}"
                                   th:text="${log.status}">COMPLETED</span>
                         </td>
                         <td><span th:text="${log.totalCount}">0</span>개</td>

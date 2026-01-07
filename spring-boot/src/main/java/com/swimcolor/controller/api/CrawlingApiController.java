@@ -1,30 +1,34 @@
 package com.swimcolor.controller.api;
 
-import com.swimcolor.dto.CrawlResponseDto;
-import com.swimcolor.service.AdminService;
+import com.swimcolor.domain.ItemType;
+import com.swimcolor.service.CrawlStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/crawling")
 public class CrawlingApiController {
 
-    private final AdminService adminService;
+    private final CrawlStatusService crawlStatusService;
 
-    @PostMapping("/callback/swimsuits")
-    public ResponseEntity<Void> getSwimsuitCrawlingResult(@RequestBody CrawlResponseDto crawlResponseDto) {
-        adminService.responseCrawlSwimsuits(crawlResponseDto);
-        return ResponseEntity.ok().build();
+    @GetMapping("/status/{category}")
+    public ResponseEntity<String> getCrawlStatus(@PathVariable String category) {
+        String status = crawlStatusService.getCrawlStatus(category);
+        return ResponseEntity.ok(status);
     }
 
-    @PostMapping("/callback/swimcaps")
-    public ResponseEntity<Void> getSwimcapCrawlingResult(@RequestBody CrawlResponseDto crawlResponseDto) {
-        adminService.responseCrawlSwimcaps(crawlResponseDto);
+    @DeleteMapping("/status/{category}")
+    public ResponseEntity<Void> removeCrawlStatus(@PathVariable String category) {
+        if (ItemType.SWIMCAP.name().equals(category)) {
+            crawlStatusService.removeSwimcapCrawling();
+        }
+
+        if(ItemType.SWIMSUIT.name().equals(category)){
+            crawlStatusService.removeSwimsuitCrawling();
+        }
+
         return ResponseEntity.ok().build();
     }
 }

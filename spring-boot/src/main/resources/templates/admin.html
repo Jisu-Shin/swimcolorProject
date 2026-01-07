@@ -15,12 +15,18 @@
         <div class="crawl-group">
             <div class="input-row">
                 <input type="text" id="swimsuitUrl" placeholder="수영복 크롤링 URL을 입력하세요 (http://...)">
-                <button class="btn-crawl swimsuit" id="btn-crawl-swimsuit" onclick="runSwimsuitCrawl()">수영복 크롤링</button>
+                <div class="btn-group">
+                    <button class="btn-crawl swimsuit" id="btn-crawl-swimsuit" onclick="runSwimsuitCrawl()">수영복 크롤링</button>
+                    <button class="btn-stop" id="btn-stop-swimsuit" onclick="stopCrawl('SWIMSUIT')" hidden="hidden">중지</button>
+                </div>
             </div>
 
             <div class="input-row">
                 <input type="text" id="swimcapUrl" placeholder="수모 크롤링 URL을 입력하세요 (http://...)">
-                <button class="btn-crawl swimcap" id="btn-crawl-swimcap" onclick="runSwimcapCrawl()">수모 크롤링</button>
+                <div class="btn-group">
+                    <button class="btn-crawl swimcap" id="btn-crawl-swimcap" onclick="runSwimcapCrawl()">수모 크롤링</button>
+                    <button class="btn-stop" id="btn-stop-swimcap"  onclick="stopCrawl('SWIMCAP')" hidden>중지</button>
+                </div>
             </div>
         </div>
     </section>
