@@ -18,6 +18,8 @@ public class Swimcap {
     @Column(length = 10, nullable = false) // SC-0001
     private String id;
 
+    private Long crawlingLogId;
+
     @Column(nullable = false)
     private String name;
 
@@ -38,12 +40,14 @@ public class Swimcap {
     private List<String> colors = new ArrayList<>();
 
     @Builder
-    private Swimcap(String name, String imageUrl, String productUrl, String brand, Integer price, List<String> colors) {
+    public Swimcap(String id, Long crawlingLogId, String name, String imageUrl, String productUrl, String brand, Integer price, List<String> colors) {
+        this.id = id;
+        this.crawlingLogId = crawlingLogId;
         this.name = name;
         this.imageUrl = imageUrl;
         this.productUrl = productUrl;
         this.brand = brand;
         this.price = price;
-        this.colors = colors != null ? new ArrayList<>(colors) : new ArrayList<>();
+        this.colors = colors;
     }
 }

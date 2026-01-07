@@ -12,9 +12,10 @@ public interface SwimcapMapper {
     @Mapping(source = "colors", target = "colors")
     SwimcapListDto toDto(Swimcap swimcap);
 
-    @Mapping(source = "img_url", target = "imageUrl")
-    @Mapping(source = "product_url", target = "productUrl")
-    @Mapping(source = "colors", target = "colors")
-    Swimcap toEntity(CrawlListDto dto);
+    @Mapping(source = "dto.img_url", target = "imageUrl")
+    @Mapping(source = "dto.product_url", target = "productUrl")
+    @Mapping(source = "dto.colors", target = "colors")
+    @Mapping(source = "logId", target = "crawlingLogId")
+    Swimcap toEntity(CrawlListDto dto, Long logId);
 }
 

@@ -21,14 +21,16 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SwimsuitService {
-    private final JpaSwimsuitRepository swimsuitRepository;
-    private final SwimsuitMapper swimsuitMapper;
     private static final int PAGE_SIZE = 12;
     private static final int POPULAR_SIZE = 4;
+    private final JpaSwimsuitRepository swimsuitRepository;
+    private final SwimsuitMapper swimsuitMapper;
 
     @Transactional
     public int saveSwimsuit(CrawlResponseDto responseDto) {
-        List<Swimsuit> swimsuitList = swimsuitMapper.toEntity(responseDto);
+        List<Swimsuit> swimsuitList = responseDto.getProducts().stream()
+                .map(s -> swimsuitMapper.toEntity(s, responseDto.getLogId()))
+                .toList();
         swimsuitRepository.saveAll(swimsuitList);
 
         return swimsuitList.size();

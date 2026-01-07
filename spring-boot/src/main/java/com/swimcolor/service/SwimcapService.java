@@ -21,7 +21,7 @@ public class SwimcapService {
     @Transactional
     public int saveSwimcap(CrawlResponseDto responseDto) {
         List<Swimcap> swimcapList = responseDto.getProducts().stream()
-                .map(p->swimcapMapper.toEntity(p))
+                .map(p->swimcapMapper.toEntity(p, responseDto.getLogId()))
                 .toList();
         swimcapRepository.saveAll(swimcapList);
 

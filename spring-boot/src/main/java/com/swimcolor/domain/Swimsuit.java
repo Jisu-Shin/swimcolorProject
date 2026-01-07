@@ -17,6 +17,8 @@ public class Swimsuit {
     @Column(length = 10, nullable = false) // SS-0001
     private String id;
 
+    private Long crawlingLogId;
+
     @Column(nullable = false)
     private String name;
 
@@ -37,12 +39,14 @@ public class Swimsuit {
     private List<String> colors = new ArrayList<>();
 
     @Builder
-    private Swimsuit(String name, String imageUrl, String productUrl, String brand, Integer price, List<String> colors) {
+    public Swimsuit(String id, Long crawlingLogId, String name, String imageUrl, String productUrl, String brand, Integer price, List<String> colors) {
+        this.id = id;
+        this.crawlingLogId = crawlingLogId;
         this.name = name;
         this.imageUrl = imageUrl;
         this.productUrl = productUrl;
         this.brand = brand;
         this.price = price;
-        this.colors = colors != null ? new ArrayList<>(colors) : new ArrayList<>();
+        this.colors = colors;
     }
 }

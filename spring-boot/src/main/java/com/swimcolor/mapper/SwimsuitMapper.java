@@ -13,21 +13,14 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface SwimsuitMapper {
 
-    @Named("dtoToEntity")
-    @Mapping(source = "img_url", target = "imageUrl")
-    @Mapping(source = "product_url", target = "productUrl")
-    @Mapping(source = "brand", target = "brand")
-    @Mapping(source = "name", target = "name")
-    @Mapping(source = "price", target = "price")
-    @Mapping(source = "colors", target = "colors")
-    Swimsuit toEntity(CrawlListDto dto);
-
-    default List<Swimsuit> toEntity(CrawlResponseDto dto) {
-        if (dto == null || dto.getProducts() == null) return null;
-        return dto.getProducts().stream()
-                .map(this::toEntity)
-                .toList();
-    }
+    @Mapping(source = "logId", target="crawlingLogId")
+    @Mapping(source = "dto.img_url", target = "imageUrl")
+    @Mapping(source = "dto.product_url", target = "productUrl")
+    @Mapping(source = "dto.brand", target = "brand")
+    @Mapping(source = "dto.name", target = "name")
+    @Mapping(source = "dto.price", target = "price")
+    @Mapping(source = "dto.colors", target = "colors")
+    Swimsuit toEntity(CrawlListDto dto, Long logId);
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "colors", target = "colors")
