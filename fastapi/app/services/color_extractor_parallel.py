@@ -30,7 +30,7 @@ class ColorExtractorParallel:
         logger.info(f"✓ YOLO 모델 로드 완료: {yolo_model_path}")
 
         # 다운로드 전용 ThreadPoolExecutor
-        self.download_executor = ThreadPoolExecutor(max_workers=6)
+        self.download_executor = ThreadPoolExecutor(max_workers=4)
 
     def load_image(self, image_source):
         """
