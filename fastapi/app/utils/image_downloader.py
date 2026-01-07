@@ -2,7 +2,7 @@ import os
 import requests
 from PIL import Image
 from io import BytesIO
-from swimcap_crawler import SwimcapCrawler
+from app.crawlers.ganaswim_crawler import GanaswimCrawler
 
 
 def download_swimsuit_images(save_dir: str, products: list):
@@ -47,7 +47,7 @@ def download_swimsuit_images(save_dir: str, products: list):
 # 사용 예시
 if __name__ == "__main__":
     # 기본 사용 (브라우저 안보임)
-    crawler = SwimcapCrawler(headless=True)
+    crawler = GanaswimCrawler(headless=True)
 
     # 저장 디렉토리 설정
     save_dir = '/Users/zsu/MyProject/크롤링 사진/swimcap_1228'

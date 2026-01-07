@@ -2,16 +2,17 @@ from selenium. common import NoSuchElementException
 from selenium. webdriver.common.by import By
 from selenium. webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
-import undetected_chromedriver as uc
-import os
 from dotenv import load_dotenv
 import logging
 
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
 logger = logging.getLogger(__name__)
 
-class SwimcapCrawler:
-    """수모 크롤러 클래스"""
+class GanaswimCrawler:
+    """가나스윔 사이트 크롤러 클래스"""
 
     def __init__(self, headless=True):
         """
@@ -25,30 +26,36 @@ class SwimcapCrawler:
 
     def setup_driver(self):
         """크롬 드라이버 설정 및 실행"""
-        options = uc.ChromeOptions()
-
-        # 리눅스 서버 환경 필수 옵션
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless=new')  # 최신 헤드리스 모드 (더 빠름)
+        options.add_argument('--window-size=1920,1080')  # 도커 환경과 동일하게 설정
         options.add_argument('--no-sandbox')
-        options.add_argument('--disable-dev-shm-usage')  # 중요!
+        options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-gpu')
-        options.add_argument('--window-size=1920,1080')
-        options.add_argument('--blink-settings=imagesEnabled=false') # 이미지 로딩 끄기
 
-        chrome_path = os.getenv('CHROME_PATH')  # 기본값 설정
+        # [핵심] 리소스 차단: 이미지, CSS, 폰트 로딩 방지 (CPU 낭비 방지)
+        prefs = {
+            "profile.managed_default_content_settings.images": 2,
+            "profile.managed_default_content_settings.stylesheets": 2,
+            "profile.managed_default_content_settings.fonts": 2,
+        }
+        options.add_experimental_option("prefs", prefs)
 
-        print(f"--- 드라이버 실행 시도 (Path: {chrome_path}) ---")
+        # 자동화 탐지 방지 (UC 대신 가벼운 옵션)
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        options.add_experimental_option('useAutomationExtension', False)
 
-        try:
-            self.driver = uc.Chrome(
-                options=options,
-                browser_executable_path=chrome_path,
-                headless=self.headless,  # options에 넣지 말고 여기에 직접!
-                use_subprocess=True  # 리눅스 환경에서 충돌 방지 핵심
-            )
-            print("--- 드라이버 실행 성공! ---")
-        except Exception as e:
-            print(f"--- 드라이버 실행 실패: {str(e)} ---")
-            raise e
+        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+        # 실행 속도 향상을 위한 스크립트 실행 (Webdriver 속성 제거)
+        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+            "source": """
+                    Object.defineProperty(navigator, 'webdriver', {
+                        get: () => undefined
+                    })
+                """
+        })
 
     def quit_driver(self):
         """드라이버 종료"""
@@ -90,14 +97,11 @@ class SwimcapCrawler:
             product_url = element.find_element(By.TAG_NAME, 'a').get_attribute('href')
 
             # 상품명, 브랜드, 가격 추출
-            desc = element.find_element(By.CLASS_NAME, 'kIsRDZ').text
+            brand = element.find_element(By.CLASS_NAME, 'dVHoSm').get_attribute('innerText').strip()
+            name = element.find_element(By.CLASS_NAME, 'cjytLO').get_attribute('innerText').strip()
 
-            desc_split = desc.split('\n')
-            brand = desc_split[0]
-            name = desc_split[1]
-            price = desc_split[2] if len(desc_split) == 3 else desc_split[3]
-
-            price = price.replace(",", "").replace("원", "")
+            price_spans = element.find_element(By.CLASS_NAME, 'bJFYWS').find_elements(By.TAG_NAME, 'span')
+            price = price_spans[-1].get_attribute('innerText').strip().replace(",", "").replace("원", "")
 
             # 이미지 URL 추출
             img_url = element.find_element(By.TAG_NAME, 'img').get_attribute('src')
@@ -188,7 +192,6 @@ class SwimcapCrawler:
                     break
 
                 current_page += 1
-                time.sleep(1)  # 서버 부하 방지
 
         except Exception as e:
             logger.exception(f"❌ 크롤링 중 오류 발생:  {e}")
@@ -207,9 +210,9 @@ class SwimcapCrawler:
 # 사용 예시
 if __name__ == "__main__":
     # 기본 사용 (브라우저 안보임)
-    crawler = SwimcapCrawler(headless=True)
+    crawler = GanaswimCrawler(headless=True)
 
-    url = "https://swim.co.kr/categories/918606/products?childCategoryNo=919019&categoryNos=%255B%2522923110%2522%255D&pageNumber=1"
+    url = "https://swim.co.kr/categories/918698/products?childCategoryNo=919173&brands=%255B43160584%255D&pageNumber=1"
 
     product_list = crawler.crawl(url)
 
