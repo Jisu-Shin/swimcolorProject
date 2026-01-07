@@ -1,66 +1,68 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <th:block th:replace="~{fragments/common :: common_head}"></th:block>
-  <title>SwimMatch - 홈</title>
+    <th:block th:replace="~{fragments/common :: common_head}"></th:block>
+    <title>SwimMatch - 홈</title>
 </head>
 <body>
 
 <div th:replace="~{fragments/common :: common_header}"></div>
 
 <main class="main-container" role="main">
-  <section class="swimsuit-page">
-    <button class="back-btn" onclick="nav.goBack()">← 돌아가기</button>
+    <section class="swimsuit-page">
+        <button class="back-btn" onclick="nav.goBack()">← 돌아가기</button>
 
-    <div class="detail-container">
-      <!-- 왼쪽:  수영복 정보 -->
-      <div class="detail-left">
-        <div class="img-container">
-          <img th:src="${swimsuit.imageUrl}" th:alt="${swimsuit.name}">
-        </div>
-        <div class="detail-info">
-          <p id="swimsuit-id" th:text="${swimsuit.id}" hidden>id</p>
-          <p th:text="${swimsuit.brand}">브랜드명</p>
-          <p th:text="${swimsuit.name}">상품명</p>
-          <p th:text="|${#numbers.formatInteger(swimsuit.price, 3, 'COMMA')}원|">가격</p>
-        </div>
-        <div class="color-palette">
-          <span>대표 색상:</span>
-          <span class="color-chip" th:each="color : ${swimsuit.colors}" th:style="|background-color: ${color};|" th:data-color="${color}" ></span>
-        </div>
-      </div>
+        <div class="detail-container">
+            <!-- 왼쪽:  수영복 정보 -->
+            <div class="detail-left">
+                <a th:href="${swimsuit.productUrl}" target="_blank" rel="noopener noreferrer">
+                    <div class="img-container">
+                        <img th:src="${swimsuit.imageUrl}" th:alt="${swimsuit.name}">
+                    </div>
+                    <div class="detail-info">
+                        <p id="swimsuit-id" th:text="${swimsuit.id}" hidden>id</p>
+                        <p th:text="${swimsuit.brand}">브랜드명</p>
+                        <p th:text="${swimsuit.name}">상품명</p>
+                        <p th:text="|${#numbers.formatInteger(swimsuit.price, 3, 'COMMA')}원|">가격</p>
+                    </div>
+                    <div class="color-palette">
+                        <span>대표 색상:</span>
+                        <span class="color-chip" th:each="color : ${swimsuit.colors}"
+                              th:style="|background-color: ${color};|" th:data-color="${color}"></span>
+                    </div>
+                </a>
+            </div>
 
-      <!-- 오른쪽: 추천 수모 -->
-      <div class="detail-right">
-        <h3>🏊 이 수영복과 어울리는 수모</h3>
-        <div class="caps-grid" id="recommend-cap-list">
-          <div class="cap-item">
-<!--            <img src="https://via.placeholder.com/200x200?text=수모1" alt="수모1">-->
-            <p>클래식 블루 수모</p>
-            <p>₩25,000</p>
-          </div>
-          </div>
+            <!-- 오른쪽: 추천 수모 -->
+            <div class="detail-right">
+                <h3>🏊 이 수영복과 어울리는 수모</h3>
+                <div class="caps-grid" id="recommend-cap-list">
+                    <div class="cap-item">
+                        <!--            <img src="https://via.placeholder.com/200x200?text=수모1" alt="수모1">-->
+                        <p>클래식 블루 수모</p>
+                        <p>₩25,000</p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-  </section>
+    </section>
 </main>
 
 <div th:replace="~{fragments/common :: common_footer}"></div>
 
 </body>
 <script>
-  $(document).ready(function() {
-    const id = $('#swimsuit-id').text();
-<!--    console.log(id);-->
+    $(document).ready(function() {
+      const id = $('#swimsuit-id').text();
+  <!--    console.log(id);-->
 
-    const colorList = $('.color-chip').map(function() {
-        return $(this).data('color');
-    }).get();
-<!--    console.log("색상 리스트:", colorList);-->
+      const colorList = $('.color-chip').map(function() {
+          return $(this).data('color');
+      }).get();
+  <!--    console.log("색상 리스트:", colorList);-->
 
-    swimsuitModule.initRecommendCaps(id, colorList);
-  });
+      swimsuitModule.initRecommendCaps(id, colorList);
+    });
 </script>
 </html>

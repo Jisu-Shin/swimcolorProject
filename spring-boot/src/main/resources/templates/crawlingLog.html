@@ -36,7 +36,7 @@
                                   th:text="${log.itemType}">SWIMSUIT</span>
                         </td>
                         <td>
-                            <span th:class="${log.status.name() == 'COMPLETED' ? 'fw-bold text-success' : log.status.name() == 'FAILED' ? 'fw-bold text-danger' : 'fw-bold text-primary'}"
+                            <span th:class="${log.status.name() == 'COMPLETED' ? 'fw-bold text-success' : log.status.name() == 'FAILED' ? 'fw-bold text-danger' : 'fw-bold text-secondary'}"
                                   th:text="${log.status}">COMPLETED</span>
                         </td>
                         <td><span th:text="${log.totalCount}">0</span>개</td>

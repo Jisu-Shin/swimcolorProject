@@ -62,64 +62,6 @@
         <p>&copy; 2025 SwimColor. All rights reserved.</p>
     </div>
 
-    <!-- 사이드바 토글 스크립트 (간단한 접근성 처리 포함) -->
-    <script>
-        (function () {
-          const hamburger = document.getElementById('hamburger');
-          const sidebar = document.getElementById('sidebar');
-          const overlay = document.getElementById('sidebarOverlay');
-          const closeBtn = sidebar.querySelector('.close-btn');
-
-          const focusableSelector = 'a, button, input, [tabindex]:not([tabindex="-1"])';
-
-          function openSidebar() {
-            sidebar.classList.add('open');
-            overlay.classList.add('active');
-            sidebar.setAttribute('aria-hidden', 'false');
-            hamburger.setAttribute('aria-expanded', 'true');
-            overlay.setAttribute('aria-hidden', 'false');
-
-            // 포커스 이동: 사이드바의 첫 포커스 가능한 요소로
-            const first = sidebar.querySelector(focusableSelector);
-            if (first) first.focus();
-
-            // 키보드로 Esc 누르면 닫기
-            document.addEventListener('keydown', onKeyDown);
-          }
-
-          function closeSidebar() {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('active');
-            sidebar.setAttribute('aria-hidden', 'true');
-            hamburger.setAttribute('aria-expanded', 'false');
-            overlay.setAttribute('aria-hidden', 'true');
-
-            // 포커스 원래 버튼으로 복원
-            hamburger.focus();
-
-            document.removeEventListener('keydown', onKeyDown);
-          }
-
-          function onKeyDown(e) {
-            if (e.key === 'Escape') {
-              closeSidebar();
-            }
-          }
-
-          hamburger.addEventListener('click', function () {
-            const isOpen = sidebar.classList.contains('open');
-            if (isOpen) closeSidebar(); else openSidebar();
-          });
-
-          closeBtn.addEventListener('click', closeSidebar);
-          overlay.addEventListener('click', closeSidebar);
-
-          // 사이드바 내 링크 클릭 시 닫기 (선택적)
-          sidebar.querySelectorAll('a').forEach(a => {
-            a.addEventListener('click', closeSidebar);
-          });
-        })();
-    </script>
 </footer>
 
 </html>

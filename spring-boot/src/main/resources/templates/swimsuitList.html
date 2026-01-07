@@ -1,35 +1,37 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <th:block th:replace="~{fragments/common :: common_head}"></th:block>
-  <title>SwimMatch - 홈</title>
+    <th:block th:replace="~{fragments/common :: common_head}"></th:block>
+    <title>SwimMatch - 홈</title>
 </head>
 <body>
 
 <div th:replace="~{fragments/common :: common_header}"></div>
 
 <main class="main-container" role="main">
-  <section class="swimsuit-list" id="swimsuit-list">
-    <h2>전체 수영복</h2>
-    <div class="swimsuits-container">
-      <div class="products-preview-grid" id="products-preview-grid">
-        <div class="product-preview-card" th:each="product : ${products}" th:onclick="nav.goToSwimsuitDetail([[${product.id}]])">
-          <img th:src="${product.imageUrl}" th:alt="${product.name}">
-          <div class="product-preview-info">
-            <p th:text="${product.brand}">수영복 브랜드</p>
-            <p th:text="${product.name}">수영복 이름</p>
-            <p th:text="|${#numbers.formatInteger(product.price, 3, 'COMMA')}원|">0원</p>
-          </div>
+    <section class="swimsuit-list" id="swimsuit-list">
+        <h2>전체 수영복</h2>
+        <div class="swimsuits-container">
+            <div class="products-preview-grid" id="products-preview-grid">
+                <div class="product-preview-card" th:each="product : ${products}" th:data-id="${product.id}"
+                     th:onclick="swimsuitListModule.handleProductClick([[${product.id}]])">
+                    <img th:src="${product.imageUrl}" th:alt="${product.name}">
+                    <div class="product-preview-info">
+                        <p th:text="${product.brand}">수영복 브랜드</p>
+                        <p th:text="${product.name}">수영복 이름</p>
+                        <p th:text="|${#numbers.formatInteger(product.price, 3, 'COMMA')}원|">0원</p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <div class="load-more-container" style="text-align: center; margin-top: 30px;">
-      <button id="load-more-btn"
-              th:data-next-page="1"
-              th:if="${products.hasNext()}">더 보기</button>
-    </div>
-  </section>
+        <div class="load-more-container" style="text-align: center; margin-top: 30px;">
+            <button id="load-more-btn"
+                    th:data-next-page="1"
+                    th:if="${products.hasNext()}">더 보기
+            </button>
+        </div>
+    </section>
 </main>
 </body>
 </html>

@@ -7,9 +7,18 @@ var main = {
         // 헤더 검색바 로직 초기화
         _this.initSearchBar();
 
+        // [추가] 사이드바 초기화 호출
+        sidebarModule.init();
+
         if ($('#swimsuit-list').length > 0) {
             console.log("수영복 리스트 페이지 진입 - 스크롤 이벤트 등록");
             swimsuitListModule.init();
+        } else {
+            console.log(location.pathname);
+            if (!location.pathname.includes('/swimsuits/SS')) {
+                sessionStorage.removeItem('swimsuit_cache');
+                sessionStorage.removeItem('swimsuit_cache_pos');
+            }
         }
     },
 
@@ -63,13 +72,16 @@ const nav = {
 const swimsuitModule = {
     // 추천 수모 목록 조회
     initRecommendCaps: function(swimsuitId, colors) {
-        const data = { itemId: swimsuitId, colors: colors };
+        const $container = $('#recommend-cap-list');
+        // [핵심] 1. 통신 시작 전 로딩 메시지 출력
+        $container.empty().append('<p class="loading-text">추천 수모를 가져오는 중입니다...</p>');
 
+        const data = { itemId: swimsuitId, colors: colors };
         oper.ajax("POST", data, `/api/swimsuits/${swimsuitId}/recommended-swimcaps`
             , (res) => {
                 this.renderCaps(res);
             }
-            , this.failRecommendCaps()
+            , () => this.failRecommendCaps()
         );
     },
 
@@ -94,16 +106,18 @@ const swimsuitModule = {
             // 아이템 추가
             $container.append(`
                 <div class="cap-item">
-                    <img src="${cap.imageUrl}" alt="${cap.name}">
-                    <div class="cap-info">
-                        <p class="brand">${cap.brand}</p>
-                        <p class="name">${cap.name}</p>
-                        <p class="price">${Number(cap.price).toLocaleString()}원</p>
-                    </div>
-                    <div class="color-palette">
-                        <span>대표 색상:</span>
-                        <div class="chips-wrapper">${colorChipsHtml}</div>
-                    </div>
+                    <a href="${cap.productUrl}" target="_blank" rel="noopener noreferrer">
+                        <img src="${cap.imageUrl}" alt="${cap.name}">
+                        <div class="cap-info">
+                            <p class="brand">${cap.brand}</p>
+                            <p class="name">${cap.name}</p>
+                            <p class="price">${Number(cap.price).toLocaleString()}원</p>
+                        </div>
+                        <div class="color-palette">
+                            <span>대표 색상:</span>
+                            <div class="chips-wrapper">${colorChipsHtml}</div>
+                        </div>
+                    </a>
                 </div>
             `);
         });
@@ -114,7 +128,7 @@ const swimsuitModule = {
         if ($container.length === 0) return;
 
         $container.empty();
-        $container.append('<p class="no-data">추천할 수모가 없습니다.</p>');
+        $container.append('<p class="no-data">데이터를 불러오는 중 오류가 발생했습니다.</p>');
     }
 };
 
@@ -123,10 +137,24 @@ const swimsuitModule = {
  */
 const swimsuitListModule = {
     isFetching: false, // 상태 변수를 모듈 안으로 이동
+    storageKey: 'swimsuit_cache', // 세션 스토리지 키
 
     init: function() {
         const _this = this;
+        const cache = sessionStorage.getItem(_this.storageKey);
 
+        if (cache) {
+            console.log("캐시가 있어요 - 복구 시작");
+            const data = JSON.parse(cache);
+            // 복구할 때는 기존 그리드를 비우고 캐시 데이터로 다시 그려야 합니다.
+            $('#products-preview-grid').empty();
+            _this.restoreList(data);
+        } else {
+            console.log("캐시가 없어요 - 초기 데이터 저장");
+            _this.initFirstPageCache();
+        }
+
+        // 2. 스크롤 이벤트 등록
         $(window).on('scroll', function() {
             const scrollTop = $(window).scrollTop();
             const windowHeight = $(window).height();
@@ -138,30 +166,81 @@ const swimsuitListModule = {
 
                 // 호출 조건 체크
                 if (!_this.isFetching && $btn.length > 0 && $btn.is(':visible')) {
+                    console.log("다음 페이지 호출:", nextPage);
                     _this.fetchNextPage($btn, nextPage);
                 }
             }
         });
     },
 
+    initFirstPageCache: function() {
+        const _this = this;
+        const $firstPageItems = $('.product-preview-card');
+        const initialContent = [];
+
+        $firstPageItems.each(function() {
+            const $card = $(this);
+
+            // 중요: 서버에서 주는 JSON 필드명과 완벽히 일치시켜야 함
+            initialContent.push({
+                id: $card.data('id'),
+                imageUrl: $card.find('img').attr('src'),
+                brand: $card.find('.product-preview-info p:eq(0)').text(),
+                name: $card.find('.product-preview-info p:eq(1)').text(),
+                // '15,000원' -> 15000 (숫자만 추출)
+                price: parseInt($card.find('.product-preview-info p:eq(2)').text().replace(/[^0-9]/g, ''))
+            });
+        });
+
+        // 서버 응답(Page 객체)과 유사한 구조로 생성
+        const initialData = {
+            content: initialContent,
+            nextPage: 2, // 1페이지는 이미 봤으니 다음은 2페이지
+            last: $('#load-more-btn').is(':visible') === false
+        };
+
+        sessionStorage.setItem(_this.storageKey, JSON.stringify(initialData));
+    },
+
     // 데이터를 가져오는 공통 함수
     fetchNextPage: function($btn, nextPage) {
-        this.isFetching = true; // 로딩 시작
+        const _this = this;
+        _this.isFetching = true; // 로딩 시작
 
         const params = { page: nextPage };
 
         // AJAX 콜백에서 response뿐만 아니라 $btn도 함께 넘겨줘야 다음 처리가 가능합니다.
         oper.ajax("GET", params, "/api/swimsuits/next", (res) => {
-            this.renderSwimsuits(res, $btn);
+            // 새 데이터를 가져오면 세션 스토리지에 누적 저장
+            _this.saveToCache(res);
+            _this.renderSwimsuits(res, $btn);
+        }, (err) => {
+             // 에러 시에도 반드시 플래그를 풀어줘야 다음 스크롤이 작동합니다.
+             _this.isFetching = false;
         });
     },
 
+    // 데이터를 세션에 누적하여 저장하는 함수
+    saveToCache: function(newResponse) {
+        const cache = sessionStorage.getItem(this.storageKey);
+        let data = cache ? JSON.parse(cache) : { content: [], nextPage: 1, scrollPos: 0 };
+
+        // 데이터 합치기
+        data.content = data.content.concat(newResponse.content);
+        data.nextPage = newResponse.number + 1; // 서버 응답 기준으로 갱신
+        data.last = newResponse.last;
+
+        sessionStorage.setItem(this.storageKey, JSON.stringify(data));
+    },
+
+    // 수영복 목록을 그리는 함수
     renderSwimsuits: function(response, $btn) {
         const $grid = $('#products-preview-grid'); // HTML의 ID와 일치하는지 확인하세요!
 
+        let html = "";
         $.each(response.content, function(index, product) {
-            const cardHtml = `
-                <div class="product-preview-card" onclick="nav.goToSwimsuitDetail('${product.id}')">
+            html += `
+                <div class="product-preview-card" data-id="${product.id}" onclick="swimsuitListModule.handleProductClick('${product.id}')">
                     <img src="${product.imageUrl}" alt="${product.name}">
                     <div class="product-preview-info">
                         <p>${product.brand}</p>
@@ -169,22 +248,106 @@ const swimsuitListModule = {
                         <p>${product.price.toLocaleString()}원</p>
                     </div>
                 </div>`;
-            $grid.append(cardHtml);
         });
+        $grid.append(html);
 
-        // 1. 현재 페이지 번호를 가져와서 1 증가시킵니다.
-        const currentPage = $btn.data('next-page');
-        $btn.data('next-page', currentPage + 1);
+        // 💡 중요: 버튼의 다음 페이지 번호는 response 데이터 기반으로 갱신하는 게 가장 안전합니다.
+        // response.number는 현재 페이지 번호이므로 +1을 해서 저장합니다.
+        if (response.number !== undefined) {
+            $btn.data('next-page', response.number + 1);
+        }
 
-        // 2. 마지막 페이지면 버튼 숨기기
         if (response.last) {
+            console.log("마지막 페이지면 버튼 숨기기");
             $btn.hide();
         }
 
         // 3. 로딩 상태 해제
         this.isFetching = false;
+    },
+
+    // 뒤로가기 시 화면을 복구하는 함수
+    restoreList: function(data) {
+        console.log("기존 데이터를 복구합니다...");
+        const _this = this;
+
+        const $btn = $('#load-more-btn');
+
+        // 1. 저장된 모든 데이터 렌더링
+        _this.renderSwimsuits({ content: data.content, last: data.last }, $btn);
+
+        // 2. 다음 페이지 번호 갱신
+        $btn.data('next-page', data.nextPage);
+
+        // 3. 스크롤 위치 복구 (데이터가 다 그려진 후 약간의 지연 필요)
+        const savedScroll = sessionStorage.getItem(this.storageKey + '_pos');
+        if (savedScroll) {
+            setTimeout(() => window.scrollTo(0, parseInt(savedScroll)), 100);
+        }
+    },
+
+    // 상품 클릭 시 현재 스크롤 위치 저장 후 이동
+    handleProductClick: function(id) {
+        sessionStorage.setItem(this.storageKey + '_pos', $(window).scrollTop());
+        nav.goToSwimsuitDetail(id);
     }
 }
+
+/**
+ * [추가] 사이드바 모듈
+ */
+const sidebarModule = {
+    init: function() {
+        const hamburger = document.getElementById('hamburger');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (!hamburger || !sidebar) return; // 요소가 없으면 실행 안함
+
+        const closeBtn = sidebar.querySelector('.close-btn');
+        const focusableSelector = 'a, button, input, [tabindex]:not([tabindex="-1"])';
+
+        // 내부 함수: 열기
+        const openSidebar = () => {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+            sidebar.setAttribute('aria-hidden', 'false');
+            hamburger.setAttribute('aria-expanded', 'true');
+            overlay.setAttribute('aria-hidden', 'false');
+
+            const first = sidebar.querySelector(focusableSelector);
+            if (first) first.focus();
+            document.addEventListener('keydown', onKeyDown);
+        };
+
+        // 내부 함수: 닫기
+        const closeSidebar = () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            sidebar.setAttribute('aria-hidden', 'true');
+            hamburger.setAttribute('aria-expanded', 'false');
+            overlay.setAttribute('aria-hidden', 'true');
+            hamburger.focus();
+            document.removeEventListener('keydown', onKeyDown);
+        };
+
+        const onKeyDown = (e) => {
+            if (e.key === 'Escape') closeSidebar();
+        };
+
+        // 이벤트 리스너 등록
+        hamburger.addEventListener('click', () => {
+            const isOpen = sidebar.classList.contains('open');
+            isOpen ? closeSidebar() : openSidebar();
+        });
+
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+        if (overlay) overlay.addEventListener('click', closeSidebar);
+
+        sidebar.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', closeSidebar);
+        });
+    }
+};
 
 /**
  * [4] 유틸리티 및 공통 함수
@@ -207,16 +370,16 @@ var oper = {
         })
         .done(res => successCallback && successCallback(res))
         .fail(xhr => {
-        console.error('요청 실패:', xhr);
+            console.error('요청 실패:', xhr);
 
-        // 추가: 실패 콜백이 넘어왔다면 실행합니다.
-        if (failCallback) {
-            failCallback(xhr);
-        } else {
-            // 실패 콜백이 없을 때만 기본 alert를 띄웁니다.
-            alert("에러 발생: " + (xhr.responseJSON?.message || "통신 오류"));
-        }
-    });
+            // 추가: 실패 콜백이 넘어왔다면 실행합니다.
+            if (failCallback) {
+                failCallback(xhr);
+            } else {
+                // 실패 콜백이 없을 때만 기본 alert를 띄웁니다.
+                alert("에러 발생: " + (xhr.responseJSON?.message || "통신 오류"));
+            }
+        });
     },
 
     // 날짜 관련 유틸리티 (포맷 최적화)

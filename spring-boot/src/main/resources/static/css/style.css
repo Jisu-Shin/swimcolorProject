@@ -437,6 +437,12 @@ body {
     width: 50%;
 }
 
+.detail-left a {
+    text-decoration: none; /* 밑줄 제거 */
+    color: inherit;       /* 부모(div)의 글자색을 그대로 상속 (검은색 등) */
+    display: block;       /* 감싸고 있는 영역 전체를 클릭 가능하게 만듦 */
+}
+
 .img-container {
     /* 데스크탑: 세로가 긴 비율 유지 */
     aspect-ratio: 3 / 4;
@@ -501,6 +507,12 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
+}
+
+.cap-item a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
 }
 
 .cap-item {
