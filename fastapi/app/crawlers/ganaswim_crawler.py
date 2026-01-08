@@ -54,14 +54,8 @@ class GanaswimCrawler:
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
 
-        driver_path = os.getenv('CHROMEDRIVER_PATH', '/usr/bin/chromedriver')
-
-        print(f"--- 드라이버 실행 시도 ---")
-        print(f"차(Browser) 경로: {chrome_bin}")
-        print(f"운전사(Driver) 경로: {driver_path}")
-
         # Service에는 '드라이버' 경로를 넣어야 합니다.
-        service = Service(executable_path=driver_path)
+        service = Service()
         self.driver = webdriver.Chrome(service=service, options=options)
 
         # 실행 속도 향상을 위한 스크립트 실행 (Webdriver 속성 제거)
