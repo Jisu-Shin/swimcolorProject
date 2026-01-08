@@ -29,6 +29,12 @@ class GanaswimCrawler:
     def setup_driver(self):
         """크롬 드라이버 설정 및 실행"""
         options = webdriver.ChromeOptions()
+
+        # 1. 브라우저(Chrome) 실행 파일 경로 설정
+        # os.getenv('CHROME_PATH')가 /usr/bin/google-chrome 라면 여기에 할당합니다.
+        chrome_bin = os.getenv('CHROME_PATH')
+        options.binary_location = chrome_bin
+
         options.add_argument('--headless=new')  # 최신 헤드리스 모드 (더 빠름)
         options.add_argument('--window-size=1920,1080')  # 도커 환경과 동일하게 설정
         options.add_argument('--no-sandbox')
@@ -48,10 +54,14 @@ class GanaswimCrawler:
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
 
-        chrome_path = os.getenv('CHROME_PATH')  # 기본값 설정
-        print(f"--- 드라이버 실행 시도 (Path: {chrome_path})")
+        driver_path = os.getenv('CHROMEDRIVER_PATH', '/usr/bin/chromedriver')
 
-        service = Service(chrome_path)  # 본인의 도커 환경 chromedriver 경로
+        print(f"--- 드라이버 실행 시도 ---")
+        print(f"차(Browser) 경로: {chrome_bin}")
+        print(f"운전사(Driver) 경로: {driver_path}")
+
+        # Service에는 '드라이버' 경로를 넣어야 합니다.
+        service = Service(executable_path=driver_path)
         self.driver = webdriver.Chrome(service=service, options=options)
 
         # 실행 속도 향상을 위한 스크립트 실행 (Webdriver 속성 제거)

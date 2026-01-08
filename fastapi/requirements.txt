@@ -89,7 +89,6 @@ sympy==1.14.0
 threadpoolctl==3.6.0
 tifffile==2024.8.30
 tomli==2.3.0
-torchvision==0.23.0
 trio==0.31.0
 trio-websocket==0.12.2
 typer==0.20.1
