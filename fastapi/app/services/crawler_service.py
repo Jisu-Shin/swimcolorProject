@@ -29,8 +29,6 @@ async def crawl_swimsuit_and_extract_colors(url):
             else:
                 product['colors'] = [color['hex'] for color in colors]
 
-        print(products)
-
     except Exception as e:
         print(f"❌ 상품과 색상 매핑 중  오류 발생:  {e}")
         raise e
@@ -63,8 +61,6 @@ async def crawl_swimcap_and_extract_colors(url):
                 product['colors'] = []
             else:
                 product['colors'] = [color['hex'] for color in colors]
-
-        print(products)
 
     except Exception as e:
         print(f"❌ 상품과 색상 매핑 중  오류 발생:  {e}")

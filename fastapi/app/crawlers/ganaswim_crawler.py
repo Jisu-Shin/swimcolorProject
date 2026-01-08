@@ -1,15 +1,17 @@
-from selenium. common import NoSuchElementException
-from selenium. webdriver.common.by import By
-from selenium. webdriver.support.ui import WebDriverWait
+from selenium.common import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from dotenv import load_dotenv
 import logging
-
+import os
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
+from urllib.parse import urljoin
 
 logger = logging.getLogger(__name__)
+
 
 class GanaswimCrawler:
     """가나스윔 사이트 크롤러 클래스"""
@@ -46,7 +48,11 @@ class GanaswimCrawler:
         options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
 
-        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        chrome_path = os.getenv('CHROME_PATH')  # 기본값 설정
+        print(f"--- 드라이버 실행 시도 (Path: {chrome_path})")
+
+        service = Service(chrome_path)  # 본인의 도커 환경 chromedriver 경로
+        self.driver = webdriver.Chrome(service=service, options=options)
 
         # 실행 속도 향상을 위한 스크립트 실행 (Webdriver 속성 제거)
         self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
@@ -63,12 +69,12 @@ class GanaswimCrawler:
             self.driver.quit()
             logger.info("✓ 드라이버 종료됨")
 
-    def get_end_page(self):
+    def get_end_page(self, pageDiv):
         """마지막 페이지 번호 가져오기"""
         try:
-            pageDiv = self.driver.find_element(By.CLASS_NAME, 'sc-b97ceab4-2')
-            pageLastButton = pageDiv.find_elements(By.TAG_NAME, 'button')[-1]
-            endPage = int(pageLastButton.find_element(By.TAG_NAME, 'span').text)
+            buttons = pageDiv.find_all('button')
+            pageLastButton = buttons[-1]
+            endPage = int(pageLastButton.find('span').get_text(strip=True))
             return endPage
         except Exception as e:
             logger.exception("페이지 로딩 실패: %s", e)
@@ -84,6 +90,54 @@ class GanaswimCrawler:
         except Exception as e:
             logger.exception("페이지 로딩 실패: %s", e)
             return False
+
+    def extract_product_info_bs4(self, element):
+        """
+        BeautifulSoup 객체(element)에서 정보를 추출하는 초고속 로직
+        """
+        try:
+            base_url = "https://swim.co.kr"
+            # 1. 링크 추출 (find_element 대신 .find나 .select 사용)
+            link_tag = element.find('a')
+            product_url = urljoin(base_url, link_tag['href']) if link_tag else ""
+
+            # 2. 브랜드, 상품명 추출 (innerText 대신 .get_text())
+            brand_tag = element.select_one('.dVHoSm')
+            brand = brand_tag.get_text(strip=True) if brand_tag else "알 수 없음"
+
+            name_tag = element.select_one('.cjytLO')
+            name = name_tag.get_text(strip=True) if name_tag else "상품명 없음"
+
+            # 3. 가격 추출 (복잡한 span 구조도 텍스트로 한 번에 처리 가능)
+            price_tag = element.select_one('.bJFYWS')
+            if price_tag:
+                # 텍스트 내에서 숫자만 골라내기 (원, , 제거)
+                raw_price = price_tag.get_text().strip()
+                # 가장 뒤에 있는 숫자가 실제 가격인 경우가 많으므로 처리
+                price = "".join(filter(str.isdigit, raw_price))
+            else:
+                price = "0"
+
+            # 4. 이미지 URL 추출
+            img_tag = element.find('img')
+            img_url = urljoin(base_url, img_tag['src']) if img_tag else ""
+
+            # 5. 품절 여부 확인 (클래스 존재 여부만 체크)
+            is_sold_out = True if element.select_one('.sc-eef3f2e7-3') else False
+
+            return {
+                "brand": brand,
+                "name": name,
+                "price": price,
+                "product_url": product_url,
+                "img_url": img_url,
+                "is_sold_out": is_sold_out
+            }
+
+        except Exception as e:
+            # 에러 로그는 남기되 전체 루프가 깨지지 않게 처리
+            logger.debug(f"상품 정보 추출 중 건너뜀: {e}")
+            return None
 
     def extract_product_info(self, element):
         """
@@ -126,26 +180,24 @@ class GanaswimCrawler:
             logger.exception("상품 정보 추출 실패: %s", e)
             return None
 
-    def crawl_page(self):
+    def crawl_page(self, elements):
         """현재 페이지의 모든 상품 정보 추출"""
         try:
-            elements = self.driver.find_elements(By.CLASS_NAME, 'cGXxzj')
-            logger.info(f"📦 발견된 상품 수:  {len(elements)}")
+            logger.info(f"📦 발견된 상품 수: {len(elements)}")
+            print(f"📦 발견된 상품 수: {len(elements)}")
 
             for element in elements:
-                product_info = self.extract_product_info(element)
+                # element는 이제 BS4 객체라 속도가 미쳤음!
+                # 주의: .find_element() 대신 .select_one() 혹은 .find() 사용
+                product_info = self.extract_product_info_bs4(element)
 
-                if product_info:
-                    if product_info['is_sold_out']:
-                        logger.debug(f"  ✗ [품절] {product_info['brand']} - {product_info['name']}")
-                    else:
-                        # print(f"  ✓ {product_info['brand']} - {product_info['name']}")
-                        self.product_list.append(product_info)
+                self.product_list.append(product_info)
 
             return True
 
         except Exception as e:
-            logger.exception(f"페이지 크롤링 실패: {e}")
+            logger.exception(f"BS4 파싱 중 오류 발생: {e}")
+            print(f"오류발생 {e}")
             return False
 
     def crawl(self, url):
@@ -180,15 +232,25 @@ class GanaswimCrawler:
                     # 여기서 바로 에러를 던지면 finally로 가서 드라이버 끄고 끝남!
                     raise Exception(f"페이지 로딩 실패 (URL: {full_url})")
 
-                # 현재 페이지의 상품 크롤링
-                if not self.crawl_page():
+                # 1. 소스 가져오기 (Selenium 통신 1회)
+                soup = BeautifulSoup(self.driver.page_source, 'html.parser')
+
+                # 2. 상품 리스트 추출
+                elements = soup.select('.cGXxzj')  # 마침표(.) 필수!
+
+                # 3. 데이터 파싱 실행 (메모리 연산이라 광속!)
+                if not self.crawl_page(elements):
                     break
 
-                # 마지막 페이지 확인
-                end_page = self.get_end_page()
+                # 4. 마지막 페이지 확인 로직 (클래스명 선택 주의)
+                pageDiv = soup.find(class_='sc-b97ceab4-2')
+                if pageDiv:
+                    end_page = self.get_end_page(pageDiv)
+                else:
+                    end_page = current_page  # 못 찾으면 현재 페이지를 마지막으로 간주
 
                 if current_page >= end_page:
-                    logger.debug(f"✓ 마지막 페이지({end_page})에 도달")
+                    logger.info(f"✓ 마지막 페이지({end_page}) 도달")
                     break
 
                 current_page += 1
@@ -207,13 +269,13 @@ class GanaswimCrawler:
 
         return self.product_list
 
+
 # 사용 예시
 if __name__ == "__main__":
     # 기본 사용 (브라우저 안보임)
     crawler = GanaswimCrawler(headless=True)
 
     url = "https://swim.co.kr/categories/918698/products?childCategoryNo=919173&brands=%255B43160584%255D&pageNumber=1"
-
     product_list = crawler.crawl(url)
 
     # 결과 출력
