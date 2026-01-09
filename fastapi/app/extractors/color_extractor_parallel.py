@@ -13,9 +13,168 @@ import logging
 import os
 import asyncio
 import gc
+import concurrent.futures
 import time
 
 logger = logging.getLogger(__name__)
+
+# 전역 변수로 모델 저장 공간 확보
+worker_model = None
+
+def init_worker(model_path):
+    """워커 프로세스가 생성될 때 딱 한 번만 실행됨"""
+    global worker_model
+    from ultralytics import YOLO
+    worker_model = YOLO(model_path)
+    logger.info(f"✓ YOLO 모델 로드 완료: {model_path}")
+
+def process_image_task(img, n_colors):
+    """
+    별도의 프로세스에서 실행될 무거운 연산 묶음
+    병렬처리할 때 메모리 복사가 깔끔하게 되므로 클래스밖에 선언
+    """
+    try:
+        # 2. 수영복만 자르기 (내부 로직을 직접 구현하거나 유틸 함수 호출)
+        cropped = crop_swimsuit_only(img, worker_model, conf_threshold=0.5)
+
+        logger.debug("수영복만 자르기 완료")
+
+        # 2. 색상 추출 (CPU 연산)
+        colors = extract_colors_kmeans(cropped, n_colors)
+
+        logger.debug("색상 추출 완료")
+
+        # 3. 다 쓴 큰 객체 삭제
+        del cropped
+
+        # 4. 124건이나 하니까, 한 건 끝날 때마다 확실히 비워줌
+        gc.collect()
+
+        return colors
+    except Exception as e:
+        return []
+
+
+def crop_swimsuit_only(image, model, conf_threshold=0.5, target_class=0):
+    """
+    ⭐ 핵심 기능: YOLO로 수영복 탐지 후 해당 영역만 크롭
+
+    Parameters:
+    - image: OpenCV 이미지 (BGR)
+    - conf_threshold: 탐지 신뢰도 임계값
+    - target_class: 탐지할 클래스 ID (커스텀 모델의 경우 swimsuit class)
+
+    Returns:
+    - cropped_image: 수영복 영역만 크롭된 이미지
+    - detection_info: 탐지 정보 (bbox, confidence)
+    """
+    # YOLO 추론
+    results = model(image, verbose=False)
+    r = results[0]
+
+    # 탐지된 결과에서 가장 신뢰도 높은 수영복 찾기
+    best_detection = None
+    max_confidence = 0
+
+    for i, box in enumerate(r.boxes):
+        conf = float(box.conf[0])
+        cls = int(box.cls[0])
+
+        # 조건: 타겟 클래스 && 신뢰도 임계값 이상 && 가장 높은 신뢰도
+        if cls == target_class and conf >= conf_threshold and conf > max_confidence:
+            best_detection = i
+            max_confidence = conf
+
+    if best_detection is None:
+        raise ValueError(f"수영복을 탐지하지 못했습니다. (신뢰도 임계값: {conf_threshold})")
+
+    # 수영복 영역만 크롭
+    mask = r.masks.data[best_detection].cpu().numpy()  # (H, W), 0~1
+    mask = (mask * 255).astype("uint8")
+
+    # 크기 맞추기
+    h, w = image.shape[:2]
+    mask = cv2.resize(mask, (w, h))  # (width, height) 순서!
+
+    # 3채널 마스크
+    mask_3c = cv2.merge([mask, mask, mask])
+
+    swimsuit_only = cv2.bitwise_and(image, mask_3c)
+    return swimsuit_only
+
+def extract_colors_kmeans(image, n_colors=5, remove_extreme=True):
+    """
+    K-means 클러스터링으로 주요 색상 추출
+
+    Parameters:
+    - image: OpenCV 이미지 (BGR)
+    - n_colors: 추출할 색상 개수
+    - remove_extreme: 극단적인 밝기/어두움 제거 (배경 노이즈 제거)
+
+    Returns:
+    - colors: 색상 정보 리스트 [{rgb, hex, ratio}, ...]
+    """
+    # BGR → RGB 변환
+    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    # 여기에 한 줄 추가 (채도 높은 픽셀만) - 회색 픽셀 제거
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    sat_mask = hsv[:, :, 1] > 20  # 채도 20 이상만 (높을수록 진한색만 추출)
+
+    # 이미지를 1차원 픽셀 배열로 변환
+    rgb_pixels = rgb_image.reshape(-1, 3)
+    pixels = rgb_pixels[sat_mask.flatten()]  # 필터링된 픽셀만!
+
+    # 극단적인 색상 제거 (선택적)
+    if remove_extreme:
+        # 밝기 계산 (평균)
+        brightness = np.mean(pixels, axis=1)
+
+        # 너무 밝거나 어두운 픽셀 제거 (배경/그림자 제거)
+        mask = (brightness > 15) & (brightness < 240)
+        pixels_filtered = pixels[mask]
+
+        if len(pixels_filtered) < 100:  # 필터링 후 픽셀이 너무 적으면
+            pixels_filtered = pixels  # 원본 사용
+
+        pixels = pixels_filtered
+
+    # K-means 클러스터링
+    n_clusters = min(n_colors, len(pixels))  # 픽셀보다 많은 클러스터 방지
+
+    kmeans = KMeans(
+        n_clusters=n_clusters,
+        random_state=42,
+        n_init=5,
+        max_iter=50
+    )
+    kmeans.fit(pixels)
+
+    # 각 클러스터(색상)의 픽셀 개수 세기
+    labels = kmeans.labels_
+    label_counts = Counter(labels)
+    total_pixels = len(labels)
+
+    # 색상 정보 생성
+    colors = []
+    for i, center in enumerate(kmeans.cluster_centers_):
+        rgb = center.astype(int)
+        count = label_counts[i]
+        ratio = count / total_pixels
+
+        colors.append({
+            'rgb': rgb.tolist(),
+            'hex': '#{:02x}{:02x}{:02x}'.format(*rgb),
+            'ratio': ratio,
+            'count': count
+        })
+
+    # 비율 순으로 정렬 (가장 많이 나타나는 색상 우선)
+    colors.sort(key=lambda x: x['ratio'], reverse=True)
+
+    logger.info(f"✓ {len(colors)}개의 주요 색상 추출 완료")
+
+    return colors
 
 
 class ColorExtractorParallel:
@@ -26,8 +185,8 @@ class ColorExtractorParallel:
 
     def __init__(self, yolo_model_path=settings.yolo_model_path):
         """YOLO 모델 초기화"""
-        self.model = YOLO(yolo_model_path)
-        logger.info(f"✓ YOLO 모델 로드 완료: {yolo_model_path}")
+        self.model_path = yolo_model_path;
+
 
         # 다운로드 전용 ThreadPoolExecutor
         self.download_executor = ThreadPoolExecutor(max_workers=4)
@@ -87,130 +246,6 @@ class ColorExtractorParallel:
         logger.info(f"이미지 로드 완료: {len(valid_images)}/{len(image_urls)} 성공")
         return valid_images
 
-    def crop_swimsuit_only(self, image, conf_threshold=0.5, target_class=0):
-        """
-        ⭐ 핵심 기능: YOLO로 수영복 탐지 후 해당 영역만 크롭
-
-        Parameters:
-        - image: OpenCV 이미지 (BGR)
-        - conf_threshold: 탐지 신뢰도 임계값
-        - target_class: 탐지할 클래스 ID (커스텀 모델의 경우 swimsuit class)
-
-        Returns:
-        - cropped_image: 수영복 영역만 크롭된 이미지
-        - detection_info: 탐지 정보 (bbox, confidence)
-        """
-        # YOLO 추론
-        results = self.model(image, verbose=False)
-        r = results[0]
-
-        # 탐지된 결과에서 가장 신뢰도 높은 수영복 찾기
-        best_detection = None
-        max_confidence = 0
-
-        for i, box in enumerate(r.boxes):
-            conf = float(box.conf[0])
-            cls = int(box.cls[0])
-
-            # 조건: 타겟 클래스 && 신뢰도 임계값 이상 && 가장 높은 신뢰도
-            if cls == target_class and conf >= conf_threshold and conf > max_confidence:
-                best_detection = i
-                max_confidence = conf
-
-        if best_detection is None:
-            raise ValueError(f"수영복을 탐지하지 못했습니다. (신뢰도 임계값: {conf_threshold})")
-
-        # 수영복 영역만 크롭
-        mask = r.masks.data[best_detection].cpu().numpy()  # (H, W), 0~1
-        mask = (mask * 255).astype("uint8")
-
-        # 크기 맞추기
-        h, w = image.shape[:2]
-        mask = cv2.resize(mask, (w, h))  # (width, height) 순서!
-        # print(f"image shape: {image.shape}")  # (H, W, 3)
-        # print(f"mask shape: {mask.shape}")  # (h, w) ← 다를 수 있음!
-
-        # 3채널 마스크
-        mask_3c = cv2.merge([mask, mask, mask])
-        # print("3채널 마스크 완료")
-        # print(f"mask_3c shape: {mask_3c.shape}")  # (h, w, 3)
-
-        swimsuit_only = cv2.bitwise_and(image, mask_3c)
-        return swimsuit_only
-
-    def extract_colors_kmeans(self, image, n_colors=5, remove_extreme=True):
-        """
-        K-means 클러스터링으로 주요 색상 추출
-
-        Parameters:
-        - image: OpenCV 이미지 (BGR)
-        - n_colors: 추출할 색상 개수
-        - remove_extreme: 극단적인 밝기/어두움 제거 (배경 노이즈 제거)
-
-        Returns:
-        - colors: 색상 정보 리스트 [{rgb, hex, ratio}, ...]
-        """
-        # BGR → RGB 변환
-        rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-        # 여기에 한 줄 추가 (채도 높은 픽셀만) - 회색 픽셀 제거
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        sat_mask = hsv[:, :, 1] > 20  # 채도 20 이상만 (높을수록 진한색만 추출)
-
-        # 이미지를 1차원 픽셀 배열로 변환
-        rgb_pixels = rgb_image.reshape(-1, 3)
-        pixels = rgb_pixels[sat_mask.flatten()]  # 필터링된 픽셀만!
-
-        # 극단적인 색상 제거 (선택적)
-        if remove_extreme:
-            # 밝기 계산 (평균)
-            brightness = np.mean(pixels, axis=1)
-
-            # 너무 밝거나 어두운 픽셀 제거 (배경/그림자 제거)
-            mask = (brightness > 15) & (brightness < 240)
-            pixels_filtered = pixels[mask]
-
-            if len(pixels_filtered) < 100:  # 필터링 후 픽셀이 너무 적으면
-                pixels_filtered = pixels  # 원본 사용
-
-            pixels = pixels_filtered
-
-        # K-means 클러스터링
-        n_clusters = min(n_colors, len(pixels))  # 픽셀보다 많은 클러스터 방지
-
-        kmeans = KMeans(
-            n_clusters=n_clusters,
-            random_state=42,
-            n_init=5,
-            max_iter=50
-        )
-        kmeans.fit(pixels)
-
-        # 각 클러스터(색상)의 픽셀 개수 세기
-        labels = kmeans.labels_
-        label_counts = Counter(labels)
-        total_pixels = len(labels)
-
-        # 색상 정보 생성
-        colors = []
-        for i, center in enumerate(kmeans.cluster_centers_):
-            rgb = center.astype(int)
-            count = label_counts[i]
-            ratio = count / total_pixels
-
-            colors.append({
-                'rgb': rgb.tolist(),
-                'hex': '#{:02x}{:02x}{:02x}'.format(*rgb),
-                'ratio': ratio,
-                'count': count
-            })
-
-        # 비율 순으로 정렬 (가장 많이 나타나는 색상 우선)
-        colors.sort(key=lambda x: x['ratio'], reverse=True)
-
-        logger.info(f"✓ {len(colors)}개의 주요 색상 추출 완료")
-
-        return colors
 
     def visualize_extraction(self, original_image, swimsuit_only, colors, mask=None, save_path=None):
         """
@@ -328,26 +363,30 @@ class ColorExtractorParallel:
 
         return all_results
 
-
     async def extract_colors_parallel(self, yolo_results, n_colors):
-        """YOLO 결과에서 색상 병렬 추출"""
-        async def process_single_image(img):
-            try:
-                # result = yolo_results[idx]
-                # 수정된 호출
-                cropped = self.crop_swimsuit_only(img, conf_threshold=0.5)
-                colors = self.extract_colors_kmeans(cropped, n_colors)
+        loop = asyncio.get_event_loop()
 
-                del cropped
-                gc.collect()
+        # 일꾼(CPU)이 2개니까 max_workers=2로 설정
+        with concurrent.futures.ProcessPoolExecutor(
+                max_workers=2,
+                initializer=init_worker,
+                initargs=(self.model_path,)
+        ) as executor:
+            tasks = []
+            for img in yolo_results:
+                # loop.run_in_executor를 써서 '무거운 묶음'을 던짐
+                # self(인스턴스)까지 같이 넘겨서 메서드를 쓸 수 있게 함
+                task = loop.run_in_executor(
+                    executor,
+                    process_image_task,
+                    img,
+                    n_colors
+                )
+                tasks.append(task)
 
-                return colors  # 순서 보장됨
-            except Exception as e:
-                logger.error(f" extract_colors_parallel 이미지 처리 실패: {e}")
-                return []
+            # 124개의 작업이 2개의 CPU에서 순서대로 처리될 때까지 비동기로 대기
+            results = await asyncio.gather(*tasks)
 
-        tasks = [process_single_image(i) for i in yolo_results]
-        results = await asyncio.gather(*tasks)
         return results
 
 # ============================================================
@@ -379,6 +418,8 @@ async def main():
             conf_threshold=0.5,  # 탐지 임계값 (낮추면 더 많이 탐지)
             visualize=False  # 결과 시각화
         )
+
+        print(colors)
 
     except ValueError as e:
         print(f"❌ 오류: {e}")

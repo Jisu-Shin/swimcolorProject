@@ -188,7 +188,6 @@ class GanaswimCrawler:
         """현재 페이지의 모든 상품 정보 추출"""
         try:
             logger.info(f"📦 발견된 상품 수: {len(elements)}")
-            print(f"📦 발견된 상품 수: {len(elements)}")
 
             for element in elements:
                 # element는 이제 BS4 객체라 속도가 미쳤음!
@@ -201,7 +200,6 @@ class GanaswimCrawler:
 
         except Exception as e:
             logger.exception(f"BS4 파싱 중 오류 발생: {e}")
-            print(f"오류발생 {e}")
             return False
 
     def crawl(self, url):
@@ -220,6 +218,8 @@ class GanaswimCrawler:
         self.setup_driver()
         self.product_list = []
 
+        clean_url = url.split("&pageNumber=1")[0] if "&pageNumber=1" in url else url
+
         try:
             current_page = 1
 
@@ -227,7 +227,8 @@ class GanaswimCrawler:
                 logger.debug(f"\n📄 페이지 {current_page} 처리 중...")
 
                 # URL 접속
-                full_url = f"{url}&pageNumber={current_page}"
+                full_url = f"{clean_url}&pageNumber={current_page}"
+                logger.info(f"##### 현재 url {full_url}")
                 self.driver.get(full_url)
 
                 # 페이지 로딩 대기
