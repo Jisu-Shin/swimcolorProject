@@ -41,10 +41,17 @@ class GanaswimCrawler:
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-gpu')
 
+        # ===== 추가: 네트워크/렌더링 최적화 =====
+        options.add_argument('--disable-background-timer-throttling')  # ① JS 타이머 지연 방지
+        options.add_argument('--disable-backgrounding-occluded-windows')  # ② 백그라운드 throttling OFF
+        options.add_argument('--disable-renderer-backgrounding')  # ③ 렌더러 일시정지 OFF
+        options.add_argument('--disable-extensions')  # ④ 확장프로그램 완전 차단
+        options.add_argument('--disable-plugins')  # ⑤ 플러그인 로딩 차단
+
         # [핵심] 리소스 차단: 이미지, 폰트 로딩 방지 (CPU 낭비 방지)
         prefs = {
             "profile.managed_default_content_settings.images": 2,
-            # "profile.managed_default_content_settings.stylesheets": 2,
+            "profile.managed_default_content_settings.stylesheets": 2,
             "profile.managed_default_content_settings.fonts": 2,
         }
         options.add_experimental_option("prefs", prefs)
@@ -87,7 +94,7 @@ class GanaswimCrawler:
     def wait_for_load(self):
         """페이지 로딩 대기"""
         try:
-            WebDriverWait(self.driver, 20).until(
+            WebDriverWait(self.driver, 30).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'sc-2667f19f-45'))
             )
             return True
