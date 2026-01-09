@@ -41,10 +41,10 @@ class GanaswimCrawler:
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-gpu')
 
-        # [핵심] 리소스 차단: 이미지, CSS, 폰트 로딩 방지 (CPU 낭비 방지)
+        # [핵심] 리소스 차단: 이미지, 폰트 로딩 방지 (CPU 낭비 방지)
         prefs = {
             "profile.managed_default_content_settings.images": 2,
-            "profile.managed_default_content_settings.stylesheets": 2,
+            # "profile.managed_default_content_settings.stylesheets": 2,
             "profile.managed_default_content_settings.fonts": 2,
         }
         options.add_experimental_option("prefs", prefs)
