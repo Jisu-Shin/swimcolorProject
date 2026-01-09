@@ -113,10 +113,10 @@ class GanaswimCrawler:
             name = name_tag.get_text(strip=True) if name_tag else "상품명 없음"
 
             # 3. 가격 추출 (복잡한 span 구조도 텍스트로 한 번에 처리 가능)
-            price_tag = element.select_one('.bJFYWS')
-            if price_tag:
+            price_span = element.select('.dVHoSm')
+            if price_span[-1]:
                 # 텍스트 내에서 숫자만 골라내기 (원, , 제거)
-                raw_price = price_tag.get_text().strip()
+                raw_price = price_span[-1].get_text().strip()
                 # 가장 뒤에 있는 숫자가 실제 가격인 경우가 많으므로 처리
                 price = "".join(filter(str.isdigit, raw_price))
             else:
@@ -143,57 +143,13 @@ class GanaswimCrawler:
             logger.debug(f"상품 정보 추출 중 건너뜀: {e}")
             return None
 
-    def extract_product_info(self, element):
-        """
-        개별 상품 정보 추출
-
-        Returns:
-            dict: 상품 정보 또는 None (추출 실패 시)
-        """
-        try:
-            # 링크 추출
-            product_url = element.find_element(By.TAG_NAME, 'a').get_attribute('href')
-
-            # 상품명, 브랜드, 가격 추출
-            brand = element.find_element(By.CLASS_NAME, 'dVHoSm').get_attribute('innerText').strip()
-            name = element.find_element(By.CLASS_NAME, 'cjytLO').get_attribute('innerText').strip()
-
-            price_spans = element.find_element(By.CLASS_NAME, 'bJFYWS').find_elements(By.TAG_NAME, 'span')
-            price = price_spans[-1].get_attribute('innerText').strip().replace(",", "").replace("원", "")
-
-            # 이미지 URL 추출
-            img_url = element.find_element(By.TAG_NAME, 'img').get_attribute('src')
-
-            # 품절 여부 확인
-            try:
-                element.find_element(By.CLASS_NAME, 'sc-eef3f2e7-3')
-                is_sold_out = True
-            except NoSuchElementException:
-                is_sold_out = False
-
-            return {
-                "brand": brand,
-                "name": name,
-                "price": price,
-                "product_url": product_url,
-                "img_url": img_url,
-                "is_sold_out": is_sold_out
-            }
-
-        except Exception as e:
-            logger.exception("상품 정보 추출 실패: %s", e)
-            return None
-
     def crawl_page(self, elements):
         """현재 페이지의 모든 상품 정보 추출"""
         try:
             logger.info(f"📦 발견된 상품 수: {len(elements)}")
 
             for element in elements:
-                # element는 이제 BS4 객체라 속도가 미쳤음!
-                # 주의: .find_element() 대신 .select_one() 혹은 .find() 사용
                 product_info = self.extract_product_info_bs4(element)
-
                 self.product_list.append(product_info)
 
             return True
@@ -229,6 +185,7 @@ class GanaswimCrawler:
                 # URL 접속
                 full_url = f"{clean_url}&pageNumber={current_page}"
                 logger.info(f"##### 현재 url {full_url}")
+
                 self.driver.get(full_url)
 
                 # 페이지 로딩 대기
@@ -280,7 +237,7 @@ if __name__ == "__main__":
     # 기본 사용 (브라우저 안보임)
     crawler = GanaswimCrawler(headless=True)
 
-    url = "https://swim.co.kr/categories/918698/products?childCategoryNo=919173&brands=%255B43160584%255D&pageNumber=1"
+    url = "https://swim.co.kr/categories/918606/products?childCategoryNo=919019&brands=%255B43160576%255D&pageNumber=1"
     product_list = crawler.crawl(url)
 
     # 결과 출력
