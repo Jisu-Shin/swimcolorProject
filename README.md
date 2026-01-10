@@ -37,7 +37,8 @@
 - **GitHub Actions**: CI/CD 파이프라인
 
 ## System Architecture
-![image](https://github.com/Jisu-Shin/swimcolorProject/swimcolorProject.png)
+<img src="https://github.com/Jisu-Shin/swimcolorProject/blob/main/swimcolorProject.png">
+
 
 ## Core Features
 
