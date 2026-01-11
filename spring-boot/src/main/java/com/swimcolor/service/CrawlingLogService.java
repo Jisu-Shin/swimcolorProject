@@ -2,6 +2,7 @@ package com.swimcolor.service;
 
 import com.swimcolor.domain.CrawlStatus;
 import com.swimcolor.domain.CrawlingLog;
+import com.swimcolor.domain.ItemType;
 import com.swimcolor.dto.CrawlingLogResponseDto;
 import com.swimcolor.mapper.CrawlingLogMapper;
 import com.swimcolor.repository.JpaCrawlingLogRepository;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,5 +42,10 @@ public class CrawlingLogService {
         Long duration = Duration.between(crawlingLog.getCrawledAt(), LocalDateTime.now()).toMillis();
 
         crawlingLog.update(crawlStatus, count, errMsg, duration);
+    }
+
+    public CrawlingLog getLastSwimcapCrawlingLog(ItemType itemType){
+        return jpaCrawlingLogRepository.findLastLogByItemType(itemType).stream()
+                .findFirst().orElse(null);
     }
 }
