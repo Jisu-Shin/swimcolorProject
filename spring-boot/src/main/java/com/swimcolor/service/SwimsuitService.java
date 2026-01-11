@@ -39,13 +39,13 @@ public class SwimsuitService {
     public List<SwimsuitListDto> getPopularSwimsuit() {
         return swimsuitRepository.findAll().stream()
                 .limit(POPULAR_SIZE)
-                .map(s -> swimsuitMapper.toDto(s))
+                .map(swimsuitMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public List<SwimsuitListDto> getAllSwimsuit() {
         return swimsuitRepository.findAll().stream()
-                .map(s -> swimsuitMapper.toDto(s))
+                .map(swimsuitMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -57,12 +57,12 @@ public class SwimsuitService {
 
         // Page 객체가 제공하는 map()을 사용해 DTO로 변환합
         // 이렇게 하면 페이징 정보(현재 페이지, 전체 페이지 등)는 유지되면서 내용물만 DTO로 바뀝니다.
-        return swimsuitPage.map(swimsuit -> swimsuitMapper.toDto(swimsuit));
+        return swimsuitPage.map(swimsuitMapper::toDto);
     }
 
     public SwimsuitListDto getSwimsuit(String id) {
         return swimsuitRepository.findById(id)
-                .map(s -> swimsuitMapper.toDto(s))
+                .map(swimsuitMapper::toDto)
                 .orElse(null);
     }
 }

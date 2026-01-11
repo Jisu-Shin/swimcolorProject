@@ -2,13 +2,9 @@ package com.swimcolor.mapper;
 
 import com.swimcolor.domain.Swimsuit;
 import com.swimcolor.dto.CrawlListDto;
-import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.dto.SwimsuitListDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface SwimsuitMapper {
