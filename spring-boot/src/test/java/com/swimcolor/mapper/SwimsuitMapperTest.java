@@ -7,8 +7,6 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class SwimsuitMapperTest {
 
     private final SwimsuitMapper swimsuitMapper = Mappers.getMapper(SwimsuitMapper.class);
