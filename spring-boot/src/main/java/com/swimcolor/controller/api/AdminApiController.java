@@ -3,6 +3,7 @@ package com.swimcolor.controller.api;
 import com.swimcolor.dto.CrawlRequestDto;
 import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.service.AdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +16,13 @@ public class AdminApiController {
     private final AdminService adminService;
 
     @PostMapping("/crawlSwimsuits")
-    public ResponseEntity<String> crawlSwimsuits(@RequestBody CrawlRequestDto requestDto) {
+    public ResponseEntity<String> crawlSwimsuits(@Valid @RequestBody CrawlRequestDto requestDto) {
         adminService.crawlSwimsuits(requestDto.getCrawlingUrl());
         return ResponseEntity.ok("작업 시작됨");
     }
 
     @PostMapping("/crawlSwimcaps")
-    public ResponseEntity<String> cralSwimcaps(@RequestBody CrawlRequestDto requestDto) {
+    public ResponseEntity<String> cralSwimcaps(@Valid @RequestBody CrawlRequestDto requestDto) {
         adminService.crawlSwimcaps(requestDto.getCrawlingUrl());
         return ResponseEntity.ok("작업 시작됨");
     }

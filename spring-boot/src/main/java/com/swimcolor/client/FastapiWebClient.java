@@ -4,6 +4,9 @@ import com.swimcolor.dto.CrawlRequestDto;
 import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.dto.RecommendRequestDto;
 import com.swimcolor.dto.RecommendResponseDto;
+import com.swimcolor.exception.ColorMatchException;
+import com.swimcolor.exception.CrawlingException;
+import com.swimcolor.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +48,7 @@ public class FastapiWebClient implements FastapiClient {
 
         } catch (Exception e) {
             log.error("Error crawling swimsuits from URL: {}", url, e);
-            throw new RuntimeException("Failed to crawl swimsuits: " + e.getMessage(), e);
+            throw new CrawlingException(ErrorCode.FASTAPI_CONNECTION_FAILED);
         }
     }
 
@@ -69,7 +72,7 @@ public class FastapiWebClient implements FastapiClient {
 
         } catch (Exception e) {
             log.error("Error crawling swimcaps from URL: {}", url, e);
-            throw new RuntimeException("Failed to crawl swimcaps: " + e.getMessage(), e);
+            throw new CrawlingException(ErrorCode.FASTAPI_CONNECTION_FAILED);
         }
     }
 
@@ -94,7 +97,7 @@ public class FastapiWebClient implements FastapiClient {
 
         } catch (Exception e) {
             log.error("Error getting swimcap recommendations for swimsuit ID: {}", swimsuitId, e);
-            throw new RuntimeException("Failed to get swimcap recommendations: " + e.getMessage(), e);
+            throw new ColorMatchException(ErrorCode.FASTAPI_CONNECTION_FAILED);
         }
     }
 
@@ -105,8 +108,11 @@ public class FastapiWebClient implements FastapiClient {
     public Mono<Void> crawlSwimsuitsAsync(String url, Long logId) {
         log.info("Async crawling swimsuits from URL: {}", url);
 
-        CrawlRequestDto requestDto = new CrawlRequestDto(logId, url);
-        requestDto.setCallbackUrl(crawlingCallbackUrl.concat("/swimsuits"));
+        CrawlRequestDto requestDto = CrawlRequestDto.builder()
+                .logId(logId)
+                .crawlingUrl(url)
+                .callbackUrl(crawlingCallbackUrl.concat("/swimsuits"))
+                .build();
 
         return webClient.post()
                 .uri("/crawl/swimsuits")
@@ -124,8 +130,11 @@ public class FastapiWebClient implements FastapiClient {
     public Mono<Void> crawlSwimcapsAsync(String url, Long logId) {
         log.info("Async crawling swimcaps from URL: {}", url);
 
-        CrawlRequestDto requestDto = new CrawlRequestDto(logId, url);
-        requestDto.setCallbackUrl(crawlingCallbackUrl+"/swimcaps");
+        CrawlRequestDto requestDto = CrawlRequestDto.builder()
+                .logId(logId)
+                .crawlingUrl(url)
+                .callbackUrl(crawlingCallbackUrl.concat("/swimcaps"))
+                .build();
 
         log.info("Async crawling swimcaps from callbackUrl: {}", requestDto.getCallbackUrl());
 
