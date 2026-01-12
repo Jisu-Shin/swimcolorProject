@@ -4,7 +4,11 @@ import com.swimcolor.client.FastapiClient;
 import com.swimcolor.domain.CrawlStatus;
 import com.swimcolor.domain.CrawlingLog;
 import com.swimcolor.domain.ItemType;
+import com.swimcolor.domain.ViewType;
 import com.swimcolor.dto.CrawlResponseDto;
+import com.swimcolor.exception.CrawlingException;
+import com.swimcolor.exception.ErrorCode;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,14 +18,23 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
+    // todo adminservice에 의존성이 있는 서비스들이 이렇게 많아도 될까?
     private final FastapiClient fastapiClient;
     private final SwimsuitService swimsuitService;
     private final SwimcapService swimcapService;
     private final CrawlingLogService crawlingLogService;
     private final CrawlStatusService crawlStatusService;
+    private final RecentViewLogService recentViewLogService;
+
+    private final String SWIMSUIT_VIEW_LOG_ID = "CRAWL_SWIMSUIT_LOG";
+    private final String SWIMCAP_VIEW_LOG_ID = "CRAWL_SWIMCAP_LOG";
 
     public void crawlSwimsuits(String url) {
         log.info("#### [SWIMSUIT] 크롤링 시작: {}", url);
+
+        if(crawlStatusService.getCrawlStatus(ItemType.SWIMSUIT.name()) == CrawlStatus.RUNNING.name()) {
+            throw new CrawlingException(ErrorCode.CRAWLING_ALREADY_IN_PROGRESS);
+        }
 
         // 1. 크롤링 상태 저장
         crawlStatusService.runSwimsuitCrawling();
@@ -45,6 +58,7 @@ public class AdminService {
                 );
     }
 
+    @Transactional
     public void responseCrawlSwimsuits(CrawlResponseDto crawlResponseDto) {
         if (crawlResponseDto.getCrawlStatus() == CrawlStatus.COMPLETED) {
             crawlStatusService.completeSwimsuitCrawling();
@@ -55,6 +69,9 @@ public class AdminService {
             // 3. 성공 로그 저장
             log.info("#### [SWIMSUIT] 저장 완료: {} 건", count);
             crawlingLogService.updateCrawlingLog(crawlResponseDto.getLogId(), CrawlStatus.COMPLETED, count, null);
+
+            // 4. 크롤링한 날짜 최근뷰로그 저장하기
+            recentViewLogService.save(SWIMSUIT_VIEW_LOG_ID, ViewType.CRAWL_SWIMSUIT);
         }
 
         if (crawlResponseDto.getCrawlStatus() == CrawlStatus.FAILED) {
@@ -64,11 +81,14 @@ public class AdminService {
             log.info("#### [SWIMSUIT] fastapi 크롤 결과 실패");
             crawlingLogService.updateCrawlingLog(crawlResponseDto.getLogId(), CrawlStatus.FAILED, 0, crawlResponseDto.getErrorMsg());
         }
-
     }
 
     public void crawlSwimcaps(String url) {
         log.info("#### [SWIMCAP] 크롤링 시작: {}", url);
+
+        if(crawlStatusService.getCrawlStatus(ItemType.SWIMCAP.name()) == CrawlStatus.RUNNING.name()) {
+            throw new CrawlingException(ErrorCode.CRAWLING_ALREADY_IN_PROGRESS);
+        }
 
         // 1. 크롤링 상태 저장
         crawlStatusService.runSwimcapCrawling();
@@ -93,6 +113,7 @@ public class AdminService {
                 );
     }
 
+    @Transactional
     public void responseCrawlSwimcaps(CrawlResponseDto crawlResponseDto) {
         if (crawlResponseDto.getCrawlStatus() == CrawlStatus.COMPLETED) {
             crawlStatusService.completeSwimcapCrawling();
@@ -103,6 +124,9 @@ public class AdminService {
             // 3. 성공 로그 저장
             log.info("#### [SWIMCAP] 저장 완료: {} 건", count);
             crawlingLogService.updateCrawlingLog(crawlResponseDto.getLogId(), CrawlStatus.COMPLETED, count, null);
+
+            // 4. 크롤링한 날짜 최근뷰로그 저장하기
+            recentViewLogService.save(SWIMCAP_VIEW_LOG_ID, ViewType.CRAWL_SWIMCAP);
         }
 
         if (crawlResponseDto.getCrawlStatus() == CrawlStatus.FAILED) {
