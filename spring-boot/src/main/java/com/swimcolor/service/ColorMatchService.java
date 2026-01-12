@@ -22,6 +22,9 @@ public class ColorMatchService {
 
     @Transactional
     public int saveColorMatch(List<RecommendListDto> similarList) {
+        String swimsuitId = similarList.get(0).getSwimsuitId();
+        colorMatchRepository.deleteBulkBySwimsuitId(swimsuitId);
+
         List<ColorMatch> colorMatchList = similarList
                 .stream()
                 .map(s-> colorMatchMapper.toEntity(s))

@@ -37,7 +37,7 @@ public class RecommendationService {
         // 2-1. 크롤링 이후 or 색상 매칭에 값이 없는 경우는
         // 수모 추천은 fastapi를 호출하여 값을 가져오기
         if (recentViewLogService.isAfterCrawling(swimsuitId) || colorMatchList.isEmpty()) {
-            log.info("컬러매치 데이터가 없거나, swimsuitId({}) 조회 날짜보다 이후에 크롤링 함", swimsuitId);
+            log.info("컬러매치 데이터가 없거나, swimsuitId({}) 조회 날짜보다 이후에 크롤링 함 -> 외부호출", swimsuitId);
 
             // 3. fastapi 외부호출
             RecommendResponseDto recommendResponseDto = fastapiClient.getRecommendSwimcap(swimsuitId, colors);
@@ -59,7 +59,7 @@ public class RecommendationService {
 
         // 2-2. 크롤링 이전 and 색상 매칭에 데이터가 있는 경우
         // DB에 있는 그대로 수모를 추천하기
-        log.info("swimsuitId({}) 조회 날짜보다 이전에 크롤링 함", swimsuitId);
+        log.info("swimsuitId({}) 조회 날짜보다 이전에 크롤링 함 -> DB조회", swimsuitId);
 
         List<String> swimcapIds = colorMatchList.stream()
                 .map(c -> c.getSwimcapId())
