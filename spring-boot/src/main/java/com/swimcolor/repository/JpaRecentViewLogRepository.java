@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface JpaRecentViewLogRepository extends JpaRepository<RecentViewLog, Long> {
     @Query(value = """
-        SELECT DATEDIFF(
+        SELECT TIMESTAMPDIFF(MINUTE,
             (SELECT IFNULL(MAX(last_viewed_at), NOW())
              FROM recent_view_log
              WHERE view_type = 'CRAWL_SWIMCAP'
@@ -17,5 +17,5 @@ public interface JpaRecentViewLogRepository extends JpaRepository<RecentViewLog,
              WHERE view_id = :viewId)
         )
         """, nativeQuery = true)
-    Integer getDateDiff(@Param("viewId") String viewId);
+    Integer getMinuteDiff(@Param("viewId") String viewId);
 }

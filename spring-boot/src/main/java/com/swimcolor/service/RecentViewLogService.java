@@ -34,9 +34,9 @@ public class RecentViewLogService {
      * @return
      */
     public boolean isAfterCrawling(String viewId) {
-        Integer dateDiff = jpaRecentViewLogRepository.getDateDiff(viewId);
-        log.info("크롤링 날짜 비교(0,음수일경우 DB조회 / 양수일경우 외부호출 필요) : {} ", dateDiff);
+        Integer dateDiff = jpaRecentViewLogRepository.getMinuteDiff(viewId);
+        log.info("크롤링 시간(분) 비교(음수일경우 외부호출 / 0,양수일경우 DB조회 필요) : {} 분 ", dateDiff);
 
-        return dateDiff > 0 ? true : false;
+        return dateDiff < 0 ? true : false;
     }
 }
