@@ -1,9 +1,13 @@
 package com.swimcolor.controller.web;
 
+import com.swimcolor.dto.ColorMatchDto;
 import com.swimcolor.dto.CrawlingLogResponseDto;
-import com.swimcolor.service.AdminService;
+import com.swimcolor.service.ColorMatchService;
 import com.swimcolor.service.CrawlingLogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,12 +20,12 @@ import java.util.List;
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final AdminService adminService;
+    private final ColorMatchService colorMatchService;
     private final CrawlingLogService crawlingLogService;
 
     @GetMapping()
     public String admin() {
-        return "admin";
+        return "admin-dashboard";
     }
 
     @GetMapping("/logs")
@@ -29,6 +33,23 @@ public class AdminController {
         List<CrawlingLogResponseDto> logs = crawlingLogService.findAllCrawlingLog();
 
         model.addAttribute("logs", logs);
-        return "crawlingLog";
+        return "admin-crawling-logs";
+    }
+
+    @GetMapping("/colormatches")
+    public String getColorMatchList(Model model, @PageableDefault(size = 20) Pageable pageable) {
+        Page<ColorMatchDto> page = colorMatchService.getColorMatchList(pageable);
+
+        int nowPage = page.getNumber(); // 0부터 시작
+        int startPage = Math.max(0, nowPage - 2);
+        int endPage = Math.min(page.getTotalPages() - 1, nowPage + 2);
+
+        model.addAttribute("colorMatchList", page.getContent());
+        model.addAttribute("currentPage", nowPage);
+        model.addAttribute("totalPages", page.getTotalPages());
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+
+        return "admin-color-matches";
     }
 }
