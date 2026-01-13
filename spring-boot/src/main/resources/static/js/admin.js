@@ -192,6 +192,28 @@ function stopCrawl(category) {
     $stopBtnId.prop('hidden', true);
 }
 
+function errorModelExtract(colorMatchId, algorithmVersion) {
+/*
+color_match_feedback
+- id
+- color_match_id
+- feedback_type
+- algorithm_version
+- reviewed_by
+- comment
+- reviewed_at
+*/
+    console.log("모델추출오류");
+    console.log(colorMatchId);
+    console.log(algorithmVersion);
+}
+
+function errorColorRecommend(colorMatchId, algorithmVersion) {
+    console.log("색상추출오류");
+    console.log(colorMatchId);
+    console.log(algorithmVersion);
+}
+
 /**
  * [D] 유틸리티 및 공통 AJAX
  */

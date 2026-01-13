@@ -19,6 +19,7 @@
                     <th>매칭된 수모</th>
                     <th>수모 매칭 색상</th>
                     <th>유사도</th>
+                    <th>피드백</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -50,6 +51,18 @@
                                   th:text="${detail.capHexColor}">#000000</span>
                         </td>
                         <td th:text="${detail.similarityScore}">유사도</td>
+                        <td>
+                            <div class="action-wrapper">
+                                <button type="button" class="btn-errorColorRecommend"
+                                        th:onclick="'errorColorRecommend(' + ${detail.colorMatchId} + ', ' + ${detail.algorithmVersion} + ')'">
+                                    색상 추천 오류
+                                </button>
+                                <button type="button" class="btn-errorModelExtract"
+                                        th:onclick="'errorModelExtract(' + ${detail.colorMatchId} + ', ' + ${detail.algorithmVersion} + ')'">
+                                    모델 추출 오류
+                                </button>
+                            </div>
+                        </td>
                     </tr>
 
                     <tr th:if="${#lists.isEmpty(colorMatch.colorMathDetailList)}">

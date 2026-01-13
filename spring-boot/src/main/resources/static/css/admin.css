@@ -228,9 +228,10 @@ input[type="text"]:focus {
 /* 컬럼별 너비 지정 */
 .matching-table th:nth-child(1) { width: 180px; } /* 수영복 */
 .matching-table th:nth-child(2) { width: 80px; } /* 수영복 색상 */
-.matching-table th:nth-child(3) { width: 220px; } /* 매칭 수모 */
+.matching-table th:nth-child(3) { width: 180px; } /* 매칭 수모 */
 .matching-table th:nth-child(4) { width: 80px; } /* 수모 색상 */
-.matching-table th:nth-child(5) { width: 80px;  } /* 유사도 */
+.matching-table th:nth-child(5) { width: 50px;  } /* 유사도 */
+.matching-table th:nth-child(6) { width: 80px;  } /* 피드백 */
 
 /* 데이터 셀 스타일 */
 .matching-table td {
@@ -280,6 +281,47 @@ input[type="text"]:focus {
     margin-top: 5px;
     font-size: 0.85rem;
     color: #555;
+}
+
+/* 마지막 열 내부 레이아웃 */
+.action-wrapper {
+    display: flex;
+    flex-direction: column; /* 위아래로 배치 */
+    align-items: center;
+    gap: 20px; /* 버튼 사이 간격 */
+}
+
+/* 버튼 스타일 */
+.btn-errorColorRecommend {
+    padding: 4px 8px;
+    background-color: #fff;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-errorColorRecommend:hover {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.btn-errorModelExtract {
+    padding: 4px 8px;
+    background-color: #fff;
+    border: 1px solid #40424c;
+    color: #40424c;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-errorModelExtract:hover {
+    background-color: #40424c;
+    color: #fff;
 }
 
 /* 컬러매치 페이징 */
