@@ -12,7 +12,7 @@ public interface JpaRecentViewLogRepository extends JpaRepository<RecentViewLog,
              FROM recent_view_log
              WHERE view_type = 'CRAWL_SWIMCAP'
              LIMIT 1),
-            (SELECT IFNULL(MAX(last_viewed_at), NOW())
+            (SELECT IFNULL(MAX(last_viewed_at), TIMESTAMP('2025-12-31'))
              FROM recent_view_log
              WHERE view_id = :viewId)
         )
