@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <th:block th:replace="~{fragments/common :: common_head}"></th:block>
+  <th:block th:replace="~{fragments/layout :: common_head}"></th:block>
   <title>SwimColor - 홈</title>
 </head>
 <body>
 
-<div th:replace="~{fragments/common :: common_header}"></div>
+<div th:replace="~{fragments/layout :: common_header}"></div>
 
 <main class="main-container" role="main">
   <section class="hero">
@@ -66,7 +66,7 @@
   </section>
 </main>
 
-<div th:replace="~{fragments/common :: common_footer}"></div>
+<div th:replace="~{fragments/layout :: common_footer}"></div>
 
 </body>
 </html>

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/common-admin :: admin_head}"></th:block>
+    <th:block th:replace="~{fragments/admin-layout :: admin_head}"></th:block>
     <title>SwimColor Admin</title>
 </head>
 <body>
-<div th:replace="~{fragments/common-admin :: admin_navbar}"></div>
+<div th:replace="~{fragments/admin-layout :: admin_navbar}"></div>
 
 <main class="admin-main">
     <section class="crawl-section">
@@ -31,6 +31,6 @@
         </div>
     </section>
 </main>
-<div th:replace="~{fragments/common-admin :: admin_scripts}"></div>
+<div th:replace="~{fragments/admin-layout :: admin_scripts}"></div>
 </body>
 </html>
