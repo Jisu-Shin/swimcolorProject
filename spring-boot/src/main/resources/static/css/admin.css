@@ -201,3 +201,131 @@ input[type="text"]:focus {
     white-space: nowrap;
     cursor: pointer;
 }
+
+/* ==========================================================================
+   색상 매칭 스타일
+   ========================================================================== */
+
+/* [1] 테이블 열 너비 및 행 높이 조절 */
+.matching-table {
+    width: 100%;
+    border-collapse: collapse; /* 테두리 중첩 방지 (필수) */
+    table-layout: fixed;      /* 열 너비 강제 고정 (필수) */
+    background-color: #fff;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6; /* 전체 외곽 테두리 */
+}
+
+/* 헤더 스타일 */
+.matching-table th {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6; /* 헤더 테두리 */
+    padding: 12px 8px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* 컬럼별 너비 지정 */
+.matching-table th:nth-child(1) { width: 180px; } /* 수영복 */
+.matching-table th:nth-child(2) { width: 80px; } /* 수영복 색상 */
+.matching-table th:nth-child(3) { width: 220px; } /* 매칭 수모 */
+.matching-table th:nth-child(4) { width: 80px; } /* 수모 색상 */
+.matching-table th:nth-child(5) { width: 80px;  } /* 유사도 */
+
+/* 데이터 셀 스타일 */
+.matching-table td {
+    border: 1px solid #eee;   /* 셀 간 연한 테두리 */
+    vertical-align: middle;
+    text-align: center;
+    word-break: break-all;    /* 긴 텍스트 줄바꿈 */
+}
+
+/* [2] 색상 칩(Color Chip) 스타일 추가 */
+.color-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;    /* 둥글게 처리 */
+    font-weight: bold;
+    color: white;           /* 텍스트 색상 */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* 가독성을 위한 그림자 */
+    border: 1px solid rgba(0,0,0,0.1);
+    min-width: 80px;
+}
+
+/* 수영복 기준 셀 (rowspan 적용되는 칸) */
+.swimsuit-cell {
+    background-color: #fcfcfc;
+    border-right: 2px solid #dee2e6 !important; /* 수모 영역과 구분선 */
+    border-bottom: 3px solid #dee2e6 !important; /* 그룹 하단 구분선 */
+}
+
+/* [3] 이미지 크기 미세 조정 */
+.swimsuit-cell img {
+    width: 250px;
+    height: auto;
+    border-radius: 4px;
+}
+
+.cap-img-cell img {
+    width: 150px;
+    height: auto;
+}
+
+/* [4] 그룹 구분선 강조 유지 */
+.group-last td {
+    border-bottom: 3px solid #dee2e6 !important;
+}}
+
+.item-wrapper p {
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+/* 컬러매치 페이징 */
+/* 페이징 컨테이너 */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    gap: 5px;
+}
+
+.pagination li a {
+    display: block;
+    padding: 8px 14px;
+    text-decoration: none;
+    color: #2c3e50;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+/* 호버 효과 */
+.pagination li a:hover {
+    background-color: #f8f9fa;
+    border-color: #3498db;
+    color: #3498db;
+}
+
+/* 활성화된 페이지 (현재 페이지) */
+.pagination li.active a {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+    font-weight: bold;
+}
+
+/* 비활성화 버튼 (이전/다음 없을 때) */
+.pagination li.disabled a {
+    color: #ccc;
+    pointer-events: none;
+    background-color: #fdfdfd;
+}

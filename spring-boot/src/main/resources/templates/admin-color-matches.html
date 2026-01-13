@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/admin-layout :: admin_head}"></th:block>
+    <title>SwimColor Admin</title>
+</head>
+<body>
+<div th:replace="~{fragments/admin-layout :: admin_navbar}"></div>
+<main class="admin-main">
+    <section class="crawl-section">
+        <h2>color match 목록</h2>
+
+        <div class="crawl-group">
+            <table class="matching-table">
+                <thead>
+                <tr>
+                    <th>수영복 (기준)</th>
+                    <th>수영복 매칭 색상</th>
+                    <th>매칭된 수모</th>
+                    <th>수모 매칭 색상</th>
+                    <th>유사도</th>
+                </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="colorMatch : ${colorMatchList}">
+
+                    <tr th:each="detail, iterStat : ${colorMatch.colorMathDetailList}"
+                        th:classappend="${iterStat.last} ? 'group-last' : ''">
+                        <td th:if="${iterStat.first}"
+                            th:rowspan="${colorMatch.colorMathDetailList.size()}"
+                            class="swimsuit-cell">
+                            <div class="item-wrapper">
+                                <img th:src="${colorMatch.swimsuitImageUrl}">
+                                <p th:text="${colorMatch.swimsuitName}">수영복 이름</p>
+                            </div>
+                        </td>
+
+                        <td class="text-center">
+                            <span class="color-badge"
+                                  th:style="'background-color:' + ${detail.suitHexColor}"
+                                  th:text="${detail.suitHexColor}">#FFFFFF</span>
+                        </td>
+                        <td class="cap-img-cell">
+                            <img th:src="${detail.swimcapImageUrl}">
+                            <p th:text="${detail.swimcapName}">수모 이름</p>
+                        </td>
+                        <td class="text-center">
+                            <span class="color-badge"
+                                  th:style="'background-color:' + ${detail.capHexColor}"
+                                  th:text="${detail.capHexColor}">#000000</span>
+                        </td>
+                        <td th:text="${detail.similarityScore}">유사도</td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(colorMatch.colorMathDetailList)}">
+                        <td class="swimsuit-cell">
+                            <div class="item-wrapper">
+                                <img th:src="${colorMatch.swimsuitImageUrl}">
+                                <p th:text="${colorMatch.swimsuitName}">수영복 이름</p>
+                            </div>
+                        </td>
+                        <td colspan="3" class="no-data">매칭된 수모가 없습니다.</td>
+                    </tr>
+
+                </th:block>
+                </tbody>
+            </table>
+
+            <div class="pagination-container">
+                <ul class="pagination">
+                    <li th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a th:href="@{/admin/colormatches(page=${currentPage - 1})}">&laquo;</a>
+                    </li>
+
+                    <li th:each="pageNumber : ${#numbers.sequence(startPage, endPage)}"
+                        th:classappend="${pageNumber == currentPage} ? 'active'">
+                        <a th:href="@{/admin/colormatches(page=${pageNumber})}"
+                           th:text="${pageNumber + 1}">1</a>
+                    </li>
+
+                    <li th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                        <a th:href="@{/admin/colormatches(page=${currentPage + 1})}">&raquo;</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</main>
+<div th:replace="~{fragments/admin-layout :: admin_scripts}"></div>
+</body>
+</html>
