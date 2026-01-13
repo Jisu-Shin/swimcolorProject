@@ -15,8 +15,8 @@ public interface JpaColorMatchRepository extends JpaRepository<ColorMatch, Long>
     List<ColorMatch> findBySwimsuitIdOrderBySimilarityScoreDesc(String swimsuitId);
 
     @Modifying
-    @Query("delete from ColorMatch c where c.swimsuitId = :swimsuitId")
-    void deleteBulkBySwimsuitId(@Param("swimsuitId") String swimsuitId);
+    @Query("delete from ColorMatch c where c.swimsuitId = :swimsuitId and c.algorithmVersion = :algorithmVersion")
+    void deleteBulkBySwimsuitId(@Param("swimsuitId") String swimsuitId, @Param("algorithmVersion") int algorithmVersion);
 
     @Query(
             value = """
@@ -30,11 +30,12 @@ public interface JpaColorMatchRepository extends JpaRepository<ColorMatch, Long>
             sc.image_url          as swimcapImageUrl,
             cm.cap_hex_color      as capHexColor,
             cm.similarity_score   as similarityScore,
-            cm.id                 as colorMatchId
+            cm.id                 as colorMatchId,
+            cm.algorithm_version  as algorithmVersion
         from color_match cm
         join swimsuit ss on cm.swimsuit_id = ss.id
         join swimcap sc on cm.swimcap_id = sc.id
-        order by cm.swimsuit_id, cm.similarity_score
+        order by cm.swimsuit_id, cm.algorithm_version, cm.similarity_score
         """,
             countQuery = """
         select count(*)

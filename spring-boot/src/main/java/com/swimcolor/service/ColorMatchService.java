@@ -31,7 +31,8 @@ public class ColorMatchService {
     @Transactional
     public int saveColorMatch(List<RecommendListDto> similarList) {
         String swimsuitId = similarList.get(0).getSwimsuitId();
-        colorMatchRepository.deleteBulkBySwimsuitId(swimsuitId);
+        int algorithmVersion = similarList.get(0).getAlgorithmVersion();
+        colorMatchRepository.deleteBulkBySwimsuitId(swimsuitId, algorithmVersion);
 
         List<ColorMatch> colorMatchList = similarList
                 .stream()
@@ -75,7 +76,7 @@ public class ColorMatchService {
 
         // 수모 매칭 상세 리스트 생성
         List<ColorMatchListDto> detailList = viewDtos.stream()
-                .map(this::convertToColorMatchListDto)
+                .map(colorMatchMapper::toDto)
                 .collect(Collectors.toList());
 
         return new ColorMatchDto(
@@ -83,21 +84,6 @@ public class ColorMatchService {
                 first.getSwimsuitName(),
                 first.getSwimsuitImageUrl(),
                 detailList
-        );
-    }
-
-    /**
-     * ColorMatchViewDto를 ColorMatchListDto로 변환
-     */
-    private ColorMatchListDto convertToColorMatchListDto(ColorMatchViewDto viewDto) {
-        return new ColorMatchListDto(
-                viewDto.getSuitHexColor(),
-                viewDto.getSwimcapId(),
-                viewDto.getSwimcapName(),
-                viewDto.getSwimcapImageUrl(),
-                viewDto.getCapHexColor(),
-                viewDto.getSimilarityScore(),
-                viewDto.getColorMatchId()
         );
     }
 }

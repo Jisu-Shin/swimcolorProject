@@ -16,4 +16,5 @@ public class ColorMatchViewDto {
     String capHexColor;
     Double similarityScore;
     Long colorMatchId;
+    Integer algorithmVersion;
 }

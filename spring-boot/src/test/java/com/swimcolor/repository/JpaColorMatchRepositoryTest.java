@@ -30,6 +30,7 @@ class JpaColorMatchRepositoryTest {
         dto.setSimilarityScore(7.0983);
         dto.setSwimsuitId("SS-0001");
         dto.setSwimcapId("SC-0057");
+        dto.setAlgorithmVersion(1);
         System.out.println("dto = " + dto);
 
         //when
