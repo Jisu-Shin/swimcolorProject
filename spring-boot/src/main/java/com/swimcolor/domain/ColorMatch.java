@@ -26,10 +26,10 @@ public class ColorMatch {
     @Column(nullable = false)
     private Double similarityScore;
 
-    private int algorithmVersion;
+    private Integer algorithmVersion;
 
     @Builder
-    private ColorMatch(String swimsuitId, String swimcapId, String suitHexColor, String capHexColor, Double similarityScore, int algorithmVersion) {
+    private ColorMatch(String swimsuitId, String swimcapId, String suitHexColor, String capHexColor, Double similarityScore, Integer algorithmVersion) {
         this.swimsuitId = swimsuitId;
         this.swimcapId = swimcapId;
         this.suitHexColor = suitHexColor;
