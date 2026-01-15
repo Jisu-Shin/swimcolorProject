@@ -1,6 +1,6 @@
 package com.swimcolor.dto;
 
-import com.swimcolor.domain.FeedBackType;
+import com.swimcolor.domain.FeedbackType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -14,7 +14,7 @@ public class ColorMatchFeedbackDto {
     @NotNull(message = "색상매칭 ID는 필수값입니다.")
     private Long colorMatchId;
 
-    private FeedBackType feedBackType;
+    private FeedbackType feedbackType;
 
     @NotNull(message = "알고리즘 버전은 필수값입니다.")
     private Integer algorithmVersion;

@@ -1,6 +1,6 @@
 package com.swimcolor.controller.api;
 
-import com.swimcolor.domain.FeedBackType;
+import com.swimcolor.domain.FeedbackType;
 import com.swimcolor.dto.ColorMatchFeedbackDto;
 import com.swimcolor.service.ColorMatchFeedbackService;
 import jakarta.validation.Valid;
@@ -23,7 +23,7 @@ public class ColorMatchFeedbackApiController {
     @PostMapping("/errorModelExtract")
     public ResponseEntity<String> errorModelExtract(@Valid @RequestBody ColorMatchFeedbackDto requestDto) {
         requestDto.setReviewedAt(LocalDateTime.now());
-        requestDto.setFeedBackType(FeedBackType.ERROR_MODEL_EXTRACT);
+        requestDto.setFeedbackType(FeedbackType.ERROR_MODEL_EXTRACT);
         colorMatchFeedbackService.save(requestDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -31,7 +31,7 @@ public class ColorMatchFeedbackApiController {
     @PostMapping("/errorColorRecommend")
     public ResponseEntity<String> errorColorRecommend(@Valid @RequestBody ColorMatchFeedbackDto requestDto) {
         requestDto.setReviewedAt(LocalDateTime.now());
-        requestDto.setFeedBackType(FeedBackType.ERROR_COLOR_RECOMMEND);
+        requestDto.setFeedbackType(FeedbackType.ERROR_COLOR_RECOMMEND);
         colorMatchFeedbackService.save(requestDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }

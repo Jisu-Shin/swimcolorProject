@@ -192,6 +192,17 @@ function stopCrawl(category) {
     $stopBtnId.prop('hidden', true);
 }
 
+function errorColorRecommend(colorMatchId, algorithmVersion) {
+    const data = {
+                    'colorMatchId': colorMatchId,
+                    'algorithmVersion' : algorithmVersion,
+                    'reviewedBy' : 'ADMIN'
+                    };
+    oper.ajax("POST", data, '/api/colorMatchFeedback/errorColorRecommend', function () {
+        alert("색상 추천 오류 등록이 완료되었습니다.");
+    });
+}
+
 function errorModelExtract(colorMatchId, algorithmVersion) {
 /*
 color_match_feedback
@@ -206,12 +217,16 @@ color_match_feedback
     console.log("모델추출오류");
     console.log(colorMatchId);
     console.log(algorithmVersion);
-}
 
-function errorColorRecommend(colorMatchId, algorithmVersion) {
-    console.log("색상추출오류");
-    console.log(colorMatchId);
-    console.log(algorithmVersion);
+    const data = {
+                    'colorMatchId': colorMatchId,
+                    'algorithmVersion' : algorithmVersion,
+                    'reviewedBy' : 'ADMIN'
+                    };
+    oper.ajax("POST", data, '/api/colorMatchFeedback/errorModelExtract', function () {
+        alert("모델 추출 오류 등록이 완료되었습니다.");
+    });
+
 }
 
 /**

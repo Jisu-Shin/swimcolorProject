@@ -18,7 +18,7 @@ public class ColorMatchFeedback {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private FeedBackType feedBackType;
+    private FeedbackType feedbackType;
 
     @Column(nullable = false)
     private Integer algorithmVersion;
@@ -26,16 +26,16 @@ public class ColorMatchFeedback {
     @Column(length = 10, nullable = false)
     private String reviewedBy;
 
-    @Column(nullable = false)
     private String comment;
 
+    @Column(nullable = false)
     private LocalDateTime reviewedAt;
 
     @Builder
-    public ColorMatchFeedback(Long id, Long colorMatchId, FeedBackType feedBackType, Integer algorithmVersion, String reviewedBy, String comment, LocalDateTime reviewedAt) {
+    public ColorMatchFeedback(Long id, Long colorMatchId, FeedbackType feedbackType, Integer algorithmVersion, String reviewedBy, String comment, LocalDateTime reviewedAt) {
         this.id = id;
         this.colorMatchId = colorMatchId;
-        this.feedBackType = feedBackType;
+        this.feedbackType = feedbackType;
         this.algorithmVersion = algorithmVersion;
         this.reviewedBy = reviewedBy;
         this.comment = comment;

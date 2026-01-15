@@ -40,7 +40,6 @@ class ColorMatchFeedbackApiControllerTest {
         requestDto.setColorMatchId(1L);
         requestDto.setAlgorithmVersion(1);
         requestDto.setReviewedBy("admin");
-        requestDto.setComment("색상 추출 오류");
 
         doNothing().when(colorMatchFeedbackService).save(any(ColorMatchFeedbackDto.class));
 
