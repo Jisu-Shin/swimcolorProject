@@ -54,11 +54,11 @@
                         <td>
                             <div class="action-wrapper">
                                 <button type="button" class="btn-errorColorRecommend"
-                                        th:onclick="'errorColorRecommend(' + ${detail.colorMatchId} + ', ' + ${detail.algorithmVersion} + ')'">
+                                        th:data-id="${detail.colorMatchId}" th:data-version="${detail.algorithmVersion}">
                                     색상 추천 오류
                                 </button>
                                 <button type="button" class="btn-errorModelExtract"
-                                        th:onclick="'errorModelExtract(' + ${detail.colorMatchId} + ', ' + ${detail.algorithmVersion} + ')'">
+                                        th:data-id="${detail.colorMatchId}" th:data-version="${detail.algorithmVersion}">
                                     모델 추출 오류
                                 </button>
                             </div>

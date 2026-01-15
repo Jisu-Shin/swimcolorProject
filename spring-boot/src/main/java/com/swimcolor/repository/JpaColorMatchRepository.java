@@ -16,7 +16,7 @@ public interface JpaColorMatchRepository extends JpaRepository<ColorMatch, Long>
 
     @Modifying
     @Query("delete from ColorMatch c where c.swimsuitId = :swimsuitId and c.algorithmVersion = :algorithmVersion")
-    void deleteBulkBySwimsuitId(@Param("swimsuitId") String swimsuitId, @Param("algorithmVersion") int algorithmVersion);
+    void deleteBulkBySwimsuitId(@Param("swimsuitId") String swimsuitId, @Param("algorithmVersion") String algorithmVersion);
 
     @Query(
             value = """

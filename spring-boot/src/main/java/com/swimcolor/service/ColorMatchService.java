@@ -31,7 +31,7 @@ public class ColorMatchService {
     @Transactional
     public int saveColorMatch(List<RecommendListDto> similarList) {
         String swimsuitId = similarList.get(0).getSwimsuitId();
-        int algorithmVersion = similarList.get(0).getAlgorithmVersion();
+        String algorithmVersion = similarList.get(0).getAlgorithmVersion();
         colorMatchRepository.deleteBulkBySwimsuitId(swimsuitId, algorithmVersion);
 
         List<ColorMatch> colorMatchList = similarList

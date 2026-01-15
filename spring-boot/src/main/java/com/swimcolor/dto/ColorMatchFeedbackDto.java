@@ -16,8 +16,8 @@ public class ColorMatchFeedbackDto {
 
     private FeedbackType feedbackType;
 
-    @NotNull(message = "알고리즘 버전은 필수값입니다.")
-    private Integer algorithmVersion;
+    @NotEmpty(message = "알고리즘 버전은 필수값입니다.")
+    private String algorithmVersion;
 
     @NotEmpty(message = "리뷰작성자는 필수값입니다.")
     private String reviewedBy;

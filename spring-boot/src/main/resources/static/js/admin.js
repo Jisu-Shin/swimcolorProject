@@ -12,6 +12,14 @@ var main = {
 
         // 페이지 로드 시 진행 중인 작업이 있는지 서버에 확인
         checkCurrentStatus();
+
+        $('.btn-errorColorRecommend').on('click', function() {
+            errorColorRecommend($(this));
+        });
+
+        $('.btn-errorModelExtract').on('click', function() {
+            errorModelExtract($(this));
+        });
     },
 
     activate: function (element) {
@@ -192,31 +200,24 @@ function stopCrawl(category) {
     $stopBtnId.prop('hidden', true);
 }
 
-function errorColorRecommend(colorMatchId, algorithmVersion) {
+function errorColorRecommend($el) {
+    const colorMatchId = $el.data('id');
+    const algorithmVersion = $el.data('version');
+
     const data = {
                     'colorMatchId': colorMatchId,
                     'algorithmVersion' : algorithmVersion,
                     'reviewedBy' : 'ADMIN'
                     };
     oper.ajax("POST", data, '/api/colorMatchFeedback/errorColorRecommend', function () {
-        alert("색상 추천 오류 등록이 완료되었습니다.");
+        alert("[색상 추천 오류] 등록이 완료되었습니다.");
     });
 }
 
-function errorModelExtract(colorMatchId, algorithmVersion) {
-/*
-color_match_feedback
-- id
-- color_match_id
-- feedback_type
-- algorithm_version
-- reviewed_by
-- comment
-- reviewed_at
-*/
+function errorModelExtract($el) {
     console.log("모델추출오류");
-    console.log(colorMatchId);
-    console.log(algorithmVersion);
+    const colorMatchId = $el.data('id');
+    const algorithmVersion = $el.data('version');
 
     const data = {
                     'colorMatchId': colorMatchId,
@@ -224,7 +225,7 @@ color_match_feedback
                     'reviewedBy' : 'ADMIN'
                     };
     oper.ajax("POST", data, '/api/colorMatchFeedback/errorModelExtract', function () {
-        alert("모델 추출 오류 등록이 완료되었습니다.");
+        alert("[모델 추출 오류] 등록이 완료되었습니다.");
     });
 
 }

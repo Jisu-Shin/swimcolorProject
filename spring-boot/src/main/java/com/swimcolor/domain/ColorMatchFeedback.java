@@ -20,8 +20,8 @@ public class ColorMatchFeedback {
     @Column(nullable = false)
     private FeedbackType feedbackType;
 
-    @Column(nullable = false)
-    private Integer algorithmVersion;
+    @Column(length = 10, nullable = false)
+    private String algorithmVersion;
 
     @Column(length = 10, nullable = false)
     private String reviewedBy;
@@ -32,7 +32,7 @@ public class ColorMatchFeedback {
     private LocalDateTime reviewedAt;
 
     @Builder
-    public ColorMatchFeedback(Long id, Long colorMatchId, FeedbackType feedbackType, Integer algorithmVersion, String reviewedBy, String comment, LocalDateTime reviewedAt) {
+    public ColorMatchFeedback(Long id, Long colorMatchId, FeedbackType feedbackType, String algorithmVersion, String reviewedBy, String comment, LocalDateTime reviewedAt) {
         this.id = id;
         this.colorMatchId = colorMatchId;
         this.feedbackType = feedbackType;

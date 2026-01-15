@@ -9,5 +9,5 @@ public class RecommendListDto {
     private String swimcapId;
     private String capHexColor;
     private Double similarityScore;
-    private int algorithmVersion;
+    private String algorithmVersion;
 }
