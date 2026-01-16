@@ -2,6 +2,7 @@ package com.swimcolor.service;
 
 import com.swimcolor.domain.Swimsuit;
 import com.swimcolor.dto.CrawlResponseDto;
+import com.swimcolor.dto.FindSwimsuitDto;
 import com.swimcolor.dto.SwimsuitListDto;
 import com.swimcolor.repository.JpaSwimsuitRepository;
 import jakarta.transaction.Transactional;
@@ -50,6 +51,7 @@ public class SwimsuitService {
     }
 
     public Page<SwimsuitListDto> getSwimsuitList(int page) {
+        // todo 페이징이 url은 0으로 시작하고 페이징은 1부터 시작하는데 이거 맞추기
         // 최근 글이 먼저 오도록 정렬 (0페이지부터 시작함에 주의!)
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("id").descending());
 
@@ -64,5 +66,18 @@ public class SwimsuitService {
         return swimsuitRepository.findById(id)
                 .map(swimsuitMapper::toDto)
                 .orElse(null);
+    }
+
+    public FindSwimsuitDto findBySearch(String keywords) {
+        List<SwimsuitListDto> swimsuitList = swimsuitRepository.findBySearch(keywords).stream()
+                .map(swimsuitMapper::toDto)
+                .toList();
+        List<String> relatedBrands = swimsuitRepository.findRelatedBrands(keywords);
+
+        FindSwimsuitDto result = new FindSwimsuitDto();
+        result.setBrands(relatedBrands);
+        result.setSwimsuitList(swimsuitList);
+
+        return result;
     }
 }
