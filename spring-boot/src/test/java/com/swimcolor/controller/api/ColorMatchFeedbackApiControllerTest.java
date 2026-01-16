@@ -38,7 +38,7 @@ class ColorMatchFeedbackApiControllerTest {
         // given
         ColorMatchFeedbackDto requestDto = new ColorMatchFeedbackDto();
         requestDto.setColorMatchId(1L);
-        requestDto.setAlgorithmVersion(1);
+        requestDto.setAlgorithmVersion("1.0.0");
         requestDto.setReviewedBy("admin");
 
         doNothing().when(colorMatchFeedbackService).save(any(ColorMatchFeedbackDto.class));
