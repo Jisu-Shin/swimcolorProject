@@ -14,8 +14,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -68,7 +70,9 @@ public class SwimsuitService {
                 .orElse(null);
     }
 
-    public FindSwimsuitDto findBySearch(String keywords) {
+    public Optional<FindSwimsuitDto> findBySearch(String keywords) {
+        if (StringUtils.isEmpty(keywords)) return Optional.empty();
+
         List<SwimsuitListDto> swimsuitList = swimsuitRepository.findBySearch(keywords).stream()
                 .map(swimsuitMapper::toDto)
                 .toList();
@@ -78,6 +82,6 @@ public class SwimsuitService {
         result.setBrands(relatedBrands);
         result.setSwimsuitList(swimsuitList);
 
-        return result;
+        return Optional.of(result);
     }
 }

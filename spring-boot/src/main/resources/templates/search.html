@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: common_head}"></th:block>
+    <title>SwimMatch - 검색</title>
+</head>
+<body class="search-page">
+
+<div th:replace="~{fragments/layout :: common_header}"></div>
+
+<main class="main-container" role="main">
+    <section class="search-header-section">
+        <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" th:value="${keyword}" placeholder="검색어를 입력해주세요" aria-label="검색어 입력">
+        </div>
+    </section>
+
+    <section class="brand-section">
+        <div class="brand-header">
+            <h3 class="section-title">브랜드</h3>
+        </div>
+
+        <div class="brand-list" th:if="${not #lists.isEmpty(brands)}">
+            <a th:each="brand : ${brands}"
+               th:href="@{/search(keyword=${brand})}"
+               class="brand-card">
+                <div class="brand-circle" th:text="${brand}">A</div>
+            </a>
+        </div>
+    </section>
+
+    <section class="product-section">
+        <div class="product-result-header">
+            <p class="total-count-text">총 <span class="strong-span" th:text="${#lists.size(swimsuits)}">0</span>개 상품이 있습니다.</p>
+
+            <div class="sort-options">
+                <a th:href="@{/search(keyword=${keyword}, sort='latest')}" class="active">신상품순</a>
+                <a th:href="@{/search(keyword=${keyword}, sort='price_low')}">낮은가격순</a>
+                <a th:href="@{/search(keyword=${keyword}, sort='price_high')}">높은가격순</a>
+            </div>
+        </div>
+
+        <div class="products-preview-grid">
+            <div class="product-preview-card" th:each="swimsuit : ${swimsuits}" th:onclick="nav.goToSwimsuitDetail([[${swimsuit.id}]])">
+                <img th:src="${swimsuit.imageUrl}" th:alt="${swimsuit.name}">
+
+                <div class="product-preview-info">
+                    <p th:text="${swimsuit.id}" hidden>id</p>
+                    <p th:text="${swimsuit.brand}">수영복 브랜드</p>
+                    <p th:text="${swimsuit.name}">수영복 이름</p>
+                    <p th:text="|${#numbers.formatInteger(swimsuit.price, 3, 'COMMA')}원|">0원</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-results" th:if="${#lists.isEmpty(swimsuits)}">
+            <p>검색 결과가 없습니다. 다른 키워드로 검색해 보세요.</p>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: common_footer}"></div>
+
+</body>
+</html>

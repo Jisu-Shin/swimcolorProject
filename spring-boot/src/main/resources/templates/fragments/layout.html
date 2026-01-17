@@ -21,8 +21,8 @@
             <div class="logo"><a th:href="@{/}" >🏊 SwimColor</a></div>
         </div>
         <div class="search-bar" role="search" aria-label="사이트 검색">
-            <input type="text" placeholder="수영복, 수모 검색..." aria-label="검색어 입력">
-            <button class="search-btn" type="button" aria-label="검색">🔍</button>
+            <input type="text" id="search-kewords" placeholder="수영복, 수모 검색..." aria-label="검색어 입력">
+            <button class="search-btn" type="button" aria-label="검색" onclick="nav.goSearch()">🔍</button>
         </div>
     </div>
 
@@ -34,6 +34,7 @@
             <h3 id="sidebarLabel">메뉴</h3>
             <a th:href="@{/}" class="sidebar-link">홈</a>
             <a th:href="@{/swimsuits}" class="sidebar-link">수영복 추천</a>
+            <a th:href="@{/search}" class="sidebar-link">검색하기</a>
             <a th:href="@{/about}" class="sidebar-link">소개</a>
             <!-- 필요한 메뉴를 여기에 추가하세요 -->
         </nav>

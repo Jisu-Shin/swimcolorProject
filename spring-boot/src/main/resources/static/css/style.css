@@ -25,9 +25,6 @@
     --card-radius: 12px;
     --shadow-1: 0 4px 12px rgba(30, 90, 150, 0.08);
     --shadow-2: 0 8px 24px rgba(30, 90, 150, 0.14);
-
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --deep-water: #0077B6; /* 포인트 컬러로 깊은 물색 추가 */
 }
 
 @font-face {
@@ -208,15 +205,16 @@ body {
     display: flex;
     align-items: center;
     transition: all 0.3s ease;
-    width: 300px;
+    width: 350px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 10px;
 }
 
 .search-bar input {
     border: none;
     background: transparent;
     padding: 6px 0;
-    font-size: 13px;
+    font-size: 15px;
     outline: none;
     width: 100%; /* 유동적으로 변함 */
 }
@@ -234,6 +232,11 @@ body {
     justify-content: center;
     cursor: pointer;
     font-size: 14px;
+}
+
+/* body에 .search-page 클래스가 붙은 페이지에서만 숨김 */
+.search-page .search-bar {
+    display: none;
 }
 
 /* ===== 히어로 섹션 ===== */
@@ -543,7 +546,118 @@ body {
     margin-bottom: 8px;
 }
 
+/* ===== 검색페이지 ===== */
+/* 검색창 및 탭 영역 */
+.search-header-section {
+    padding: 60px 0 20px;
+    text-align: center;
+}
 
+.search-input-wrapper {
+    display: flex;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+    border-bottom: 3px solid #333; /* 이미지처럼 하단 굵은 선 */
+    padding: 10px 0;
+}
+
+.search-input-wrapper input {
+    border: none;
+    font-size: 2rem;
+    font-weight: bold;
+    width: 100%;
+    outline: none;
+    margin-left: 20px;
+    background: transparent;
+}
+
+.search-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 50px;
+}
+
+.search-tabs a {
+    text-decoration: none;
+    color: #999;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding-bottom: 10px;
+}
+
+.search-tabs a.active {
+    color: #333;
+    border-bottom: 2px solid #333;
+}
+
+/* 브랜드 섹션 */
+.brand-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 40px 0 20px;
+}
+
+.brand-list {
+    display: flex;
+    gap: 30px;
+    overflow-x: auto;
+    padding: 20px 0;
+}
+
+.brand-list a {
+    text-decoration: none;
+}
+
+.brand-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.2s;
+}
+
+.brand-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    background-color: #f8f9fa;
+    color: var(--deep-blue);
+}
+
+.brand-circle:hover {
+    transform: translateY(-5px);
+    background-color: var(--light-blue);
+}
+
+/* 상품 필터바 */
+.product-result-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0;
+    border-top: 1px solid #eee;
+}
+
+.sort-options a {
+    margin-left: 15px;
+    color: #999;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.sort-options a.active { color: #333; font-weight: bold; }
+
+.strong-span {
+    color : #FF4500;
+    font-weight: 800;
+}
 
 /* ===== 푸터 ===== */
 .footer {

@@ -63,6 +63,17 @@ const nav = {
     },
     goBack: function() {
         history.back();
+    },
+    goSearch: function() {
+        const keyword = $('#search-kewords').val();
+
+        if (!keyword || keyword.trim() === "") {
+            alert("검색어를 입력해주세요.");
+            return;
+        }
+
+        console.log(keyword);
+        location.href = `/search?keywords=${encodeURIComponent(keyword)}`;
     }
 };
 
