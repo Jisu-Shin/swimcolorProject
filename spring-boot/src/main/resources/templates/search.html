@@ -12,7 +12,7 @@
     <section class="search-header-section">
         <div class="search-input-wrapper">
             <span class="search-icon">🔍</span>
-            <input type="text" th:value="${keyword}" placeholder="검색어를 입력해주세요" aria-label="검색어 입력">
+            <input type="text" id="search-page-input" th:value="${keyword}" placeholder="검색어를 입력해주세요" aria-label="검색어 입력">
         </div>
     </section>
 
@@ -32,7 +32,7 @@
 
     <section class="product-section">
         <div class="product-result-header">
-            <p class="total-count-text">총 <span class="strong-span" th:text="${#lists.size(swimsuits)}">0</span>개 상품이 있습니다.</p>
+            <p class="total-count-text">총 <span class="strong-span" th:text="${totalCount?: 0}">0</span>개 상품이 있습니다.</p>
 
             <div class="sort-options">
                 <a th:href="@{/search(keyword=${keyword}, sort='latest')}" class="active">신상품순</a>

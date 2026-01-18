@@ -20,6 +20,7 @@ public class SearchController {
                     model.addAttribute("keyword", keywords);
                     model.addAttribute("brands", bySearch.getBrands());
                     model.addAttribute("swimsuits", bySearch.getSwimsuitList());
+                    model.addAttribute("totalCount", bySearch.getSwimsuitList().size());
                 });
 
         return "search";

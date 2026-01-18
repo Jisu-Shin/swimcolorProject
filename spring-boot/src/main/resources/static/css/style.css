@@ -597,7 +597,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 40px 0 20px;
+    margin-top: 40px;
 }
 
 .brand-list {
@@ -619,16 +619,16 @@ body {
 }
 
 .brand-circle {
-    width: 80px;
-    height: 80px;
+    width: 150px;
+    height: 90px;
     border-radius: 50%;
     border: 1px solid #eee;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: bold;
-    background-color: #f8f9fa;
+    background-color: var(--white);
     color: var(--deep-blue);
 }
 

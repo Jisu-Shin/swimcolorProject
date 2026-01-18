@@ -20,6 +20,9 @@ var main = {
                 sessionStorage.removeItem('swimsuit_cache_pos');
             }
         }
+
+        // 검색모듈 초기화
+        searchModule.init();
     },
 
     // 모바일 검색창 확장 로직
@@ -301,6 +304,33 @@ const swimsuitListModule = {
     handleProductClick: function(id) {
         sessionStorage.setItem(this.storageKey + '_pos', $(window).scrollTop());
         nav.goToSwimsuitDetail(id);
+    }
+}
+
+/** 검새페이지 모듈 **/
+const searchModule = {
+    init: function() {
+        const _this = this;
+
+        // 엔터키 이벤트 바인딩
+        $('#search-page-input').on('keydown', function(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                _this.doSearch();
+            }
+        });
+    },
+
+    doSearch: function() {
+        const keyword = $('#search-page-input').val().trim();
+
+        if (!keyword) {
+            alert("검색어를 입력해주세요.");
+            return;
+        }
+
+        // 1. 단순 페이지 이동 방식 (권장)
+        // 검색 결과 페이지는 SEO와 URL 공유를 위해 쿼리 파라미터 방식을 주로 씁니다.
+        location.href = `/search?keywords=${encodeURIComponent(keyword)}`;
     }
 }
 
