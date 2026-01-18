@@ -5,6 +5,7 @@ import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.dto.FindSwimsuitDto;
 import com.swimcolor.dto.SwimsuitListDto;
 import com.swimcolor.repository.JpaSwimsuitRepository;
+import com.swimcolor.repository.SwimsuitSearchCondition;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,11 +54,23 @@ public class SwimsuitService {
     }
 
     public Page<SwimsuitListDto> getSwimsuitList(int page) {
-        // todo 페이징이 url은 0으로 시작하고 페이징은 1부터 시작하는데 이거 맞추기
-        // 최근 글이 먼저 오도록 정렬 (0페이지부터 시작함에 주의!)
         Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("id").descending());
 
         Page<Swimsuit> swimsuitPage = swimsuitRepository.findAll(pageable);
+
+        return swimsuitPage.map(swimsuitMapper::toDto);
+    }
+
+    public Page<SwimsuitListDto> getSwimsuitListBySearchCondtion(int page, String brand) {
+        // 사용자가 1을 입력하면 0으로, 2를 입력하면 1로 변환 (0보다 작아지지 않도록 처리)
+//        int pageIndex = (page <= 1) ? 0 : page - 1;
+
+        // 최근 글이 먼저 오도록 정렬 (0페이지부터 시작함에 주의!)
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by("id").descending());
+
+        SwimsuitSearchCondition condition = new SwimsuitSearchCondition();
+        condition.setBrand(brand);
+        Page<Swimsuit> swimsuitPage = swimsuitRepository.findSwimsuitsBySearchCondition(condition, pageable);
 
         // Page 객체가 제공하는 map()을 사용해 DTO로 변환합
         // 이렇게 하면 페이징 정보(현재 페이지, 전체 페이지 등)는 유지되면서 내용물만 DTO로 바뀝니다.
@@ -83,5 +96,9 @@ public class SwimsuitService {
         result.setSwimsuitList(swimsuitList);
 
         return Optional.of(result);
+    }
+
+    public List<String> getBrands() {
+        return swimsuitRepository.findDistinctAllBrands();
     }
 }
