@@ -14,6 +14,7 @@ var main = {
             console.log("수영복 리스트 페이지 진입 - 스크롤 이벤트 등록");
             swimsuitListModule.init();
         } else {
+            // 수영복 캐시 제거
             console.log(location.pathname);
             if (!location.pathname.includes('/swimsuits/SS')) {
                 sessionStorage.removeItem('swimsuit_cache');
@@ -226,6 +227,7 @@ const swimsuitListModule = {
         // AJAX 콜백에서 response뿐만 아니라 $btn도 함께 넘겨줘야 다음 처리가 가능합니다.
         oper.ajax("GET", params, "/api/swimsuits/next", (res) => {
             // 새 데이터를 가져오면 세션 스토리지에 누적 저장
+            console.log(res);
             _this.saveToCache(res);
             _this.renderSwimsuits(res, $btn);
         }, (err) => {
@@ -236,12 +238,15 @@ const swimsuitListModule = {
 
     // 데이터를 세션에 누적하여 저장하는 함수
     saveToCache: function(newResponse) {
+        console.log("캐시저장");
         const cache = sessionStorage.getItem(this.storageKey);
         let data = cache ? JSON.parse(cache) : { content: [], nextPage: 1, scrollPos: 0 };
 
         // 데이터 합치기
         data.content = data.content.concat(newResponse.content);
         data.nextPage = newResponse.number + 1; // 서버 응답 기준으로 갱신
+        console.log(data.nextPage);
+
         data.last = newResponse.last;
 
         sessionStorage.setItem(this.storageKey, JSON.stringify(data));
@@ -304,6 +309,29 @@ const swimsuitListModule = {
     handleProductClick: function(id) {
         sessionStorage.setItem(this.storageKey + '_pos', $(window).scrollTop());
         nav.goToSwimsuitDetail(id);
+    },
+
+    openBrandFilter: () => $('#brandFilterOverlay').fadeIn(250),
+    closeBrandFilter: (e) => $('#brandFilterOverlay').fadeOut(200),
+
+    updateFilterState: function() {
+        const count = $('input[name="brandFilter"]:checked').length;
+        $('#selected-count').text(count);
+    },
+
+    resetFilters: function() {
+        $('input[name="brandFilter"]').prop('checked', false);
+        this.updateFilterState();
+    },
+
+    applyFilters: function() {
+        const selected = [];
+        $('input[name="brandFilter"]:checked').each(function() {
+            selected.push($(this).val());
+        });
+
+        // 여기에 실제 필터링 로직 추가 (AJAX 등)
+        this.closeBrandFilter();
     }
 }
 

@@ -9,6 +9,38 @@
 <div th:replace="~{fragments/layout :: common_header}"></div>
 
 <main class="main-container" role="main">
+    <section class="filter-section">
+        <button type="button" class="btn-filter-toggle" onclick="swimsuitListModule.openBrandFilter()">
+            <span class="icon">🏷️</span>
+            <span class="text">브랜드 선택</span>
+            <span class="count-badge" id="selected-count">0</span>
+        </button>
+    </section>
+
+    <div id="brandFilterOverlay" class="filter-overlay" onclick="swimsuitListModule.closeBrandFilter(event)">
+        <div class="filter-sheet" onclick="event.stopPropagation()">
+            <div class="sheet-handle"></div>
+            <div class="sheet-header">
+            <h3>브랜드 필터</h3>
+            <button type="button" class="btn-close-sheet" onclick="swimsuitListModule.closeBrandFilter()">✕</button>
+            </div>
+
+            <div class="sheet-body">
+                <div class="brand-check-grid">
+                    <label class="brand-chip" th:each="brand : ${brands}">
+                        <input type="checkbox" name="brandFilter" th:value="${brand}" onchange="swimsuitListModule.updateFilterState()">
+                        <span class="chip-text" th:text="${brand}">아레나</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="sheet-footer">
+                <button type="button" class="btn-reset" onclick="swimsuitListModule.resetFilters()">초기화</button>
+                <button type="button" class="btn-apply" onclick="swimsuitListModule.applyFilters()">결과 보기</button>
+            </div>
+        </div>
+    </div>
+
     <section class="swimsuit-list" id="swimsuit-list">
         <h2>전체 수영복</h2>
         <div class="swimsuits-container">
