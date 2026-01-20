@@ -34,4 +34,9 @@ public class SwimsuitApiController {
     public ResponseEntity<List<SwimcapListDto>> getRecommendSwimcaps(@PathVariable String id, @RequestBody RecommendRequestDto requestDto) {
         return ResponseEntity.ok(recommendationService.recommendSwimcaps(id, requestDto.getColors()));
     }
+
+    @GetMapping()
+    public Page<SwimsuitListDto> getSwimsuitsByBrand(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="brands", required = false) String brands) {
+        return swimsuitService.getSwimsuitListBySearchCondtion(page, brands);
+    }
 }

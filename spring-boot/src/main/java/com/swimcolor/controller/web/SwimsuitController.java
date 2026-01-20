@@ -20,9 +20,8 @@ public class SwimsuitController {
     private final SwimsuitService swimsuitService;
 
     @GetMapping("/swimsuits")
-    public String getSwimsuitListByBrand(Model model, @RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="brand", required = false) String brand){
-        log.info("요청파라미터 {} ", brand);
-        Page<SwimsuitListDto> products = swimsuitService.getSwimsuitListBySearchCondtion(page, brand);
+    public String getSwimsuitList(Model model, @RequestParam(value="page", defaultValue="0") int page){
+        Page<SwimsuitListDto> products = swimsuitService.getSwimsuitList(page);
         List<String> brands = swimsuitService.getBrands();
 
         model.addAttribute("products",products);

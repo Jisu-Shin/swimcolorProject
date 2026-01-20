@@ -58,12 +58,12 @@ public class SwimsuitQueryDslImpl implements SwimsuitQueryDsl {
 
     @Override
     public Page<Swimsuit> findSwimsuitsBySearchCondition(SwimsuitSearchCondition condition, Pageable pageable) {
+        BooleanExpression brandCondition = brandContainsAny(condition.getBrands());
+
         // 1. 데이터 조회를 위한 콘텐츠 쿼리
         List<Swimsuit> content = jpaQueryFactory
                 .selectFrom(swimsuit)
-                .where(
-                        brandEq(condition.getBrand()) // BooleanBuilder 대신 메서드 방식 추천
-                )
+                .where(brandCondition)
                 .offset(pageable.getOffset())      // 시작 지점
                 .orderBy(swimsuit.id.desc())
                 .limit(pageable.getPageSize())     // 페이지당 개수
@@ -73,17 +73,28 @@ public class SwimsuitQueryDslImpl implements SwimsuitQueryDsl {
         JPAQuery<Long> countQuery = jpaQueryFactory
                 .select(swimsuit.count())
                 .from(swimsuit)
-                .where(
-                        brandEq(condition.getBrand())
-                );
+                .where(brandCondition);
 
         // 3. Page 객체로 변환하여 반환
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
-    // 💡 실무 팁: BooleanExpression을 사용하면 재사용성이 높아지고 가독성이 좋아집니다.
-    private BooleanExpression brandEq(String brand) {
-        return brand != null && !brand.isEmpty() ? swimsuit.brand.eq(brand) : null;
+    private BooleanExpression brandContainsAny(List<String> brands) {
+        if (brands == null || brands.isEmpty()) {
+            return null;
+        }
+
+        BooleanExpression result = null;
+        for (String brand : brands) {
+            if (brand == null || brand.isBlank()) {
+                continue;
+            }
+
+            BooleanExpression condition = swimsuit.brand.contains(brand);
+            result = (result == null) ? condition : result.or(condition);
+        }
+
+        return result;
     }
 
     /**

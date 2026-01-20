@@ -14,11 +14,10 @@ var main = {
             console.log("수영복 리스트 페이지 진입 - 스크롤 이벤트 등록");
             swimsuitListModule.init();
         } else {
-            // 수영복 캐시 제거
             console.log(location.pathname);
             if (!location.pathname.includes('/swimsuits/SS')) {
-                sessionStorage.removeItem('swimsuit_cache');
-                sessionStorage.removeItem('swimsuit_cache_pos');
+                // 다른 페이지로 이동하여서 수영복 캐시 제거
+                swimsuitListModule.clearCache();
             }
         }
 
@@ -164,6 +163,7 @@ const swimsuitListModule = {
             // 복구할 때는 기존 그리드를 비우고 캐시 데이터로 다시 그려야 합니다.
             $('#products-preview-grid').empty();
             _this.restoreList(data);
+
         } else {
             console.log("캐시가 없어요 - 초기 데이터 저장");
             _this.initFirstPageCache();
@@ -224,12 +224,22 @@ const swimsuitListModule = {
 
         const params = { page: nextPage };
 
+        const selected = [];
+        $('input[name="brandFilter"]:checked').each(function() {
+            selected.push($(this).val());
+        });
+        const brandString = selected.join(',');
+
+        // 브랜드가 있는 경우 요청파라미터 세팅
+        if (!oper.isEmpty(brandString)) {
+            params.brands = brandString;
+        }
+
         // AJAX 콜백에서 response뿐만 아니라 $btn도 함께 넘겨줘야 다음 처리가 가능합니다.
-        oper.ajax("GET", params, "/api/swimsuits/next", (res) => {
+        oper.ajax("GET", params, "/api/swimsuits", (res) => {
             // 새 데이터를 가져오면 세션 스토리지에 누적 저장
-            console.log(res);
             _this.saveToCache(res);
-            _this.renderSwimsuits(res, $btn);
+            _this.renderSwimsuits(res);
         }, (err) => {
              // 에러 시에도 반드시 플래그를 풀어줘야 다음 스크롤이 작동합니다.
              _this.isFetching = false;
@@ -245,7 +255,6 @@ const swimsuitListModule = {
         // 데이터 합치기
         data.content = data.content.concat(newResponse.content);
         data.nextPage = newResponse.number + 1; // 서버 응답 기준으로 갱신
-        console.log(data.nextPage);
 
         data.last = newResponse.last;
 
@@ -253,7 +262,7 @@ const swimsuitListModule = {
     },
 
     // 수영복 목록을 그리는 함수
-    renderSwimsuits: function(response, $btn) {
+    renderSwimsuits: function(response) {
         const $grid = $('#products-preview-grid'); // HTML의 ID와 일치하는지 확인하세요!
 
         let html = "";
@@ -270,6 +279,8 @@ const swimsuitListModule = {
         });
         $grid.append(html);
 
+        const $btn = $('#load-more-btn');
+
         // 💡 중요: 버튼의 다음 페이지 번호는 response 데이터 기반으로 갱신하는 게 가장 안전합니다.
         // response.number는 현재 페이지 번호이므로 +1을 해서 저장합니다.
         if (response.number !== undefined) {
@@ -279,6 +290,8 @@ const swimsuitListModule = {
         if (response.last) {
             console.log("마지막 페이지면 버튼 숨기기");
             $btn.hide();
+        } else {
+            $btn.show();
         }
 
         // 3. 로딩 상태 해제
@@ -290,12 +303,11 @@ const swimsuitListModule = {
         console.log("기존 데이터를 복구합니다...");
         const _this = this;
 
-        const $btn = $('#load-more-btn');
-
         // 1. 저장된 모든 데이터 렌더링
-        _this.renderSwimsuits({ content: data.content, last: data.last }, $btn);
+        _this.renderSwimsuits({ content: data.content, last: data.last });
 
         // 2. 다음 페이지 번호 갱신
+        const $btn = $('#load-more-btn');
         $btn.data('next-page', data.nextPage);
 
         // 3. 스크롤 위치 복구 (데이터가 다 그려진 후 약간의 지연 필요)
@@ -303,6 +315,11 @@ const swimsuitListModule = {
         if (savedScroll) {
             setTimeout(() => window.scrollTo(0, parseInt(savedScroll)), 100);
         }
+
+        // 브랜드 필터 상태 확인을 아주 약간 지연 실행 (브라우저 복구 시간 확보)
+        setTimeout(() => {
+            this.updateFilterState();
+        }, 50); // 50ms (0.05초) 정도면 충분합니다.
     },
 
     // 상품 클릭 시 현재 스크롤 위치 저장 후 이동
@@ -311,11 +328,22 @@ const swimsuitListModule = {
         nav.goToSwimsuitDetail(id);
     },
 
+    // 세션 스토리지에 저장된 수영복 리스트 캐시와 스크롤 위치 초기화
+    clearCache: function() {
+        console.log("수영복 리스트 캐시를 초기화합니다.");
+        sessionStorage.removeItem('swimsuit_cache');
+        sessionStorage.removeItem('swimsuit_cache_pos');
+
+        // 만약 페이징 처리를 하고 있다면 페이지 번호도 여기서 초기화하면 좋습니다.
+        // this.currentPage = 0;
+    },
+
     openBrandFilter: () => $('#brandFilterOverlay').fadeIn(250),
     closeBrandFilter: (e) => $('#brandFilterOverlay').fadeOut(200),
 
     updateFilterState: function() {
         const count = $('input[name="brandFilter"]:checked').length;
+        console.log("브랜드 필터 상태확인", count);
         $('#selected-count').text(count);
     },
 
@@ -325,32 +353,45 @@ const swimsuitListModule = {
     },
 
     applyFilters: function() {
+        const _this = this;
         const selected = [];
         $('input[name="brandFilter"]:checked').each(function() {
             selected.push($(this).val());
         });
 
         const brandString = selected.join(',');
-
         console.log(brandString);
 
         if(oper.isEmpty(brandString)) {
+             _this.clearCache();
              location.href = `/swimsuits`;
+             return;
         }
 
-//        oper.ajax("POST", data, `/api/swimsuits/${swimsuitId}/recommended-swimcaps`
-//            , (res) => {
-//                this.renderCaps(res);
-//            }
-//            , () => this.failRecommendCaps()
-//        );
+        const data = {
+            'brands' : brandString
+        };
+
+        oper.ajax("GET", data, `/api/swimsuits`, (res) => {
+             // 기존 캐시 삭제
+             _this.clearCache();
+
+             // 기존 컨테이너 지우기
+             $('#products-preview-grid').empty();
+
+             // 새 데이터를 가져오면 세션 스토리지에 누적 저장
+             _this.saveToCache(res);
+             _this.renderSwimsuits(res);
+         }, (err) => {
+              console.error("필터 적용 중 에러 발생:", err);
+         });
 
         // 여기에 실제 필터링 로직 추가 (AJAX 등)
         this.closeBrandFilter();
     }
 }
 
-/** 검새페이지 모듈 **/
+/** 검색페이지 모듈 **/
 const searchModule = {
     init: function() {
         const _this = this;
