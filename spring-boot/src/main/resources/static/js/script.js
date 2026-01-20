@@ -330,6 +330,21 @@ const swimsuitListModule = {
             selected.push($(this).val());
         });
 
+        const brandString = selected.join(',');
+
+        console.log(brandString);
+
+        if(oper.isEmpty(brandString)) {
+             location.href = `/swimsuits`;
+        }
+
+//        oper.ajax("POST", data, `/api/swimsuits/${swimsuitId}/recommended-swimcaps`
+//            , (res) => {
+//                this.renderCaps(res);
+//            }
+//            , () => this.failRecommendCaps()
+//        );
+
         // 여기에 실제 필터링 로직 추가 (AJAX 등)
         this.closeBrandFilter();
     }
