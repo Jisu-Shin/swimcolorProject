@@ -34,6 +34,13 @@ public class RecommendationService {
         // 1. SwimsuitCapSimilarity에 값이 있는지 확인하기
         List<ColorMatch> colorMatchList = colorMatchRepository.findBySwimsuitIdOrderBySimilarityScoreDesc(swimsuitId);
 
+        // todo Exception으로 던지는걸로 해야하나?
+        // 기존
+        if(colors.isEmpty()) {
+            return List.of();
+        }
+//        validateColors(colors);
+
         // 2-1. 크롤링 이후 or 색상 매칭에 값이 없는 경우는
         // 수모 추천은 fastapi를 호출하여 값을 가져오기
         if (recentViewLogService.isAfterCrawling(swimsuitId) || colorMatchList.isEmpty()) {
@@ -44,6 +51,11 @@ public class RecommendationService {
             log.debug("\n추천값 조회하기{}", recommendResponseDto);
 
             List<RecommendListDto> similarList = recommendResponseDto.getSimilarList();
+
+            // todo 추천데이터가 없는 경우
+            if(similarList.isEmpty()){
+                return List.of();
+            }
 
             // 4. 색상 매칭 데이터를 저장하고
             colorMatchService.saveColorMatch(similarList);
@@ -66,6 +78,12 @@ public class RecommendationService {
                 .toList();
 
         return getSwimcapListDtoList(swimcapIds);
+    }
+
+    public void validateColors(List<String> colors) {
+        if(colors.isEmpty()) {
+            throw new IllegalStateException("수영복의 색상리스트가 없습니다.");
+        }
     }
 
     @Nonnull
