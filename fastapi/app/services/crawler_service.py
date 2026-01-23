@@ -19,7 +19,6 @@ async def crawl_swimsuit_and_extract_colors(url):
             image_urls=imgUrList,
             n_colors=settings.default_n_colors,  # 상위 3개 색상
             conf_threshold=settings.default_conf_threshold,  # 탐지 임계값 (낮추면 더 많이 탐지)
-            visualize=False  # 결과 시각화
         )
 
         for product, colors in zip(products, all_colors_results):
@@ -52,7 +51,6 @@ async def crawl_swimcap_and_extract_colors(url):
                     image_urls=imgUrList,
                     n_colors=settings.default_n_colors,  # 상위 3개 색상
                     conf_threshold=settings.default_conf_threshold,  # 탐지 임계값 (낮추면 더 많이 탐지)
-                    visualize=False  # 결과 시각화
                 )
 
         for product, colors in zip(products, all_colors_results):
