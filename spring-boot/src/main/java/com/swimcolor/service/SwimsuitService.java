@@ -61,14 +61,14 @@ public class SwimsuitService {
         return swimsuitPage.map(swimsuitMapper::toDto);
     }
 
-    public Page<SwimsuitListDto> getSwimsuitListBySearchCondtion(int page, String brands) {
+    public Page<SwimsuitListDto> getSwimsuitListBySearchCondtion(int page, List<String> brands) {
         // 사용자가 1을 입력하면 0으로, 2를 입력하면 1로 변환 (0보다 작아지지 않도록 처리)
 //        int pageIndex = (page <= 1) ? 0 : page - 1;
 
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
 
         SwimsuitSearchCondition condition = new SwimsuitSearchCondition();
-        condition.setBrandsFromParam(brands);
+        condition.setBrands(brands);
         Page<Swimsuit> swimsuitPage = swimsuitRepository.findSwimsuitsBySearchCondition(condition, pageable);
 
         // Page 객체가 제공하는 map()을 사용해 DTO로 변환합

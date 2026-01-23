@@ -21,7 +21,7 @@ public class SwimsuitController {
 
     @GetMapping("/swimsuits")
     public String getSwimsuitList(Model model, @RequestParam(value="page", defaultValue="0") int page){
-        Page<SwimsuitListDto> products = swimsuitService.getSwimsuitList(page);
+        Page<SwimsuitListDto> products = swimsuitService.getSwimsuitListBySearchCondtion(page, List.of());
         List<String> brands = swimsuitService.getBrands();
 
         model.addAttribute("products",products);

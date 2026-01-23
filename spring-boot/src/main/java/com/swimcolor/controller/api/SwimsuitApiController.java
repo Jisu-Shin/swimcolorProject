@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -37,6 +38,17 @@ public class SwimsuitApiController {
 
     @GetMapping()
     public Page<SwimsuitListDto> getSwimsuitsByBrand(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="brands", required = false) String brands) {
-        return swimsuitService.getSwimsuitListBySearchCondtion(page, brands);
+        return swimsuitService.getSwimsuitListBySearchCondtion(page, getBrandsFromParam(brands));
+    }
+
+    private List<String> getBrandsFromParam(String brandsParam) {
+        if (brandsParam == null || brandsParam.isBlank()) {
+            return List.of();
+        }
+
+        return Arrays.stream(brandsParam.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
     }
 }
