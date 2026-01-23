@@ -59,6 +59,8 @@ public class SwimsuitQueryDslImpl implements SwimsuitQueryDsl {
     @Override
     public Page<Swimsuit> findSwimsuitsBySearchCondition(SwimsuitSearchCondition condition, Pageable pageable) {
         BooleanExpression brandCondition = brandContainsAny(condition.getBrands());
+        BooleanExpression colorsNotEmpty = swimsuit.colors.isNotEmpty();
+        brandCondition = (brandCondition == null) ? colorsNotEmpty : brandCondition.and(colorsNotEmpty);
 
         // 1. 데이터 조회를 위한 콘텐츠 쿼리
         List<Swimsuit> content = jpaQueryFactory
