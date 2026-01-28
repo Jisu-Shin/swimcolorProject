@@ -10,7 +10,7 @@ def setup_logging():
 
     handler = logging.StreamHandler(sys.stdout)
     formatter = logging.Formatter(
-        "[%(levelname)s] %(name)s - %(message)s"
+        "[%(levelname)s] [pid:%(process)d] %(name)s - %(message)s"
     )
     handler.setFormatter(formatter)
 

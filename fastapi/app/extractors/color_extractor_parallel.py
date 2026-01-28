@@ -37,12 +37,12 @@ def process_image_task(img, n_colors):
         # 2. 수영복만 자르기 (내부 로직을 직접 구현하거나 유틸 함수 호출)
         cropped = crop_swimsuit_only(img, worker_model, conf_threshold=0.5)
 
-        logger.debug("수영복만 자르기 완료")
+        logger.info("수영복만 자르기 완료")
 
         # 2. 색상 추출 (CPU 연산)
         colors = extract_colors_kmeans(cropped, n_colors)
 
-        logger.debug("색상 추출 완료")
+        logger.info("색상 추출 완료")
 
         # 3. 다 쓴 큰 객체 삭제
         del cropped
@@ -172,7 +172,7 @@ def extract_colors_kmeans(image, n_colors=5, remove_extreme=True):
     # 비율 순으로 정렬 (가장 많이 나타나는 색상 우선)
     colors.sort(key=lambda x: x['ratio'], reverse=True)
 
-    logger.info(f"✓ {len(colors)}개의 주요 색상 추출 완료")
+    logger.debug(f"✓ {len(colors)}개의 주요 색상 추출 완료")
 
     return colors
 
@@ -186,7 +186,6 @@ class ColorExtractorParallel:
     def __init__(self, yolo_model_path=settings.yolo_model_path):
         """YOLO 모델 초기화"""
         self.model_path = yolo_model_path;
-
 
         # 다운로드 전용 ThreadPoolExecutor
         self.download_executor = ThreadPoolExecutor(max_workers=4)
@@ -326,6 +325,10 @@ class ColorExtractorParallel:
         # 1. 이미지 로드
         print("1️⃣ 이미지 병렬 다운로드 중...")
         images = await self.load_images_parallel(image_urls)
+        load_image_complete_time = time.time();
+        load_image_time = load_image_complete_time - start_time;
+        print(f"이미지 다운로드 소요시간 : {load_image_time:.3f}s")
+
 
         # 🚀 2. YOLO 배치 탐지 (4개씩)
         # print("2️⃣ YOLO 배치 탐지 중...")
@@ -335,10 +338,11 @@ class ColorExtractorParallel:
 
         # 🚀 3. 병렬 색상 추출
         print("3️⃣ 병렬 색상 추출 중...")
-        color_start = time.time()
         all_colors = await self.extract_colors_parallel(images, n_colors)
+        color_time = time.time() - load_image_complete_time
         total_time = time.time() - start_time
 
+        print(f"병렬 색상 추출 완료: {color_time:.3f}s")
         print(f"🎉 전체 완료: {total_time:.1f}s ({len(all_colors)}장 성공)")
 
         # 4. 결과 출력
