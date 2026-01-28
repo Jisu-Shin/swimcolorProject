@@ -37,7 +37,6 @@ public class SwimsuitQueryDslImpl implements SwimsuitQueryDsl {
         return jpaQueryFactory
                 .selectFrom(swimsuit)
                 .where(builder)
-                .limit(DEFAULT_MAX_RESULTS)
                 .fetch();
     }
 
@@ -52,7 +51,6 @@ public class SwimsuitQueryDslImpl implements SwimsuitQueryDsl {
                 .select(swimsuit.brand).distinct()
                 .from(swimsuit)
                 .where(builder)
-                .limit(DEFAULT_MAX_RESULTS)
                 .fetch();
     }
 
