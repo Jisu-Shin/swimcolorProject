@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from urllib.parse import urljoin
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +95,7 @@ class GanaswimCrawler:
     def wait_for_load(self):
         """페이지 로딩 대기"""
         try:
-            WebDriverWait(self.driver, 30).until(
+            WebDriverWait(self.driver, 40).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'sc-2667f19f-45'))
             )
             return True
@@ -176,19 +177,26 @@ class GanaswimCrawler:
             list: 추출된 상품 리스트
         """
         logger.info("🚀 크롤링 시작...")
+        start_time = time.time()
 
         # 드라이버 설정
         self.setup_driver()
+        setup_driver_time = time.time() - start_time
+        logger.info(f"드라이버 셋업 소요 시간 : {setup_driver_time:.3f}s")
+
         self.product_list = []
 
-        clean_url = url.split("&pageNumber=1")[0] if "&pageNumber=1" in url else url
+        url_arr = url.split("&pageNumber=")
+        clean_url = url_arr[0]
+        print(f"정제된 url은 {clean_url} 입니다")
+
+        pageNumber = int(url_arr[1])
+        print(f"확인된 페이지 번호는 {pageNumber} 입니다")
 
         try:
-            current_page = 1
+            current_page = pageNumber
 
             while True:
-                logger.debug(f"\n📄 페이지 {current_page} 처리 중...")
-
                 # URL 접속
                 full_url = f"{clean_url}&pageNumber={current_page}"
                 logger.info(f"##### 현재 url {full_url}")
@@ -200,16 +208,20 @@ class GanaswimCrawler:
                 if not self.wait_for_load():
                     # 여기서 바로 에러를 던지면 finally로 가서 드라이버 끄고 끝남!
                     raise Exception(f"페이지 로딩 실패 (URL: {full_url})")
+                logger.info(f"##### 셀레니움을 사용해 로딩 완료")
 
                 # 1. 소스 가져오기 (Selenium 통신 1회)
                 soup = BeautifulSoup(self.driver.page_source, 'html.parser')
+                logger.info(f"##### BS4를 사용해 소스 가져오기")
 
                 # 2. 상품 리스트 추출
                 elements = soup.select('.cGXxzj')  # 마침표(.) 필수!
+                logger.info(f"##### BS4를 사용해 상품리스트 추출하기")
 
                 # 3. 데이터 파싱 실행 (메모리 연산이라 광속!)
                 if not self.crawl_page(elements):
                     break
+                logger.info(f"##### 상품 리스트에서 데이터 파싱하기")
 
                 # 4. 마지막 페이지 확인 로직 (클래스명 선택 주의)
                 pageDiv = soup.find(class_='sc-b97ceab4-2')
@@ -233,7 +245,8 @@ class GanaswimCrawler:
         finally:
             self.quit_driver()
 
-        logger.info(f"\n✅ 크롤링 완료!")
+        total_time = time.time() - start_time
+        logger.info(f"\n✅ 크롤링 완료 소요시간 : {total_time:.3f}s")
         logger.info(f"📊 총 {len(self.product_list)}개 상품 수집")
 
         return self.product_list

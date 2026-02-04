@@ -260,11 +260,13 @@ class ColorExtractorParallel:
         if not image_urls:
             return []
 
-        start_time = time.time()
-
         # 1. 이미지 다운로드
         logger.info("1️⃣ 이미지 병렬 다운로드 중...")
+        start_time = time.time()
         images = await self.load_images_parallel(image_urls)
+        load_image_complete_time = time.time();
+        load_image_time = load_image_complete_time - start_time;
+        logger.info(f"이미지 다운로드 소요시간 : {load_image_time:.3f}s")
 
         if not images:
             logger.warning("다운로드된 이미지가 없습니다.")
@@ -277,6 +279,8 @@ class ColorExtractorParallel:
             n_colors,
             conf_threshold
         )
+        color_time = time.time() - load_image_complete_time
+        logger.info(f"병렬 색상 추출 완료: {color_time:.3f}s")
 
         # 3. 결과 요약
         total_time = time.time() - start_time
