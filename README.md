@@ -1,16 +1,14 @@
 # SwimColor
 
-[![Demo](https://img.shields.io/badge/Demo-Live-success)](https://bit.ly/swimcolor-project)
+[![Live](https://img.shields.io/badge/Service-Live-success)](https://8egpibrfhv.ap-northeast-1.awsapprunner.com/)
 [![AWS](https://img.shields.io/badge/AWS-App%20Runner-orange)](https://aws.amazon.com/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.127.0-009688)](https://fastapi.tiangolo.com/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.9-6DB33F)](https://spring.io/)
 
-**컴퓨터 비전 기반 색상 유사도 계산 시스템**
-
-실시간 크롤링한 수영복/수모 이미지에서 YOLOv8 Segmentation으로 객체를 추출하고, CIEDE2000 알고리즘을 활용해 색상 유사도 기반 추천을 제공하는 프로젝트입니다.
+> ### 🎯 **현재 운영 중인 서비스입니다**
+> [https://8egpibrfhv.ap-northeast-1.awsapprunner.com/](https://8egpibrfhv.ap-northeast-1.awsapprunner.com/)
 
 ## Overview
-
 온라인 쇼핑 환경에서 수영복과 수모의 색상 조합을 사전에 시뮬레이션하기 어려운 문제를 해결하기 위해, 인간 시각 특성을 반영한 CIEDE2000 알고리즘을 적용한 정량적 색상 매칭 시스템입니다.
 
 **Technical Highlights**
@@ -49,7 +47,7 @@ Selenium 기반 동적 크롤링으로 swim.co.kr의 최신 상품 정보 수집
 ```
 이미지 다운로드
   ↓
-YOLOv8 Segmentation (배경 제거)
+YOLOv8 Segmentation (수영복/수모 객체 추출)
   ↓
 Noise Filtering (그림자, 반사광 제거)
   ↓
@@ -66,7 +64,7 @@ HEX → LAB 색공간 변환
   ↓
 CIEDE2000 거리 계산 (모든 수모와 비교)
   ↓
-임계값 필터링 (distance < 9.0)
+임계값 필터링 (distance < 8.0)
   ↓
 Top-6 추천 반환
 ```
@@ -97,27 +95,39 @@ swimcolorProject/
 
 ## API Endpoints
 
-| Service | Endpoint | Description |
-|---------|----------|-------------|
-| Spring Boot | `GET /api/v1/swimsuits/{id}/recommendations` | 수영복 기반 수모 추천 (Top-5) |
-| Spring Boot | `POST /api/v1/admin/crawl` | 크롤링 트리거 |
-| FastAPI | `POST /crawl/swimsuits` | 크롤링 + 색상 추출 |
-| FastAPI | `POST /recommend` | CIEDE2000 유사도 계산 |
+| Service     | Endpoint                                        | Description      |
+|-------------|-------------------------------------------------|------------------|
+| Spring Boot | `POST /api/admin/crawlSwimsuits`                | 수영복 크롤링 트리거      |
+| Spring Boot | `POST /api/admin/crawlSwimcaps`                 | 수모 크롤링 트리거       |
+| Spring Boot | `POST /api/admin/callback/swimsuits`            | 수영복 크롤링 결과 콜백    |
+| Spring Boot | `POST /api/admin/callback/swimcaps`             | 수모 크롤링 결과 콜백     |
+| Spring Boot | `GET /api/crawling/status/{category}}`          | 크롤링 상태 조회        |
+| Spring Boot | `POST /api/swimsuits/{id}/recommended-swimcaps` | 수영복 기 수모 추천      |
+| FastAPI     | `POST /crawl/swimsuits`                         | 수영복 크롤링 + 색상 추출  |
+| FastAPI     | `POST /crawl/swimcaps`                         | 수모 크롤링 + 색상 추출   |
+| FastAPI     | `POST /recommend`                               | CIEDE2000 유사도 계산 |
 
 ## Trade-offs & Design Decisions
 
-### 1. MSA vs Monolith
+### 1. 동기 vs 비동기 크롤링
 
-**선택**: MSA (Spring Boot + FastAPI)
+**문제 상황**
+- 동기 처리: 42건은 120초 내 완료, 126건은 AWS App Runner의 hard limit(120초)로 타임아웃
+- Spring Boot → FastAPI 동기 호출로는 대량 크롤링 불가능
 
-**근거**
-- Python ML 생태계(YOLOv8, OpenCV) 활용 필수
-- 크롤링/추론 워크로드와 비즈니스 로직의 독립적 스케일링
-- Spring Boot의 트랜잭션 관리와 FastAPI의 비동기 I/O 각각 최적화
+**해결 방안**
+- Spring Boot: WebClient 비동기 호출로 변경 (요청 후 즉시 응답 반환)
+- FastAPI: `asyncio` + `httpx.AsyncClient()`로 비동기 크롤링 수행
+- Selenium + BeautifulSoup4 조합으로 크롤링 안정성 향상
+
+**성능 개선**
+- 2 CPU, 4GB 메모리 환경에서 2 Worker 운영
+- 126건 크롤링 가능 (120초 제한 회피)
 
 **트레이드오프**
-- 네트워크 레이턴시 증가 (Spring → FastAPI HTTP 호출)
-- 분산 트랜잭션 관리 복잡도
+- 코드 복잡도 증가 (`async/await` 전파)
+- 크롤링 상태 추적 복잡도 (CrawlingLog 테이블 도입)
+- 동시성 제어 필요 (Worker 수 제한)
 
 ### 2. YOLOv8 Segmentation vs Bounding Box
 
@@ -144,14 +154,6 @@ swimcolorProject/
 - 계산 복잡도 증가
 - 추천 품질 향상으로 정당화
 
-## Performance Metrics
-
-| 항목 | 성능 |
-|------|------|
-| 크롤링 속도 | ~50 items/min |
-| 이미지 처리 | ~2초/이미지 |
-| 추천 계산 | ~0.5초 (150개 수모 대상) |
-| 배경 제거 정확도 | 95%+ |
 
 ## Future Improvements
 

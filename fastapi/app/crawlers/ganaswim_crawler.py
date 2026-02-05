@@ -257,7 +257,7 @@ if __name__ == "__main__":
     # 기본 사용 (브라우저 안보임)
     crawler = GanaswimCrawler(headless=True)
 
-    url = "https://swim.co.kr/categories/918606/products?childCategoryNo=919019&brands=%255B43160576%255D&pageNumber=1"
+    url = "https://swim.co.kr/categories/918606/products?childCategoryNo=919019&brands=%255B43160576%255D&pageNumber=3"
     product_list = crawler.crawl(url)
 
     # 결과 출력
