@@ -9,6 +9,7 @@ class CrawlerFactory:
 
     @classmethod
     def create(cls, crawler_type):
+        print(f"크롤러 타입 : {crawler_type}")
         crawler_class = cls._crawlers.get(crawler_type)
         print(f"현재 사용하는 크롤러 : {crawler_class}")
         if not crawler_class:

@@ -35,7 +35,7 @@ async def crawl_swimsuit_and_extract_colors(url):
     return products
 
 async def crawl_swimcap_and_extract_colors(url):
-    crawler = CrawlerFactory.create('ganaswim')
+    crawler = CrawlerFactory.create('ver2')
     products = crawler.crawl(url)
 
     # 1. 크롤링 결과가 없는 경우 예외 처리 (방어 코드)
