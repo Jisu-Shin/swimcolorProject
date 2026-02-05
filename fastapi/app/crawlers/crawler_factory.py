@@ -1,8 +1,10 @@
-from app.crawlers.ganaswim_crawler import GanaswimCrawler
+from app.crawlers import GanaswimCrawler, GanaswimCrawlerV2
+
 
 class CrawlerFactory:
     _crawlers = {
-        'ganaswim': GanaswimCrawler
+        'ganaswim': GanaswimCrawler,
+        'ver2': GanaswimCrawlerV2
     }
 
     @classmethod
