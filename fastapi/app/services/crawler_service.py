@@ -1,9 +1,9 @@
-from app.crawlers.ganaswim_crawler import GanaswimCrawler
 from app.extractors.color_extractor_parallel import ColorExtractorParallel
 from app.config import settings
+from app.crawlers.crawler_factory import CrawlerFactory
 
 async def crawl_swimsuit_and_extract_colors(url):
-    crawler = GanaswimCrawler()
+    crawler = CrawlerFactory.create('ganaswim')
     products = crawler.crawl(url)
 
     # 1. 크롤링 결과가 없는 경우 예외 처리 (방어 코드)
@@ -35,7 +35,7 @@ async def crawl_swimsuit_and_extract_colors(url):
     return products
 
 async def crawl_swimcap_and_extract_colors(url):
-    crawler = GanaswimCrawler()
+    crawler = CrawlerFactory.create('ganaswim')
     products = crawler.crawl(url)
 
     # 1. 크롤링 결과가 없는 경우 예외 처리 (방어 코드)

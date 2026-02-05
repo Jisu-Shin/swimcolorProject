@@ -1,4 +1,3 @@
-from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -10,11 +9,12 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from urllib.parse import urljoin
 import time
+from app.crawlers.base_crawler import BaseCrawler
 
 logger = logging.getLogger(__name__)
 
 
-class GanaswimCrawler:
+class GanaswimCrawler(BaseCrawler):
     """가나스윔 사이트 크롤러 클래스"""
 
     def __init__(self, headless=True):
