@@ -20,7 +20,7 @@ import logging
 import os
 
 from app.config import settings
-from app.extractors.yolo_utils import crop_swimsuit_only
+from app.extractors.yolo_utils import apply_mask
 from app.extractors.color_utils import extract_colors_kmeans
 
 logger = logging.getLogger(__name__)
@@ -34,60 +34,9 @@ class ExtractorConfig:
     """색상 추출기 설정값"""
     THUMBNAIL_SIZE = (160, 160)  # 이미지 썸네일 크기
     DOWNLOAD_WORKERS = 4  # 다운로드 스레드 수
-    COMPUTE_WORKERS = 2  # 색상 추출 스레드 수 (CPU 코어 수)
     CONF_THRESHOLD = 0.5  # YOLO 신뢰도 임계값
     DEFAULT_N_COLORS = 5  # 기본 추출 색상 개수
-
-
-# ============================================================================
-# 헬퍼 함수
-# ============================================================================
-
-def _process_single_image(
-        img: np.ndarray,
-        model,
-        n_colors: int,
-        conf_threshold: float = ExtractorConfig.CONF_THRESHOLD
-) -> List[Dict[str, Any]]:
-    """
-    단일 이미지 처리 (스레드에서 실행)
-    
-    Args:
-        img: OpenCV 이미지 (BGR)
-        model: YOLO 모델 인스턴스
-        n_colors: 추출할 색상 개수
-        conf_threshold: 탐지 신뢰도 임계값
-        
-    Returns:
-        colors: 색상 정보 리스트 또는 빈 리스트 (실패 시)
-    """
-    try:
-        # 1. 수영복/수모 영역 크롭
-        cropped = crop_swimsuit_only(
-            img,
-            model,
-            conf_threshold=conf_threshold
-        )
-
-        logger.debug("객체 크롭 완료")
-
-        # 2. 색상 추출
-        colors = extract_colors_kmeans(cropped, n_colors)
-
-        logger.debug(f"색상 추출 완료: {len(colors)}개")
-
-        # 3. 메모리 정리
-        del cropped
-        gc.collect()
-
-        return colors
-
-    except ValueError as e:
-        logger.warning(f"객체 탐지 실패: {e}")
-        return []
-    except Exception as e:
-        logger.error(f"이미지 처리 중 오류: {e}", exc_info=True)
-        return []
+    BATCH_SIZE = 4
 
 
 # ============================================================================
@@ -121,9 +70,6 @@ class ColorExtractorParallel:
         # Executor 생성
         self.download_executor = ThreadPoolExecutor(
             max_workers=ExtractorConfig.DOWNLOAD_WORKERS
-        )
-        self.compute_executor = ThreadPoolExecutor(
-            max_workers=ExtractorConfig.COMPUTE_WORKERS
         )
 
     def load_image(self, image_source: str) -> np.ndarray:
@@ -198,43 +144,53 @@ class ColorExtractorParallel:
 
         return valid_images
 
-    async def extract_colors_parallel(
+    def process_batch(
             self,
             images: List[np.ndarray],
-            n_colors: int = ExtractorConfig.DEFAULT_N_COLORS,
-            conf_threshold: float = ExtractorConfig.CONF_THRESHOLD
+            n_colors: int,
+            conf_threshold: float
     ) -> List[List[Dict[str, Any]]]:
         """
-        여러 이미지의 색상을 병렬로 추출
-        
+        이미지 배치 처리 (YOLO 배치 추론)
+
         Args:
-            images: OpenCV 이미지 리스트
+            images: 이미지 배치 (최대 4개 권장)
             n_colors: 추출할 색상 개수
-            conf_threshold: YOLO 탐지 신뢰도 임계값
-            
+            conf_threshold: 탐지 신뢰도
+
         Returns:
-            all_colors: 각 이미지별 색상 리스트
+            각 이미지별 색상 리스트
         """
-        if not images:
-            return []
+        all_colors = []
 
-        loop = asyncio.get_running_loop()
+        try:
+            # 1. YOLO 배치 추론 (핵심!)
+            results = self.model(images, verbose=False, conf=conf_threshold)
 
-        # 병렬 색상 추출
-        tasks = [
-            loop.run_in_executor(
-                self.compute_executor,
-                _process_single_image,
-                img,
-                self.model,
-                n_colors,
-                conf_threshold
-            ) for img in images
-        ]
+            # 2. 각 이미지별로 처리
+            for i, (img, result) in enumerate(zip(images, results)):
+                try:
+                    # 마스크 적용
+                    cropped = apply_mask(img, result)
 
-        results = await asyncio.gather(*tasks)
+                    # 색상 추출
+                    colors = extract_colors_kmeans(cropped, n_colors)
 
-        return results
+                    all_colors.append(colors)
+
+                    del cropped
+
+                except Exception as e:
+                    logger.warning(f"배치 {i}번 이미지 처리 실패: {e}")
+                    all_colors.append([])
+
+            gc.collect()
+
+        except Exception as e:
+            logger.error(f"배치 처리 실패: {e}", exc_info=True)
+            all_colors = [[] for _ in images]
+
+        return all_colors
 
     async def extract_segment_colors(
             self,
@@ -273,12 +229,21 @@ class ColorExtractorParallel:
             return []
 
         # 2. 색상 추출
-        logger.info("2️⃣ 병렬 색상 추출 중...")
-        all_colors = await self.extract_colors_parallel(
-            images,
-            n_colors,
-            conf_threshold
-        )
+        logger.info("2️⃣ 이미지 배치 처리 중...")
+        all_colors = []
+        batch_size = ExtractorConfig.BATCH_SIZE
+
+        for i in range(0, len(images), batch_size):
+            batch = images[i:i + batch_size]
+            batch_num = i // batch_size + 1
+            total_batches = (len(images) + batch_size - 1) // batch_size
+
+            logger.info(f"   배치 {batch_num}/{total_batches} 처리 중...")
+
+            # 배치 처리
+            batch_colors = self.process_batch(batch, n_colors, conf_threshold)
+            all_colors.extend(batch_colors)
+
         color_time = time.time() - load_image_complete_time
         logger.info(f"병렬 색상 추출 완료: {color_time:.3f}s")
 
@@ -295,7 +260,6 @@ class ColorExtractorParallel:
         """리소스 정리"""
         try:
             self.download_executor.shutdown(wait=False)
-            self.compute_executor.shutdown(wait=False)
         except:
             pass
 

@@ -12,6 +12,40 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def apply_mask(image: np.ndarray, result) -> np.ndarray:
+    """
+    YOLO 결과에서 마스크 적용
+
+    Args:
+        image: 원본 이미지
+        result: YOLO 추론 결과
+
+    Returns:
+        마스크 적용된 이미지
+    """
+    # 가장 신뢰도 높은 탐지 찾기
+    best_detection = None
+    max_confidence = 0.0
+
+    for i, box in enumerate(result.boxes):
+        conf = float(box.conf[0])
+        if conf > max_confidence:
+            best_detection = i
+            max_confidence = conf
+
+    if best_detection is None:
+        raise ValueError("객체 탐지 실패")
+
+    # 마스크 추출 및 적용
+    mask = result.masks.data[best_detection].cpu().numpy()
+    mask = (mask * 255).astype("uint8")
+
+    h, w = image.shape[:2]
+    mask = cv2.resize(mask, (w, h))
+    mask_3c = cv2.merge([mask, mask, mask])
+
+    return cv2.bitwise_and(image, mask_3c)
+
 def crop_swimsuit_only(
         image: np.ndarray,
         model,
