@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 class ExtractorConfig:
     """색상 추출기 설정값"""
-    THUMBNAIL_SIZE = (500, 500)  # 이미지 썸네일 크기
+    THUMBNAIL_SIZE = (640, 640)  # 이미지 썸네일 크기
     DOWNLOAD_WORKERS = 4  # 다운로드 스레드 수
     CONF_THRESHOLD = 0.5  # YOLO 신뢰도 임계값
     DEFAULT_N_COLORS = 3  # 기본 추출 색상 개수
@@ -86,17 +86,30 @@ class ColorExtractorParallel:
             # URL에서 다운로드
             response = requests.get(image_source, timeout=10)
             img = Image.open(BytesIO(response.content))
+            img_array = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
-            # 썸네일 생성 (메모리 절약)
-            img.thumbnail(ExtractorConfig.THUMBNAIL_SIZE, Image.LANCZOS)
-
-            return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
         else:
             # 로컬 파일
-            img = cv2.imread(image_source)
-            if img is None:
+            img_array = cv2.imread(image_source)
+            if img_array is None:
                 raise ValueError(f"이미지를 읽을 수 없습니다: {image_source}")
-            return img
+
+        target_size = ExtractorConfig.THUMBNAIL_SIZE[0]  # 640
+
+        # 비율 유지하며 리사이즈 + 패딩
+        h, w = img_array.shape[:2]
+        scale = min(target_size / h, target_size / w)
+        new_h, new_w = int(h * scale), int(w * scale)
+
+        resized = cv2.resize(img_array, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+
+        # 중앙 배치 + 검은색 패딩
+        canvas = np.zeros((target_size, target_size, 3), dtype=np.uint8)
+        y_offset = (target_size - new_h) // 2
+        x_offset = (target_size - new_w) // 2
+        canvas[y_offset:y_offset + new_h, x_offset:x_offset + new_w] = resized
+
+        return canvas
 
     async def load_images_parallel(
             self,
@@ -128,21 +141,11 @@ class ColorExtractorParallel:
             return_exceptions=True
         )
 
-        # 예외 필터링
-        valid_images = []
-        for i, img in enumerate(images):
-            if isinstance(img, Exception):
-                logger.warning(
-                    f"이미지 로드 실패 [{i}]: {image_urls[i]} - {img}"
-                )
-            else:
-                valid_images.append(img)
-
         logger.info(
-            f"이미지 로드 완료: {len(valid_images)}/{len(image_urls)} 성공"
+            f"이미지 로드 완료: {len(image_urls)} 성공"
         )
 
-        return valid_images
+        return images
 
     def process_batch(
             self,
@@ -163,8 +166,12 @@ class ColorExtractorParallel:
 
         try:
             # 1. YOLO 배치 추론 (핵심!)
-            results = self.model(images, verbose=False)
-            print(f"YOLO 결과 개수: {len(results)}")
+            results = self.model(
+                images,
+                verbose=False,
+                conf=ExtractorConfig.CONF_THRESHOLD,
+                imgsz=640
+            )
 
             # 2. 각 이미지별로 처리
             for i, (img, result) in enumerate(zip(images, results)):
