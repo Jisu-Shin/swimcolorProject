@@ -14,37 +14,30 @@ from app.extractors.visualization_utils import (
 )
 from app.extractors.yolo_utils import get_segmentation_mask
 from app.config import settings
+from app.extractors.yolo_utils import crop_swimsuit_only, apply_mask
 
 
-async def example_single_image():
+async def example_single_image(model_path, image_path):
     """단일 이미지 시각화 예시"""
     print("=" * 60)
     print("단일 이미지 색상 추출 및 시각화")
     print("=" * 60)
 
-    model_path = "../../" + settings.swimcap_yolo_model_path
     print(f"모델 경로: {model_path}")
 
     # 1. 색상 추출기 초기화
     extractor = ColorExtractorParallel(str(model_path))
 
     # 2. 이미지 로드
-    image_path = '/Users/zsu/MyProject/크롤링 사진/swimcap_1228/0036_피닉스_걸파워 실리.jpg'
     original = cv2.imread(image_path)
     
     # 3. 색상 추출
     image_urls = [image_path]
-    all_colors = await extractor.extract_segment_colors(
-        image_urls,
-        n_colors=5,
-        conf_threshold=0.5
-    )
+    all_colors = await extractor.extract_colors(image_urls)
     
     colors = all_colors[0]
     
     # 4. 마스크 및 크롭된 이미지 생성
-    from app.extractors.yolo_utils import crop_swimsuit_only
-    
     cropped = crop_swimsuit_only(original, extractor.model, 0.5)
     mask = get_segmentation_mask(original, extractor.model, 0.5)
     
@@ -93,9 +86,8 @@ async def example_multiple_images():
             images.append(img)
     
     # 3. 색상 추출
-    all_colors = await extractor.extract_segment_colors(
-        image_paths,
-        n_colors=3
+    all_colors = await extractor.extract_colors(
+        image_paths
     )
     
     # 4. 비교 시각화
@@ -119,7 +111,7 @@ async def example_custom_visualization():
     extractor = ColorExtractorParallel(settings.yolo_model_path)
     image_path = "path/to/image.jpg"
     
-    all_colors = await extractor.extract_segment_colors([image_path])
+    all_colors = await extractor.extract_colors([image_path])
     colors = all_colors[0]
     
     # 2. 원형 차트로 색상 비율 표시
@@ -159,8 +151,11 @@ async def example_custom_visualization():
 async def main():
     """메인 함수"""
     # 원하는 예시 선택
-    
-    await example_single_image()
+    model_path = "../../" + settings.yolo_model_path
+    image_path = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0001_움파_플럼캔디 싱.jpg'
+
+
+    await example_single_image(model_path, image_path)
     # await example_multiple_images()
     # await example_custom_visualization()
 

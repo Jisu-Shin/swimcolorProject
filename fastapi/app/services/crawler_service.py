@@ -1,6 +1,6 @@
-from app.extractors.color_extractor_parallel import ColorExtractorParallel
 from app.config import settings
 from app.crawlers.crawler_factory import CrawlerFactory
+from app.extractors.extractor_factory import ExtractorFactory
 
 async def crawl_swimsuit_and_extract_colors(url):
     crawler = CrawlerFactory.create('ganaswim')
@@ -11,14 +11,12 @@ async def crawl_swimsuit_and_extract_colors(url):
         return []
 
     print(f"✅ {len(products)}건 크롤링 완료. 분석 시작...")
-    extractor = ColorExtractorParallel(settings.yolo_model_path)
+    extractor = ExtractorFactory.create('ver1', settings.yolo_model_path)
 
     try:
         imgUrList = [product['img_url'] for product in products]
-        all_colors_results = await extractor.extract_segment_colors(
-            image_urls=imgUrList,
-            n_colors=settings.default_n_colors,  # 상위 3개 색상
-            conf_threshold=settings.default_conf_threshold,  # 탐지 임계값 (낮추면 더 많이 탐지)
+        all_colors_results = await extractor.extract_colors(
+            image_urls=imgUrList
         )
 
         for product, colors in zip(products, all_colors_results):
@@ -43,15 +41,14 @@ async def crawl_swimcap_and_extract_colors(url):
         return []
 
     print(f"✅ {len(products)}건 크롤링 완료. 분석 시작...")
-    extractor = ColorExtractorParallel(settings.swimcap_yolo_model_path)
+
+    extractor = ExtractorFactory.create('ver1', settings.swimcap_yolo_model_path)
 
     try :
         imgUrList = [product['img_url'] for product in products]
-        all_colors_results = await extractor.extract_segment_colors(
-                    image_urls=imgUrList,
-                    n_colors=settings.default_n_colors,  # 상위 3개 색상
-                    conf_threshold=settings.default_conf_threshold,  # 탐지 임계값 (낮추면 더 많이 탐지)
-                )
+        all_colors_results = await extractor.extract_colors(
+                    image_urls=imgUrList
+        )
 
         for product, colors in zip(products, all_colors_results):
             if isinstance(colors, Exception):

@@ -32,10 +32,10 @@ logger = logging.getLogger(__name__)
 
 class ExtractorConfig:
     """색상 추출기 설정값"""
-    THUMBNAIL_SIZE = (160, 160)  # 이미지 썸네일 크기
+    THUMBNAIL_SIZE = (500, 500)  # 이미지 썸네일 크기
     DOWNLOAD_WORKERS = 4  # 다운로드 스레드 수
     CONF_THRESHOLD = 0.5  # YOLO 신뢰도 임계값
-    DEFAULT_N_COLORS = 5  # 기본 추출 색상 개수
+    DEFAULT_N_COLORS = 3  # 기본 추출 색상 개수
     BATCH_SIZE = 4
 
 
@@ -146,9 +146,7 @@ class ColorExtractorParallel:
 
     def process_batch(
             self,
-            images: List[np.ndarray],
-            n_colors: int,
-            conf_threshold: float
+            images: List[np.ndarray]
     ) -> List[List[Dict[str, Any]]]:
         """
         이미지 배치 처리 (YOLO 배치 추론)
@@ -165,7 +163,8 @@ class ColorExtractorParallel:
 
         try:
             # 1. YOLO 배치 추론 (핵심!)
-            results = self.model(images, verbose=False, conf=conf_threshold)
+            results = self.model(images, verbose=False)
+            print(f"YOLO 결과 개수: {len(results)}")
 
             # 2. 각 이미지별로 처리
             for i, (img, result) in enumerate(zip(images, results)):
@@ -174,7 +173,7 @@ class ColorExtractorParallel:
                     cropped = apply_mask(img, result, ExtractorConfig.CONF_THRESHOLD)
 
                     # 색상 추출
-                    colors = extract_colors_kmeans(cropped, n_colors)
+                    colors = extract_colors_kmeans(cropped, ExtractorConfig.DEFAULT_N_COLORS)
 
                     all_colors.append(colors)
 
@@ -187,24 +186,20 @@ class ColorExtractorParallel:
             gc.collect()
 
         except Exception as e:
-            logger.error(f"배치 처리 실패: {e}", exc_info=True)
+            logger.error(f"*** 배치 묶음 처리 실패: {e}", exc_info=True)
             all_colors = [[] for _ in images]
 
         return all_colors
 
-    async def extract_segment_colors(
+    async def extract_colors(
             self,
-            image_urls: List[str],
-            n_colors: int = ExtractorConfig.DEFAULT_N_COLORS,
-            conf_threshold: float = ExtractorConfig.CONF_THRESHOLD,
+            image_urls: List[str]
     ) -> List[List[Dict[str, Any]]]:
         """
         전체 파이프라인: 이미지 다운로드 → 색상 추출
         
         Args:
             image_urls: 이미지 URL 리스트
-            n_colors: 추출할 색상 개수
-            conf_threshold: 탐지 신뢰도 임계값
 
         Returns:
             all_colors: 각 이미지별 색상 리스트
@@ -241,7 +236,7 @@ class ColorExtractorParallel:
             logger.info(f"   배치 {batch_num}/{total_batches} 처리 중...")
 
             # 배치 처리
-            batch_colors = self.process_batch(batch, n_colors, conf_threshold)
+            batch_colors = self.process_batch(batch)
             all_colors.extend(batch_colors)
 
         color_time = time.time() - load_image_complete_time
@@ -270,7 +265,7 @@ class ColorExtractorParallel:
 
 async def main():
     """테스트용 메인 함수"""
-    model_path = "../../" + settings.swimcap_yolo_model_path
+    model_path = "../../" + settings.yolo_model_path
     print(f"모델 경로: {model_path}")
 
     if not os.path.exists(model_path):
@@ -281,15 +276,17 @@ async def main():
     extractor = ColorExtractorParallel(str(model_path))
 
     # 2. 테스트 이미지
-    image_path = '/Users/zsu/MyProject/크롤링 사진/swimcap_1228/0024_피닉스_웨일드림 실.jpg'
-    image_urls = [image_path]
+    # image_path = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0049_움파_시그니처 싱.jpg'
+    # image_path2 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0050_움파_아가일 싱글.jpg'
+    # image_path3 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0051_움파_블랙펄 더블.jpg'
+    image_path4 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0052_움파_플라워 싱글.jpg'
+    # image_urls = [image_path,image_path2, image_path3, image_path4]
+    image_urls = [image_path4]
 
     try:
         # 3. 색상 추출
-        all_colors = await extractor.extract_segment_colors(
-            image_urls=image_urls,
-            n_colors=3,
-            conf_threshold=0.5,
+        all_colors = await extractor.extract_colors(
+            image_urls=image_urls
         )
 
         # 4. 결과 출력

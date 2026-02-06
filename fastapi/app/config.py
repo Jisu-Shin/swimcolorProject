@@ -6,10 +6,6 @@ class Settings(BaseSettings):
     yolo_model_path: str = "ml/runs/segment/swimsuit-seg2/weights/best.pt"
     swimcap_yolo_model_path: str = "ml/runs/segment/swimcap-seg/weights/best.pt"
 
-    # 색상 추출 기본값
-    default_n_colors: int = 3
-    default_conf_threshold: float = 0.5
-
     # 크롤링 설정
     headless_browser: bool = True
 
