@@ -12,7 +12,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def apply_mask(image: np.ndarray, result) -> np.ndarray:
+def apply_mask(
+        image: np.ndarray,
+        result,
+        conf_threshold: float = 0.5,
+        target_class: int = 0) -> np.ndarray:
     """
     YOLO 결과에서 마스크 적용
 
@@ -29,7 +33,8 @@ def apply_mask(image: np.ndarray, result) -> np.ndarray:
 
     for i, box in enumerate(result.boxes):
         conf = float(box.conf[0])
-        if conf > max_confidence:
+        cls = int(box.cls[0])
+        if cls == target_class and conf >= conf_threshold and conf > max_confidence:
             best_detection = i
             max_confidence = conf
 

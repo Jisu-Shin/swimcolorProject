@@ -116,10 +116,10 @@ class GanaswimCrawlerV2(BaseCrawler):
             if profile_dir:
                 shutil.rmtree(profile_dir, ignore_errors=True)
 
-    def wait_for_load(self):
+    def wait_for_load(self, driver):
         """페이지 로딩 대기"""
         try:
-            WebDriverWait(self.driver, 40).until(
+            WebDriverWait(driver, 40).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'sc-2667f19f-45'))
             )
             return True
@@ -187,9 +187,9 @@ class GanaswimCrawlerV2(BaseCrawler):
             driver.get(full_url)
 
             # 페이지 로딩 대기
-            WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "cGXxzj"))
-            )
+            if not self.wait_for_load(driver):
+                # 여기서 바로 에러를 던지면 finally로 가서 드라이버 끄고 끝남!
+                raise Exception(f"페이지 로딩 실패 (URL: {full_url})")
             logger.info(f"##### 페이지 {page_number} 로딩 완료")
 
             # BeautifulSoup으로 파싱

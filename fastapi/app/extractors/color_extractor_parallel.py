@@ -171,7 +171,7 @@ class ColorExtractorParallel:
             for i, (img, result) in enumerate(zip(images, results)):
                 try:
                     # 마스크 적용
-                    cropped = apply_mask(img, result)
+                    cropped = apply_mask(img, result, ExtractorConfig.CONF_THRESHOLD)
 
                     # 색상 추출
                     colors = extract_colors_kmeans(cropped, n_colors)
@@ -220,8 +220,8 @@ class ColorExtractorParallel:
         logger.info("1️⃣ 이미지 병렬 다운로드 중...")
         start_time = time.time()
         images = await self.load_images_parallel(image_urls)
-        load_image_complete_time = time.time();
-        load_image_time = load_image_complete_time - start_time;
+        load_image_complete_time = time.time()
+        load_image_time = load_image_complete_time - start_time
         logger.info(f"이미지 다운로드 소요시간 : {load_image_time:.3f}s")
 
         if not images:
