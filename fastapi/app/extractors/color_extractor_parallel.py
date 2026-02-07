@@ -32,11 +32,11 @@ logger = logging.getLogger(__name__)
 
 class ExtractorConfig:
     """색상 추출기 설정값"""
-    THUMBNAIL_SIZE = (640, 640)  # 이미지 썸네일 크기
+    THUMBNAIL_SIZE = (400, 400)  # 이미지 썸네일 크기
     DOWNLOAD_WORKERS = 4  # 다운로드 스레드 수
     CONF_THRESHOLD = 0.5  # YOLO 신뢰도 임계값
     DEFAULT_N_COLORS = 3  # 기본 추출 색상 개수
-    BATCH_SIZE = 4
+    BATCH_SIZE = 3
 
 
 # ============================================================================
@@ -102,12 +102,14 @@ class ColorExtractorParallel:
         new_h, new_w = int(h * scale), int(w * scale)
 
         resized = cv2.resize(img_array, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+        del img_array  # 원본 이미지 해제
 
         # 중앙 배치 + 검은색 패딩
         canvas = np.zeros((target_size, target_size, 3), dtype=np.uint8)
         y_offset = (target_size - new_h) // 2
         x_offset = (target_size - new_w) // 2
         canvas[y_offset:y_offset + new_h, x_offset:x_offset + new_w] = resized
+        del resized  # 리사이즈된 이미지 해제
 
         return canvas
 
@@ -190,6 +192,8 @@ class ColorExtractorParallel:
                     logger.warning(f"배치 {i}번 이미지 처리 실패: {e}")
                     all_colors.append([])
 
+            # 배치 처리 후 즉시 정리
+            del results
             gc.collect()
 
         except Exception as e:
@@ -286,7 +290,7 @@ async def main():
     # image_path = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0049_움파_시그니처 싱.jpg'
     # image_path2 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0050_움파_아가일 싱글.jpg'
     # image_path3 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0051_움파_블랙펄 더블.jpg'
-    image_path4 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0052_움파_플라워 싱글.jpg'
+    image_path4 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206_02/0071_스웨이브_세레니티 크.jpg'
     # image_urls = [image_path,image_path2, image_path3, image_path4]
     image_urls = [image_path4]
 
