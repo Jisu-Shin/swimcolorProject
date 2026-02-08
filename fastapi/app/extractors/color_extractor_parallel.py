@@ -257,7 +257,7 @@ class ColorExtractorParallel:
         total_time = time.time() - start_time
         success_count = sum(1 for colors in all_colors if colors)
 
-        logger.info(f"🎉 전체 완료: {total_time:.1f}초")
+        # logger.info(f"🎉 전체 완료: {total_time:.1f}초")
         logger.info(f"   성공: {success_count}/{len(all_colors)}개")
 
         return all_colors

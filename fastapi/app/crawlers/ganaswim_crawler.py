@@ -81,17 +81,6 @@ class GanaswimCrawler(BaseCrawler):
             self.driver.quit()
             logger.info("✓ 드라이버 종료됨")
 
-    def get_end_page(self, pageDiv):
-        """마지막 페이지 번호 가져오기"""
-        try:
-            buttons = pageDiv.find_all('button')
-            pageLastButton = buttons[-1]
-            endPage = int(pageLastButton.find('span').get_text(strip=True))
-            return endPage
-        except Exception as e:
-            logger.exception("페이지 로딩 실패: %s", e)
-            return 1
-
     def wait_for_load(self):
         """페이지 로딩 대기"""
         try:
@@ -166,6 +155,41 @@ class GanaswimCrawler(BaseCrawler):
             logger.exception(f"BS4 파싱 중 오류 발생: {e}")
             return False
 
+    def get_end_page(self):
+        try:
+            # 1. '마지막 페이지로 이동' 버튼 찾기 (예: 클래스명이나 텍스트로)
+            # 사이트마다 다르니 개발자 도구로 확인 필요 (예: [마지막], [>>], .btn-last)
+            buttons = WebDriverWait(self.driver, 15).until(
+                EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".sc-b97ceab4-0 button"))
+            )
+
+            # for i, btn in enumerate(buttons):
+            #     # 각 버튼의 텍스트와 HTML 구조 추출
+            #     btn_text = btn.text.strip()
+            #     btn_html = btn.get_attribute('outerHTML')
+            #
+            #     print(f"[{i}] 버튼 텍스트: '{btn_text}'")
+            #     print(f"    HTML: {btn_html}")
+            #     print("-" * 50)
+
+            # 2. 버튼 클릭
+            last_button = buttons[-1]
+            last_button.click()
+
+            # 3. 클릭 후 페이지가 로딩될 때까지 잠시 대기
+            # (URL이 바뀌거나 특정 요소가 나타날 때까지)
+            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".sc-b97ceab4-2")))
+
+            # 4. 이제 화면에 표시된 마지막 번호 추출
+            # 아까 질문하신 것처럼 span 내의 텍스트를 가져오면 됩니다.
+            page_elements = self.driver.find_elements(By.CSS_SELECTOR, ".sc-b97ceab4-2 button span")
+            last_page_num = int(page_elements[-1].text)
+
+            return last_page_num
+        except Exception as e:
+            print(f"마지막 페이지 확인 실패: {e}")
+            return 1
+
     def crawl(self, url):
         """
         크롤링 실행 (메인 메서드)
@@ -184,21 +208,22 @@ class GanaswimCrawler(BaseCrawler):
         setup_driver_time = time.time() - start_time
         logger.info(f"드라이버 셋업 소요 시간 : {setup_driver_time:.3f}s")
 
-        self.product_list = []
-
         url_arr = url.split("&pageNumber=")
         clean_url = url_arr[0]
         print(f"정제된 url은 {clean_url} 입니다")
 
         pageNumber = int(url_arr[1])
-        print(f"확인된 페이지 번호는 {pageNumber} 입니다")
+        print(f"시작 페이지 번호는 {pageNumber} 입니다")
 
         try:
-            current_page = pageNumber
+            # URL 접속
+            full_url = f"{clean_url}&pageNumber={pageNumber}"
+            self.driver.get(full_url)
+            end_page = self.get_end_page()
+            print(f"확인된 마지막 페이지는 {end_page} 입니다")
 
-            while True:
-                # URL 접속
-                full_url = f"{clean_url}&pageNumber={current_page}"
+            for curr_page in range(pageNumber, end_page + 1):
+                full_url = f"{clean_url}&pageNumber={curr_page}"
                 logger.info(f"##### 현재 url {full_url}")
 
                 self.driver.get(full_url)
@@ -223,23 +248,9 @@ class GanaswimCrawler(BaseCrawler):
                     break
                 logger.info(f"##### 상품 리스트에서 데이터 파싱하기")
 
-                # 4. 마지막 페이지 확인 로직 (클래스명 선택 주의)
-                pageDiv = soup.find(class_='sc-b97ceab4-2')
-                if pageDiv:
-                    end_page = self.get_end_page(pageDiv)
-                else:
-                    end_page = current_page  # 못 찾으면 현재 페이지를 마지막으로 간주
-
-                if current_page >= end_page:
-                    logger.info(f"✓ 마지막 페이지({end_page}) 도달")
-                    break
-
-                current_page += 1
-
         except Exception as e:
             logger.exception(f"❌ 크롤링 중 오류 발생:  {e}")
 
-            # ⭐ 핵심: 에러를 다시 던져야 아래 return 문으로 안 내려가!
             raise e
 
         finally:
@@ -257,7 +268,7 @@ if __name__ == "__main__":
     # 기본 사용 (브라우저 안보임)
     crawler = GanaswimCrawler(headless=True)
 
-    url = "https://swim.co.kr/categories/918606/products?childCategoryNo=919019&brands=%255B43160576%255D&pageNumber=3"
+    url = "https://swim.co.kr/categories/918606/products?childCategoryNo=919019&brands=%255B43160559%255D&pageNumber=4"
     product_list = crawler.crawl(url)
 
     # 결과 출력

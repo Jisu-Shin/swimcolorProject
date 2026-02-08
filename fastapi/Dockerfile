@@ -25,7 +25,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # 5. PyTorch CPU 버전 설치 (용량 최적화)
-RUN pip install --no-cache-dir torch torchvision torchaudio \
+RUN pip install --no-cache-dir torch torchvision \
     --index-url https://download.pytorch.org/whl/cpu
 
 # 6. 기타 라이브러리 설치
