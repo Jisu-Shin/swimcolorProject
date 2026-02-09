@@ -152,7 +152,7 @@ async def main():
     """메인 함수"""
     # 원하는 예시 선택
     model_path = "../../" + settings.yolo_model_path
-    image_path = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0001_움파_플럼캔디 싱.jpg'
+    image_path = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206_02/0071_스웨이브_세레니티 크.jpg'
 
 
     await example_single_image(model_path, image_path)

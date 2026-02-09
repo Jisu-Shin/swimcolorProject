@@ -94,7 +94,7 @@ class ColorExtractorParallel:
             if img_array is None:
                 raise ValueError(f"이미지를 읽을 수 없습니다: {image_source}")
 
-        target_size = ExtractorConfig.THUMBNAIL_SIZE[0]  # 640
+        target_size = ExtractorConfig.THUMBNAIL_SIZE[0]
 
         # 비율 유지하며 리사이즈 + 패딩
         h, w = img_array.shape[:2]
@@ -171,8 +171,7 @@ class ColorExtractorParallel:
             results = self.model(
                 images,
                 verbose=False,
-                conf=ExtractorConfig.CONF_THRESHOLD,
-                imgsz=640
+                conf=ExtractorConfig.CONF_THRESHOLD
             )
 
             # 2. 각 이미지별로 처리
@@ -276,7 +275,7 @@ class ColorExtractorParallel:
 
 async def main():
     """테스트용 메인 함수"""
-    model_path = "../../" + settings.yolo_model_path
+    model_path = "../../" + settings.swimsuit_onnx_path
     print(f"모델 경로: {model_path}")
 
     if not os.path.exists(model_path):
@@ -287,12 +286,12 @@ async def main():
     extractor = ColorExtractorParallel(str(model_path))
 
     # 2. 테스트 이미지
-    # image_path = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0049_움파_시그니처 싱.jpg'
+    image_path = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0049_움파_시그니처 싱.jpg'
     # image_path2 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0050_움파_아가일 싱글.jpg'
     # image_path3 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0051_움파_블랙펄 더블.jpg'
-    image_path4 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206_02/0071_스웨이브_세레니티 크.jpg'
+    # image_path4 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206_02/0071_스웨이브_세레니티 크.jpg'
     # image_urls = [image_path,image_path2, image_path3, image_path4]
-    image_urls = [image_path4]
+    image_urls = [image_path]
 
     try:
         # 3. 색상 추출

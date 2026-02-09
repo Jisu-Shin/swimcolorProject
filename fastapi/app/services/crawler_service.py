@@ -11,7 +11,7 @@ async def crawl_swimsuit_and_extract_colors(url):
         return []
 
     print(f"✅ {len(products)}건 크롤링 완료. 분석 시작...")
-    extractor = ExtractorFactory.create('ver1', settings.yolo_model_path)
+    extractor = ExtractorFactory.create('ver1', settings.swimsuit_onnx_path)
 
     try:
         imgUrList = [product['img_url'] for product in products]
@@ -42,7 +42,7 @@ async def crawl_swimcap_and_extract_colors(url):
 
     print(f"✅ {len(products)}건 크롤링 완료. 분석 시작...")
 
-    extractor = ExtractorFactory.create('ver1', settings.swimcap_yolo_model_path)
+    extractor = ExtractorFactory.create('ver1', settings.swimcap_onnx_path)
 
     try :
         imgUrList = [product['img_url'] for product in products]
