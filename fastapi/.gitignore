@@ -43,6 +43,7 @@ ml/runs/**/*
 !ml/runs/**/weights/
 #best.pt만 예외로 포함
 !ml/runs/**/best.pt
+!ml/runs/**/best.onnx
 
 # OS
 .DS_Store

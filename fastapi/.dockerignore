@@ -4,9 +4,15 @@ venv/
 env/
 __pycache__/
 .git/
+.gitignore
 .github/
 .vscode/
 .idea/
+*.pyc
+*.pyo
+*.log
+.cache/
+pip-cache/
 
 # 테스트용 미디어 파일 (모델 파일인 .pt는 제외하지 않음)
 *.mp4
