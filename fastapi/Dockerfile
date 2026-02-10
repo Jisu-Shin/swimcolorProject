@@ -24,10 +24,6 @@ WORKDIR /app
 # 4. 의존성 파일 복사
 COPY requirements.txt .
 
-# 5. PyTorch CPU 버전 설치 (용량 최적화)
-RUN pip install --no-cache-dir torch torchvision \
-    --index-url https://download.pytorch.org/whl/cpu
-
 # 6. 기타 라이브러리 설치
 RUN pip install --no-cache-dir -r requirements.txt
 
