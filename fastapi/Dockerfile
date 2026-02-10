@@ -1,31 +1,20 @@
 # 1. Python 베이스 이미지 (가벼운 slim)
 FROM python:3.9-slim
 
-# 2. 시스템 패키지 + Chrome 설치
+# 2. # 시스템 의존성 설치
 RUN apt-get update && apt-get install -y \
-    wget \
-    gnupg \
-    unzip \
-    curl \
-    xvfb \
-    libxi6 \
-    libnss3 \
-    libatk-bridge2.0-0 \
-    libgtk-3-0 \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/googlechrome-linux-keyring.gpg \
-    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/googlechrome-linux-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list \
-    && apt-get update && apt-get install -y google-chrome-stable \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
 # 3. 작업 디렉토리
 WORKDIR /app
 
 # 4. 의존성 파일 복사
-COPY requirements.txt .
+COPY requirements-dev.txt .
 
 # 6. 기타 라이브러리 설치
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip \
+ && pip install --no-cache-dir -r requirements-dev.txt
+RUN playwright install --with-deps chromium
 
 # 7. 소스 코드 복사
 COPY . .
