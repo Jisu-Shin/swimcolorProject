@@ -1,18 +1,11 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from dotenv import load_dotenv
 import logging
 import os
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from urllib.parse import urljoin
 import time
 from app.crawlers.base_crawler import BaseCrawler
 
 logger = logging.getLogger(__name__)
-
 
 class GanaswimCrawler(BaseCrawler):
     """가나스윔 사이트 크롤러 클래스"""
@@ -29,6 +22,9 @@ class GanaswimCrawler(BaseCrawler):
 
     def setup_driver(self):
         """크롬 드라이버 설정 및 실행"""
+        from selenium import webdriver
+        from selenium.webdriver.chrome.service import Service
+
         options = webdriver.ChromeOptions()
 
         # 1. 브라우저(Chrome) 실행 파일 경로 설정
@@ -83,6 +79,10 @@ class GanaswimCrawler(BaseCrawler):
 
     def wait_for_load(self):
         """페이지 로딩 대기"""
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+
         try:
             WebDriverWait(self.driver, 40).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'sc-2667f19f-45'))
@@ -156,6 +156,10 @@ class GanaswimCrawler(BaseCrawler):
             return False
 
     def get_end_page(self):
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+
         try:
             # 1. '마지막 페이지로 이동' 버튼 찾기 (예: 클래스명이나 텍스트로)
             # 사이트마다 다르니 개발자 도구로 확인 필요 (예: [마지막], [>>], .btn-last)
@@ -200,6 +204,8 @@ class GanaswimCrawler(BaseCrawler):
         Returns:
             list: 추출된 상품 리스트
         """
+        from bs4 import BeautifulSoup
+
         logger.info("🚀 크롤링 시작...")
         start_time = time.time()
 

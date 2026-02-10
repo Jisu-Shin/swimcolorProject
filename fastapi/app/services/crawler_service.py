@@ -3,8 +3,8 @@ from app.crawlers.crawler_factory import CrawlerFactory
 from app.extractors.extractor_factory import ExtractorFactory
 
 async def crawl_swimsuit_and_extract_colors(url):
-    crawler = CrawlerFactory.create('ganaswim')
-    products = crawler.crawl(url)
+    crawler = CrawlerFactory.create('ver3')
+    products = await crawler.crawl_async(url)
 
     # 1. 크롤링 결과가 없는 경우 예외 처리 (방어 코드)
     if not products:
@@ -33,8 +33,8 @@ async def crawl_swimsuit_and_extract_colors(url):
     return products
 
 async def crawl_swimcap_and_extract_colors(url):
-    crawler = CrawlerFactory.create('ganaswim')
-    products = crawler.crawl(url)
+    crawler = CrawlerFactory.create('ver3')
+    products = await crawler.crawl(url)
 
     # 1. 크롤링 결과가 없는 경우 예외 처리 (방어 코드)
     if not products:

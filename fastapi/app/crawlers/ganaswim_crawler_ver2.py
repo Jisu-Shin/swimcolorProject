@@ -1,12 +1,6 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from dotenv import load_dotenv
 import logging
 import os
-from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
 from urllib.parse import urljoin
 import time
 import tempfile
@@ -33,6 +27,9 @@ class GanaswimCrawlerV2(BaseCrawler):
 
     def setup_driver(self, page_number=None):
         """크롬 드라이버 설정 및 실행"""
+        from selenium import webdriver
+        from selenium.webdriver.chrome.service import Service
+
         options = webdriver.ChromeOptions()
 
         chrome_bin = os.getenv('CHROME_PATH')
@@ -77,6 +74,11 @@ class GanaswimCrawlerV2(BaseCrawler):
 
     def crawl_single_page(self, clean_url, page_number):
         """단일 페이지 크롤링 (병렬 처리용)"""
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        from bs4 import BeautifulSoup
+
         # 🎯 독립 driver 받기
         driver, profile_dir = self.setup_driver(page_number)
 
@@ -118,6 +120,9 @@ class GanaswimCrawlerV2(BaseCrawler):
 
     def wait_for_load(self, driver):
         """페이지 로딩 대기"""
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
         try:
             WebDriverWait(driver, 40).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'sc-2667f19f-45'))
@@ -177,6 +182,8 @@ class GanaswimCrawlerV2(BaseCrawler):
 
     def crawl_single_page(self, clean_url, page_number):
         """단일 페이지 크롤링 (병렬 처리용)"""
+        from bs4 import BeautifulSoup
+
         # ⭐ 각 Thread마다 독립적인 driver 생성!
         driver, profile_dir = self.setup_driver(page_number)
 
@@ -219,6 +226,9 @@ class GanaswimCrawlerV2(BaseCrawler):
                 shutil.rmtree(profile_dir, ignore_errors=True)
 
     def get_end_page(self, driver):
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
         try:
             # 1. '마지막 페이지로 이동' 버튼 찾기 (예: 클래스명이나 텍스트로)
             # 사이트마다 다르니 개발자 도구로 확인 필요 (예: [마지막], [>>], .btn-last)
