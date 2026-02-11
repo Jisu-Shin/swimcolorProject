@@ -172,7 +172,7 @@ class GanaswimCrawlerV3(BaseCrawler):
             await page.goto(self.temp_url, wait_until='domcontentloaded', timeout=30000)
 
             # 페이지네이션 버튼 대기
-            await page.wait_for_selector(".sc-b97ceab4-0 button", timeout=15000)
+            await page.wait_for_selector(".sc-b97ceab4-0 button", timeout=60000)
 
             # 마지막 페이지 버튼 클릭
             buttons = await page.query_selector_all(".sc-b97ceab4-0 button")
