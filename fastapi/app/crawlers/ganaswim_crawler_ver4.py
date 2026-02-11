@@ -63,7 +63,7 @@ class GanaswimCrawlerV4(BaseCrawler):
 
             logger.info(f"##### 현재 URL: {full_url}")
             await page.goto(full_url, wait_until='domcontentloaded', timeout=30000)
-            await page.wait_for_selector('.cGXxzj', timeout=15000)
+            await page.wait_for_selector('.cGXxzj', timeout=60000)
             logger.info(f"##### 페이지 {page_number} 로딩 완료")
 
             # 상품 추출 + 다음 페이지 여부를 JS로 한번에 처리
