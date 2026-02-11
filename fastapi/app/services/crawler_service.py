@@ -3,7 +3,7 @@ from app.crawlers.crawler_factory import CrawlerFactory
 from app.extractors.extractor_factory import ExtractorFactory
 
 async def crawl_swimsuit_and_extract_colors(url):
-    crawler = CrawlerFactory.create('ver3')
+    crawler = CrawlerFactory.create('ver4')
     products = await crawler.crawl_async(url)
 
     # 1. 크롤링 결과가 없는 경우 예외 처리 (방어 코드)

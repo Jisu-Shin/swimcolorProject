@@ -69,7 +69,7 @@ class GanaswimCrawlerV3(BaseCrawler):
             logger.info(f"##### 현재 URL: {full_url}")
 
             # 페이지 이동
-            await page.goto(full_url, wait_until='domcontentloaded', timeout=30000)
+            await page.goto(full_url, wait_until='domcontentloaded', timeout=60000)
 
             # 상품 목록이 로드될 때까지 대기
             await page.wait_for_selector('.cGXxzj', timeout=60000)
