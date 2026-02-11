@@ -1,7 +1,6 @@
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 from dotenv import load_dotenv
 import logging
-import os
 from urllib.parse import urljoin
 import time
 import asyncio
@@ -10,7 +9,6 @@ from typing import List, Dict, Optional
 from app.crawlers.base_crawler import BaseCrawler
 
 logger = logging.getLogger(__name__)
-
 
 class GanaswimCrawlerV3(BaseCrawler):
     """가나스윔 사이트 크롤러 클래스 - Playwright 버전"""
@@ -75,18 +73,40 @@ class GanaswimCrawlerV3(BaseCrawler):
             await page.wait_for_selector('.cGXxzj', timeout=60000)
             logger.info(f"##### 페이지 {page_number} 로딩 완료")
 
-            # 상품 요소들 가져오기
-            elements = await page.query_selector_all('.cGXxzj')
-            logger.info(f"##### 페이지 {page_number}: {len(elements)}개 상품 발견")
+            # 상품 추출 + 다음 페이지 여부를 JS로 한번에 처리
+            result = await page.evaluate("""
+                () => {
+                    const base_url = 'https://swim.co.kr';
+                    const protocol = 'https:';
 
-            # 상품 정보 추출
-            products = []
-            for element in elements:
-                product_info = await self.extract_product_info_playwright(element)
-                if product_info:
-                    products.append(product_info)
+                    const elements = document.querySelectorAll('.cGXxzj');
+                    const products = [...elements].map(el => {
+                        const link = el.querySelector('a');
+                        const brand = el.querySelector('.dVHoSm');
+                        const name = el.querySelector('.cjytLO');
+                        const prices = el.querySelectorAll('.dVHoSm');
+                        const img = el.querySelector('img');
+                        const soldOut = el.querySelector('.sc-eef3f2e7-3');
 
-            return products
+                        console.log("############################");
+                        console.log(img ? img.outerHTML : 'null');
+                        console.log("############################");
+
+                        return {
+                            brand: brand ? brand.textContent.trim() : '알 수 없음',
+                            name: name ? name.textContent.trim() : '상품명 없음',
+                            price: prices.length ? prices[prices.length-1].textContent.replace(/[^0-9]/g, '') : '0',
+                            product_url: link ? base_url + link.getAttribute('href') : '',
+                            img_url: img ? protocol + img.getAttribute('src') : '',
+                            is_sold_out: !!soldOut
+                        };
+                    });
+
+                    return products;
+                }
+            """)
+            logger.info(f"✅ 페이지 {page_number}: {len(result)}개 수집")
+            return result
 
         except PlaywrightTimeoutError as e:
             await page.screenshot(path=f"debug_{page_number}.png")
@@ -164,36 +184,50 @@ class GanaswimCrawlerV3(BaseCrawler):
 
         try:
             context = await browser.new_context(
-                viewport={'width': 1920, 'height': 1080}
+                viewport={'width': 1920, 'height': 1080},
+                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            )
+            await context.route(
+                "**/*.{png,jpg,jpeg,gif,svg,css,woff,woff2}",
+                lambda route: route.abort()
             )
             page = await context.new_page()
 
-            # 임시 URL로 이동하여 마지막 페이지 확인
             await page.goto(self.temp_url, wait_until='domcontentloaded', timeout=30000)
+            await page.wait_for_selector('.sc-b97ceab4-0', timeout=60000)
 
-            # 페이지네이션 버튼 대기
-            await page.wait_for_selector(".sc-b97ceab4-0 button", timeout=60000)
+            # JS로 클릭만
+            await page.evaluate("""
+                () => {
+                    const buttons = document.querySelectorAll('.sc-b97ceab4-0 button');
+                    buttons[buttons.length - 1].click();
+                }
+            """)
 
-            # 마지막 페이지 버튼 클릭
-            buttons = await page.query_selector_all(".sc-b97ceab4-0 button")
-            if buttons:
-                last_button = buttons[-1]
-                await last_button.click()
+            # Playwright로 대기
+            await page.wait_for_selector('.sc-b97ceab4-2', timeout=10000)
 
-                # 페이지 로딩 대기
-                await page.wait_for_selector(".sc-b97ceab4-2", timeout=10000)
+            # span 값 추출
+            last_page = await page.evaluate("""
+                () => {
+                    const pageSpans = document.querySelectorAll('.sc-b97ceab4-2 button span');
+                    const lastSpan = pageSpans[pageSpans.length - 1];
+                    return lastSpan ? parseInt(lastSpan.textContent.trim()) : 1;
+                }
+            """)
 
-                # 마지막 페이지 번호 추출
-                page_elements = await page.query_selector_all(".sc-b97ceab4-2 button span")
-                if page_elements:
-                    last_page_text = await page_elements[-1].inner_text()
-                    return int(last_page_text)
+            logger.info(f"✅ 마지막 페이지 {last_page}")
 
-            return 1
+            return last_page
 
+        except PlaywrightTimeoutError as e:
+            if page:
+                await page.screenshot(path=f"debug_last_page.png")
+            logger.error(f"⏱️ 마지막 페이지 번호 추출 타임아웃: {e}")
+            raise
         except Exception as e:
-            logger.error(f"마지막 페이지 확인 실패: {e}")
-            return 1
+            logger.exception(f"❌ 마지막 페이지 번호 추출 실패: {e}")
+            raise
         finally:
             if page:
                 await page.close()

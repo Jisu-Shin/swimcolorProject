@@ -9,7 +9,6 @@ from app.crawlers.base_crawler import BaseCrawler
 
 logger = logging.getLogger(__name__)
 
-
 class GanaswimCrawlerV4(BaseCrawler):
     """가나스윔 사이트 크롤러 클래스 - Playwright 순차처리 버전"""
 
@@ -39,23 +38,14 @@ class GanaswimCrawlerV4(BaseCrawler):
         )
         return playwright, browser
 
-    async def crawl_page(self, browser, full_url: str, page_number: int) -> Tuple[List[Dict], bool]:
+    async def crawl_page(self, context, full_url: str, page_number: int) -> Tuple[List[Dict], bool]:
         """
         단일 페이지 크롤링 + 다음 페이지 여부 반환
         Returns: (products, has_next)
         """
-        context = None
         page = None
 
         try:
-            context = await browser.new_context(
-                viewport={'width': 1920, 'height': 1080},
-                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            )
-            await context.route(
-                "**/*.{png,jpg,jpeg,gif,svg,css,woff,woff2}",
-                lambda route: route.abort()
-            )
             page = await context.new_page()
 
             # ✅ JS console.log를 Python 로거로 연결
@@ -122,8 +112,6 @@ class GanaswimCrawlerV4(BaseCrawler):
         finally:
             if page:
                 await page.close()
-            if context:
-                await context.close()
 
     async def crawl_async(self, url: str) -> List[Dict]:
         """순차처리 크롤링 메인 메서드"""
@@ -139,14 +127,24 @@ class GanaswimCrawlerV4(BaseCrawler):
 
         playwright = None
         browser = None
+        context = None
 
         try:
             playwright, browser = await self.setup_browser()
 
+            context = await browser.new_context(
+                viewport={'width': 1920, 'height': 1080},
+                user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            )
+            await context.route(
+                "**/*.{png,jpg,jpeg,gif,svg,css,woff,woff2}",
+                lambda route: route.abort()
+            )
+
             # 순차처리 - has_next False 될 때까지 반복
             while True:
                 full_url = f"{clean_url}&pageNumber={page_number}"
-                products, has_next = await self.crawl_page(browser, full_url, page_number)
+                products, has_next = await self.crawl_page(context, full_url, page_number)
                 self.product_list.extend(products)
 
                 if not has_next:
@@ -165,6 +163,8 @@ class GanaswimCrawlerV4(BaseCrawler):
             logger.exception(f"❌ 크롤링 중 오류 발생: {e}")
             raise
         finally:
+            if context:
+                await context.close()
             if browser:
                 await browser.close()
             if playwright:
