@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 class ExtractorConfig:
     """색상 추출기 설정값"""
-    THUMBNAIL_SIZE = (400, 400)  # 이미지 썸네일 크기
+    THUMBNAIL_SIZE = (416, 416)  # 이미지 썸네일 크기 32배수
     DOWNLOAD_WORKERS = 4  # 다운로드 스레드 수
     CONF_THRESHOLD = 0.5  # YOLO 신뢰도 임계값
     DEFAULT_N_COLORS = 3  # 기본 추출 색상 개수
@@ -171,7 +171,8 @@ class ColorExtractorParallel:
             results = self.model(
                 images,
                 verbose=False,
-                conf=ExtractorConfig.CONF_THRESHOLD
+                conf=ExtractorConfig.CONF_THRESHOLD,
+                imgsz=ExtractorConfig.THUMBNAIL_SIZE[0]
             )
 
             # 2. 각 이미지별로 처리
