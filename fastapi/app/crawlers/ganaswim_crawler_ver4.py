@@ -48,9 +48,6 @@ class GanaswimCrawlerV4(BaseCrawler):
         try:
             page = await context.new_page()
 
-            # ✅ JS console.log를 Python 로거로 연결
-            page.on("console", lambda msg: logger.debug(f"[JS] {msg.text}"))
-
             logger.info(f"##### 현재 URL: {full_url}")
             await page.goto(full_url, wait_until='domcontentloaded', timeout=30000)
             await page.wait_for_selector('.cGXxzj', timeout=60000)
@@ -72,10 +69,6 @@ class GanaswimCrawlerV4(BaseCrawler):
                         const img = el.querySelector('img');
                         const soldOut = el.querySelector('.sc-eef3f2e7-3');
                         
-                        console.log("############################");
-                        console.log(img ? img.outerHTML : 'null');
-                        console.log("############################");
-
                         return {
                             brand: brand ? brand.textContent.trim() : '알 수 없음',
                             name: name ? name.textContent.trim() : '상품명 없음',
@@ -137,7 +130,7 @@ class GanaswimCrawlerV4(BaseCrawler):
                 user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
             )
             await context.route(
-                "**/*.{png,jpg,jpeg,gif,svg,css,woff,woff2}",
+                "**/*.{gif,svg,css,woff,woff2}",
                 lambda route: route.abort()
             )
 
