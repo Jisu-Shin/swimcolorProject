@@ -1,0 +1,20 @@
+FROM public.ecr.aws/lambda/python:3.12
+
+# 1️⃣ 시스템 패키지 업데이트
+RUN dnf update -y
+
+# 2️⃣ pip 최신화
+COPY requirements-crawling-lambda.txt .
+
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements-crawling-lambda.txt
+
+# 3️⃣ Playwright 브라우저 + 의존성 자동 설치
+RUN python -m playwright install chromium
+
+# 4️⃣ 크롤러 코드 복사
+COPY crawling/ ${LAMBDA_TASK_ROOT}/crawling/
+COPY crawling_lambda_handler.py ${LAMBDA_TASK_ROOT}/
+
+# 5️⃣ Lambda 핸들러 지정
+CMD ["crawling_lambda_handler.handler"]
