@@ -9,8 +9,8 @@ RUN chmod +x /usr/local/bin/aws-lambda-rie
 
 WORKDIR /var/task
 
-COPY requirements-crawling-lambda.txt .
-RUN pip install --no-cache-dir -r requirements-crawling-lambda.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY crawling/ ./crawling/
 COPY crawling_lambda_handler.py .
