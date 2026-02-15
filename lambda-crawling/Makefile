@@ -1,10 +1,17 @@
 .PHONY: build run test stop logs build-run
 
 build:
-	docker build -f Dockerfile-crawling.lambda -t crawling-lambda .
+	docker build \
+	    -f Dockerfile \
+	    -t crawling-lambda .
 
 run:
-	docker run -v ~/.aws:/root/.aws -d --name crawling-lambda-test -p 9000:8080 --env-file .env.lambda crawling-lambda
+	docker run \
+	    -v ~/.aws:/root/.aws \
+	    -d --name crawling-lambda-test \
+	    -p 9000:8080 \
+	    --env-file .env.lambda \
+	    crawling-lambda
 
 test:
 	curl -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" \

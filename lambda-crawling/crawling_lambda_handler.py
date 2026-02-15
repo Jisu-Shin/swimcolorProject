@@ -39,14 +39,28 @@ def handler(event, context):
 
         logger.info(f"크롤링 완료: {len(products)}개 상품")
 
-        # # 2. 색상추출 Lambda 비동기 호출 (결과 안기다림)
-        # lambda_client.invoke(
-        #     FunctionName='color-extractor-lambda',
-        #     InvocationType='Event',  # 비동기 호출
-        #     Payload=json.dumps({'products': products}, ensure_ascii=False)
-        # )
-        #
-        # logger.info("색상추출 Lambda 호출 완료")
+        # 2. SQS로 데이터 적재
+        batch_size = 100
+        for i in range(0, len(products), batch_size):
+            batch = products[i:i + batch_size]
+            batch_num = i // batch_size + 1
+            total_batches = (len(products) + batch_size - 1) // batch_size
+
+            logger.info(f"   SQS 배치 {batch_num}/{total_batches} 처리 중...")
+
+            # SQS에 메시지 전송
+            response = sqs.send_message(
+                QueueUrl=QUEUE_URL,
+                MessageBody=json.dumps(batch),  # 딕셔너리를 문자열로 변환
+                MessageAttributes={
+                    'ContentType': {
+                        'DataType': 'String',
+                        'StringValue': 'image_analysis'  # 메시지 분류용 메타데이터
+                    }
+                }
+            )
+
+            logger.info(f"메시지 전송 완료! MessageId: {response['MessageId']}")
 
         return {
             'statusCode': 200,
