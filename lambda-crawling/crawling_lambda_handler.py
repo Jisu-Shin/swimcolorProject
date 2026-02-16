@@ -7,8 +7,6 @@ from crawling.crawler_factory import CrawlerFactory
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-lambda_client = boto3.client('lambda', region_name='ap-northeast-2')
-
 # SQS 클라이언트 생성
 sqs = boto3.client('sqs', region_name='ap-northeast-2')
 
@@ -23,7 +21,9 @@ def handler(event, context):
     Lambda는 백그라운드에서 크롤링 계속 실행
     """
     try:
+        log_id = event.get('logId')
         url = event.get('url')
+        callback_url = event.get('callbackUrl')
 
         if not url:
             return {
@@ -41,6 +41,7 @@ def handler(event, context):
 
         # 2. SQS로 데이터 적재
         batch_size = 100
+
         for i in range(0, len(products), batch_size):
             batch = products[i:i + batch_size]
             batch_num = i // batch_size + 1
@@ -51,7 +52,11 @@ def handler(event, context):
             # SQS에 메시지 전송
             response = sqs.send_message(
                 QueueUrl=QUEUE_URL,
-                MessageBody=json.dumps(batch),  # 딕셔너리를 문자열로 변환
+                MessageBody=json.dumps({
+                    "log_id": log_id,
+                    "products": batch,
+                    "callback_url": callback_url
+                }),  # 딕셔너리를 문자열로 변환
                 MessageAttributes={
                     'ContentType': {
                         'DataType': 'String',

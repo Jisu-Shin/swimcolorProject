@@ -3,7 +3,6 @@ venv/
 .venv/
 env/
 .env
-.env.*
 __pycache__/
 .git/
 .gitignore
@@ -16,7 +15,7 @@ __pycache__/
 .cache/
 pip-cache/
 
-# 테스트용 미디어 파일 (모델 파일인 .pt는 제외하지 않음)
+# 테스트용 미디어 파일
 *.mp4
 *.avi
 *.jpg

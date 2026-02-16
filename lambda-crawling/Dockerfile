@@ -12,8 +12,7 @@ WORKDIR /var/task
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY crawling/ ./crawling/
-COPY crawling_lambda_handler.py .
+COPY . .
 
 ENTRYPOINT ["/usr/local/bin/aws-lambda-rie", "python", "-m", "awslambdaric"]
 CMD ["crawling_lambda_handler.handler"]

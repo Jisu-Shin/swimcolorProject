@@ -10,7 +10,7 @@ run:
 	    -v ~/.aws:/root/.aws \
 	    -d --name crawling-lambda-test \
 	    -p 9000:8080 \
-	    --env-file .env.lambda \
+	    --env-file .env \
 	    crawling-lambda
 
 test:
