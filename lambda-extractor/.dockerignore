@@ -1,0 +1,27 @@
+# .dockerignore
+venv/
+.venv/
+env/
+.env
+__pycache__/
+.git/
+.gitignore
+.github/
+.vscode/
+.idea/
+*.pyc
+*.pyo
+*.log
+.cache/
+pip-cache/
+
+# 테스트용 미디어 파일
+*.mp4
+*.avi
+*.jpg
+*.png
+*.gif
+
+# 운영체제 관련 파일
+.DS_Store
+Thumbs.db

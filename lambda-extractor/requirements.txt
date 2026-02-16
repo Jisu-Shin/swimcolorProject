@@ -1,0 +1,8 @@
+python-dotenv==1.2.1
+urllib3
+boto3
+requests
+sentry-sdk
+numpy>=1.24,<2
+opencv-python-headless==4.11.0.86
+ultralytics

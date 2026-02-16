@@ -1,0 +1,8 @@
+{
+  "Records": [
+    {
+      "messageId": "test-message-001",
+      "body": "{\"log_id\": 1, \"callback_url\": \"http://your-spring-server.com/api/colors\", \"products\": [{\"img_url\": \"https://example.com/swim.jpg\", \"name\": \"테스트상품\"}]}"
+    }
+  ]
+}
