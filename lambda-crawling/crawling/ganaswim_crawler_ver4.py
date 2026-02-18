@@ -12,9 +12,7 @@ logger = logging.getLogger(__name__)
 class GanaswimCrawlerV4(BaseCrawler):
     """가나스윔 사이트 크롤러 클래스 - Playwright 순차처리 버전"""
 
-    def __init__(self, headless=True):
-        self.headless = headless
-        self.product_list = []
+    def __init__(self):
         load_dotenv()
 
     async def setup_browser(self):
@@ -22,7 +20,7 @@ class GanaswimCrawlerV4(BaseCrawler):
         playwright = await async_playwright().start()
 
         browser = await playwright.chromium.launch(
-            headless=self.headless,
+            headless=True,
             args=[
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
@@ -34,6 +32,7 @@ class GanaswimCrawlerV4(BaseCrawler):
                 '--disable-renderer-backgrounding',
                 '--disable-extensions',
                 '--disable-plugins',
+                '--single-process'
             ]
         )
         return playwright, browser
