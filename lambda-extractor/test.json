@@ -2,7 +2,7 @@
   "Records": [
     {
       "messageId": "test-message-001",
-      "body": "{\"log_id\": 1, \"callback_url\": \"http://your-spring-server.com/api/colors\", \"products\": [{\"img_url\": \"https://swim.cdn-nhncommerce.com/Mall-No-L0e8/20251231/094121.873378170/NESSA001-614_01.jpg\", \"name\": \"테스트상품\"}]}"
+      "body": "{\"log_id\": 2, \"callback_url\": \"http://your-spring-server.com/api/colors\", \"products\": [{\"img_url\": \"https://swim.cdn-nhncommerce.com/Mall-No-L0e8/20251231/094121.873378170/NESSA001-614_01.jpg\", \"name\": \"테스트상품\"}]}"
     }
   ]
 }
