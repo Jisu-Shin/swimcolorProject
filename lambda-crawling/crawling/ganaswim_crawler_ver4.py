@@ -13,6 +13,7 @@ class GanaswimCrawlerV4(BaseCrawler):
     """가나스윔 사이트 크롤러 클래스 - Playwright 순차처리 버전"""
 
     def __init__(self):
+        self.product_list = []
         load_dotenv()
 
     async def setup_browser(self):
