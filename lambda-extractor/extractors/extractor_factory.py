@@ -1,4 +1,4 @@
-from color_extractor_parallel import ColorExtractorParallel
+from .color_extractor_parallel import ColorExtractorParallel
 
 class ExtractorFactory:
     _extractors = {

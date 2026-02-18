@@ -7,7 +7,6 @@ from extractors.extractor_factory import ExtractorFactory
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
 # ============================================================================
 # 설정 클래스
 # ============================================================================
@@ -78,6 +77,7 @@ def handler(event, context):
                 product['colors'] = [color['hex'] for color in colors]
 
         logger.info(f"[{message_id}] 처리 완료 - {len(products)}개 상품")
+        logger.info(f"products 확인 : {products}")
 
         # ✅ return 전에 Spring으로 전송
         if not send_to_spring(log_id, products, callback_url):

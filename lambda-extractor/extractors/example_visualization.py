@@ -6,14 +6,14 @@
 
 import asyncio
 import cv2
-from color_extractor_parallel import ColorExtractorParallel
-from visualization_utils import (
+from .color_extractor_parallel import ColorExtractorParallel
+from .visualization_utils import (
     visualize_color_extraction,
     save_color_palette_only,
     compare_extractions
 )
-from yolo_utils import get_segmentation_mask
-from yolo_utils import crop_swimsuit_only, apply_mask
+from .yolo_utils import get_segmentation_mask
+from .yolo_utils import crop_swimsuit_only, apply_mask
 
 
 async def example_single_image(model_path, image_path):

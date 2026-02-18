@@ -19,8 +19,12 @@ import time
 import logging
 import os
 
-from yolo_utils import apply_mask
-from color_utils import extract_colors_kmeans
+try:
+    from .yolo_utils import apply_mask
+    from .color_utils import extract_colors_kmeans
+except ImportError:
+    from yolo_utils import apply_mask
+    from color_utils import extract_colors_kmeans
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +66,7 @@ class ColorExtractorParallel:
 
         # YOLO 모델 로드 (메인 스레드에서 1회)
         logger.info(f"YOLO 모델 로드 중: {yolo_model_path}")
-        self.model = YOLO(yolo_model_path)
+        self.model = YOLO(yolo_model_path, task="segment")
         logger.info("✓ YOLO 모델 로드 완료")
 
         # Executor 생성
@@ -274,7 +278,7 @@ class ColorExtractorParallel:
 
 async def main():
     """테스트용 메인 함수"""
-    model_path = "../../"
+    model_path = "../onnx/swimsuit-seg/best.onnx"
     print(f"모델 경로: {model_path}")
 
     if not os.path.exists(model_path):
@@ -285,7 +289,7 @@ async def main():
     extractor = ColorExtractorParallel(str(model_path))
 
     # 2. 테스트 이미지
-    image_path = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0049_움파_시그니처 싱.jpg'
+    image_path = 'https://swim.cdn-nhncommerce.com/Mall-No-L0e8/20251231/094121.873378170/NESSA001-614_01.jpg'
     # image_path2 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0050_움파_아가일 싱글.jpg'
     # image_path3 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206/0051_움파_블랙펄 더블.jpg'
     # image_path4 = '/Users/zsu/MyProject/크롤링 사진/swimsuit_0206_02/0071_스웨이브_세레니티 크.jpg'

@@ -11,7 +11,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 def apply_mask(
         image: np.ndarray,
         result,
