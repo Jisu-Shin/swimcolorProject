@@ -34,6 +34,8 @@ jobs:
           cd lambda-crawling
           # Lambda용 Dockerfile로 빌드
           docker build \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            .
+          --platform linux/amd64 \
+          --provenance=false \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
