@@ -1,10 +1,10 @@
-name: Deploy SpringBoot to ECR
+name: Deploy Lambda Crawler to ECR
 
 on:
   push:
     branches: [ "main" ]
     paths:
-      - 'spring-boot/**' # 👈 중요: Spring Boot 폴더가 변할 때만 실행!
+      - 'lambda-extractor/**'
 
 jobs:
   deploy:
@@ -12,18 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Build with Gradle
-        working-directory: ./spring-boot
-        run: |
-          chmod +x ./gradlew
-          ./gradlew clean bootJar # 👈 여기서 build/libs/ 아래에 JAR가 생성됨!
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -37,10 +25,14 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and Push to ECR
+        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: swimcolor-springboot # 👈 SpringBoot용 ECR 이름
+          ECR_REPOSITORY: lambda-extractor
           IMAGE_TAG: latest
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./spring-boot/Dockerfile .
+          # Lambda용 Dockerfile로 빌드
+          docker build \
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
