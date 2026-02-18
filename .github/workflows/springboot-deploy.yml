@@ -44,3 +44,22 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./spring-boot/Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            aws ecr get-login-password --region ap-northeast-2 | \
+              docker login --username AWS --password-stdin 122015480273.dkr.ecr.ap-northeast-2.amazonaws.com
+            docker pull 122015480273.dkr.ecr.ap-northeast-2.amazonaws.com/swimcolor-springboot:latest
+            docker rm -f springboot-app
+            docker run -d -p 8080:8080 \
+              --name springboot-app \
+              --env-file ~/.env \
+              --restart unless-stopped \
+              122015480273.dkr.ecr.ap-northeast-2.amazonaws.com/swimcolor-springboot:latest
+            sleep 10
+            docker ps | grep springboot-app
