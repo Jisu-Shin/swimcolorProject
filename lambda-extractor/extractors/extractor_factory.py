@@ -1,8 +1,10 @@
 from .color_extractor_parallel import ColorExtractorParallel
+from .color_extractor import ColorExtractor
 
 class ExtractorFactory:
     _extractors = {
-        'ver1': ColorExtractorParallel
+        'ver1': ColorExtractorParallel ,
+        'ver2': ColorExtractor,
     }
 
     @classmethod

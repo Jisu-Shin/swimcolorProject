@@ -40,14 +40,12 @@ class ExtractorConfig:
     DOWNLOAD_WORKERS = 4  # 다운로드 스레드 수
     CONF_THRESHOLD = 0.5  # YOLO 신뢰도 임계값
     DEFAULT_N_COLORS = 3  # 기본 추출 색상 개수
-    BATCH_SIZE = 3
-
 
 # ============================================================================
 # 메인 클래스
 # ============================================================================
 
-class ColorExtractorParallel:
+class ColorExtractor(BaseExtractor):
     """
     병렬 색상 추출기
     
@@ -153,27 +151,22 @@ class ColorExtractorParallel:
 
         return images
 
-    def process_batch(
-            self,
-            images: List[np.ndarray]
-    ) -> List[List[Dict[str, Any]]]:
+    def process(self, image) -> List[List[Dict[str, Any]]]:
         """
-        이미지 배치 처리 (YOLO 배치 추론)
+        이미지 처리 (YOLO 배치 추론)
 
         Args:
-            images: 이미지 배치 (최대 4개 권장)
-            n_colors: 추출할 색상 개수
-            conf_threshold: 탐지 신뢰도
+            image: 이미지
 
         Returns:
-            각 이미지별 색상 리스트
+            색상 리스트
         """
-        all_colors = []
 
+        colors = []
         try:
             # 1. YOLO 배치 추론 (핵심!)
-            results = self.model(
-                images,
+            result = self.model(
+                image,
                 verbose=False,
                 conf=ExtractorConfig.CONF_THRESHOLD,
                 imgsz=ExtractorConfig.THUMBNAIL_SIZE[0],
@@ -181,31 +174,20 @@ class ColorExtractorParallel:
             )
 
             # 2. 각 이미지별로 처리
-            for i, (img, result) in enumerate(zip(images, results)):
-                try:
-                    # 마스크 적용
-                    cropped = apply_mask(img, result, ExtractorConfig.CONF_THRESHOLD)
+            # 마스크 적용
+            cropped = apply_mask(image, result[0], ExtractorConfig.CONF_THRESHOLD)
 
-                    # 색상 추출
-                    colors = extract_colors_kmeans(cropped, ExtractorConfig.DEFAULT_N_COLORS)
+            # 색상 추출
+            colors.append(extract_colors_kmeans(cropped, ExtractorConfig.DEFAULT_N_COLORS))
 
-                    all_colors.append(colors)
+            del cropped
 
-                    del cropped
-
-                except Exception as e:
-                    logger.warning(f"배치 {i}번 이미지 처리 실패: {e}")
-                    all_colors.append([])
-
-            # 배치 처리 후 즉시 정리
-            del results
             gc.collect()
-
         except Exception as e:
-            logger.error(f"*** 배치 묶음 처리 실패: {e}", exc_info=True)
-            all_colors = [[] for _ in images]
+            logger.error(f"이미지 추출시 에러 발생 {e}")
+            colors.append([])
 
-        return all_colors
+        return colors
 
     async def extract_colors(
             self,
@@ -242,18 +224,12 @@ class ColorExtractorParallel:
         # 2. 색상 추출
         logger.info("2️⃣ 이미지 배치 처리 중...")
         all_colors = []
-        batch_size = ExtractorConfig.BATCH_SIZE
 
-        for i in range(0, len(images), batch_size):
-            batch = images[i:i + batch_size]
-            batch_num = i // batch_size + 1
-            total_batches = (len(images) + batch_size - 1) // batch_size
+        for i,image in enumerate(images, 1):
+            logger.info(f"   {i}번째 이미지 처리 중...")
 
-            logger.info(f"   배치 {batch_num}/{total_batches} 처리 중...")
-
-            # 배치 처리
-            batch_colors = self.process_batch(batch)
-            all_colors.extend(batch_colors)
+            # 색상 처리
+            all_colors.extend(self.process(image))
 
         color_time = time.time() - load_image_complete_time
         logger.info(f"병렬 색상 추출 완료: {color_time:.3f}s")
@@ -289,7 +265,7 @@ async def main():
         return
 
     # 1. 색상 추출기 초기화
-    extractor = ColorExtractorParallel(str(model_path))
+    extractor = ColorExtractor(str(model_path))
 
     # 2. 테스트 이미지
     image_path = 'https://swim.cdn-nhncommerce.com/Mall-No-L0e8/20251231/094121.873378170/NESSA001-614_01.jpg'

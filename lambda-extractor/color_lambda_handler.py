@@ -61,7 +61,7 @@ def handler(event, context):
         logger.info(f"[{message_id}] 상품 개수: {len(products)}")
 
         # ✅ Extractor는 records 루프 밖에서 한 번만 생성 (모델 로딩 비용이 크기 때문)
-        extractor = ExtractorFactory.create('ver1', Config.swimsuit_onnx_path)
+        extractor = ExtractorFactory.create('ver2', Config.swimsuit_onnx_path)
 
         img_url_list = [product['img_url'] for product in products]
 
