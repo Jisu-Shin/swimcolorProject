@@ -40,8 +40,21 @@ def apply_mask(
     if best_detection is None:
         raise ValueError("객체 탐지 실패")
 
-    # 마스크 추출 및 적용
-    mask = result.masks.data[best_detection].cpu().numpy()
+    # 🔥 ONNX / PT 모두 대응
+    masks = result.masks
+
+    if masks is None:
+        raise ValueError("마스크 없음")
+
+    mask_data = masks.data[best_detection]
+
+    # PyTorch tensor일 경우
+    if hasattr(mask_data, "cpu"):
+        mask = mask_data.cpu().numpy()
+    else:
+        # ONNX numpy일 경우
+        mask = mask_data
+
     mask = (mask * 255).astype("uint8")
 
     h, w = image.shape[:2]

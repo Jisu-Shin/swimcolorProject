@@ -174,7 +174,8 @@ class ColorExtractorParallel:
                 images,
                 verbose=False,
                 conf=ExtractorConfig.CONF_THRESHOLD,
-                imgsz=ExtractorConfig.THUMBNAIL_SIZE[0]
+                imgsz=ExtractorConfig.THUMBNAIL_SIZE[0],
+                device="cpu"
             )
 
             # 2. 각 이미지별로 처리
