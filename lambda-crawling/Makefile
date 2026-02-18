@@ -3,15 +3,15 @@
 build:
 	docker build \
 	    -f Dockerfile \
-	    -t crawling-lambda .
+	    -t lambda-crawling .
 
 run:
 	docker run \
 	    -v ~/.aws:/root/.aws \
-	    -d --name crawling-lambda-test \
+	    -d --name lambda-crawling-test \
 	    -p 9000:8080 \
 	    --env-file .env \
-	    crawling-lambda
+	    lambda-crawling
 
 test:
 	curl -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" \

@@ -1,18 +1,34 @@
-FROM mcr.microsoft.com/playwright/python:v1.58.0-jammy
+FROM public.ecr.aws/lambda/python:3.12
 
-# Lambda Runtime Interface Client
-RUN pip install awslambdaric
+# 필요한 시스템 패키지
+RUN dnf install -y \
+    atk \
+    cups-libs \
+    gtk3 \
+    libXcomposite \
+    libXcursor \
+    libXdamage \
+    libXext \
+    libXi \
+    libXrandr \
+    libXScrnSaver \
+    libXtst \
+    pango \
+    alsa-lib \
+    libX11 \
+    libXfixes \
+    libdrm \
+    mesa-libgbm \
+    nss \
+    && dnf clean all
 
-# Lambda Runtime Interface Emulator 다운로드
-ADD https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie /usr/local/bin/aws-lambda-rie
-RUN chmod +x /usr/local/bin/aws-lambda-rie
-
-WORKDIR /var/task
+# playwright 설치
+RUN pip install --no-cache-dir playwright \
+    && playwright install chromium
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY . ${LAMBDA_TASK_ROOT}
 
-ENTRYPOINT ["python", "-m", "awslambdaric"]
 CMD ["crawling_lambda_handler.handler"]
