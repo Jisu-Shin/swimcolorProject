@@ -31,6 +31,7 @@ jobs:
           ECR_REPOSITORY: lambda-extractor
           IMAGE_TAG: latest
         run: |
+          cd lambda-extractor
           # Lambda용 Dockerfile로 빌드
           docker build \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
