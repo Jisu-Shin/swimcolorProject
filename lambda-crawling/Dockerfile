@@ -22,6 +22,9 @@ RUN dnf install -y \
     nss \
     && dnf clean all
 
+# 환경 변수 추가 (중요)
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
 # playwright 설치
 RUN pip install --no-cache-dir playwright \
     && playwright install chromium
