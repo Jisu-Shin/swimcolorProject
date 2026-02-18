@@ -18,7 +18,7 @@ def handler(event, context):
     Lambda는 동기로 크롤링 완료까지 실행
     Spring Boot에서 이 Lambda를 Event(비동기)로 호출하면
     Spring Boot는 즉시 응답받고
-    Lambda는 백그라운드에서 크롤링 계속 실행 2
+    Lambda는 백그라운드에서 크롤링 계속 실행 1
     """
     try:
         log_id = event.get('logId')
