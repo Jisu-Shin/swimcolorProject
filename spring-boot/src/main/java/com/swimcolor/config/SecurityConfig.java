@@ -72,7 +72,7 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         UserDetails admin = User.builder()
                 .username(adminUsername)
-                // 비밀번호 "115415"를 암호화해서 저장
+                // 비밀번호를 암호화해서 저장
                 .password(passwordEncoder().encode(adminPassword))
                 .roles("ADMIN") // 권한 부여
                 .build();

@@ -61,9 +61,6 @@ const nav = {
         if (oper.isEmpty(id)) return alert('상품 정보를 찾을 수 없습니다.');
         location.href = `/swimsuits/${id}`;
     },
-    goToSwimsuits: function() {
-        location.href = '/swimsuits';
-    },
     goBack: function() {
         history.back();
     },
