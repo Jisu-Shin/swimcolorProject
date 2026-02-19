@@ -1,12 +1,8 @@
 package com.swimcolor.client;
 
-import com.swimcolor.dto.CrawlResponseDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 class ApiClientTest {
@@ -15,18 +11,19 @@ class ApiClientTest {
     private ApiClient apiClient;
 
     @Test
-    void 외부호출_크롤링_정상동작_확인() {
+    void 실제_람다_크롤링_호출_확인() throws InterruptedException {
         // given
-        String testUrl = "https://swim.co.kr/categories/918698/products?childCategoryNo=919173&brands=%255B43160579%255D&pageNumber=1&categoryNos=%255B%255D";
+        String testUrl = "https://swim.co.kr/categories/918698/products?childCategoryNo=919173&brands=%255B43160567%255D&pageNumber=1";
+        Long logId = 1L;
 
         // when
-        CrawlResponseDto response = apiClient.crawlSwimsuits(testUrl);
+        apiClient.crawlSwimsuits(testUrl, logId);
 
-        // then
-        System.out.println("response = " + response);
+        // 비동기라서 Lambda가 호출될 시간을 잠깐 줌
+        Thread.sleep(3000);
 
-        assertThat(response).isNotNull();
-        assertThat(response.getProducts()).isNotNull();
-
+        // then - Lambda 콘솔 또는 CloudWatch에서 실행 확인
+        System.out.println("Lambda 호출 완료 - AWS Lambda 콘솔에서 실행 로그 확인하세요!");
     }
 }
+

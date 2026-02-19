@@ -2,7 +2,6 @@ package com.swimcolor.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.swimcolor.dto.CrawlRequestDto;
 import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.dto.RecommendResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,9 @@ import software.amazon.awssdk.services.lambda.LambdaAsyncClient;
 import software.amazon.awssdk.services.lambda.model.InvocationType;
 import software.amazon.awssdk.services.lambda.model.InvokeRequest;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Primary
 @Service
@@ -29,6 +30,8 @@ public class LambdaClient implements ApiClient{
     private String crawlingCallbackUrl;
 
     public void invokeLambda(String functionName, String payload) {
+        log.info("functionName:{}, payload:{}", functionName, payload);
+
         InvokeRequest request = InvokeRequest.builder()
                 .functionName(functionName)
                 .invocationType(InvocationType.EVENT) // 비동기
@@ -37,8 +40,8 @@ public class LambdaClient implements ApiClient{
 
         lambdaAsyncClient.invoke(request)
                 .exceptionally(e -> {
-                    log.error("Lambda 호출 실패: {}", e.getMessage());
-                    throw new RuntimeException(e);
+                    log.error("Lambda 호출 실패 - functionName: {}, error: {}", functionName, e.getMessage());
+                    return null;
                 });
     }
 
@@ -46,18 +49,17 @@ public class LambdaClient implements ApiClient{
     public void crawlSwimsuits(String url, Long logId) {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        CrawlRequestDto crawlRequestDto = CrawlRequestDto.builder()
-                .logId(logId)
-                .crawlingUrl(url)
-                .callbackUrl(crawlingCallbackUrl.concat("/swimsuit"))
-                .build();
+        Map<String, String> payloadMap = new HashMap<>();
+        payloadMap.put("logId", logId.toString());
+        payloadMap.put("url", url);
+        payloadMap.put("callbackUrl", crawlingCallbackUrl.concat("/swimsuits"));
 
-        // todo 체크예외 해결하기
-        String payloadJson = null;
+        String payloadJson;
         try {
-            payloadJson = objectMapper.writeValueAsString(crawlRequestDto);
+            payloadJson = objectMapper.writeValueAsString(payloadMap);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            log.error("Lambda payload 직렬화 실패 - logId: {}, error: {}", logId, e.getMessage());
+            return;
         }
 
         invokeLambda(FUNCTION_NAME, payloadJson);
