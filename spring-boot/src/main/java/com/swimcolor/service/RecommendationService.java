@@ -1,6 +1,6 @@
 package com.swimcolor.service;
 
-import com.swimcolor.client.FastapiClient;
+import com.swimcolor.client.ApiClient;
 import com.swimcolor.domain.ColorMatch;
 import com.swimcolor.domain.Swimcap;
 import com.swimcolor.domain.ViewType;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
-    private final FastapiClient fastapiClient;
+    private final ApiClient apiClient;
     private final ColorMatchService colorMatchService;
     private final RecentViewLogService recentViewLogService;
 
@@ -47,7 +47,7 @@ public class RecommendationService {
             log.info("컬러매치 데이터가 없거나, swimsuitId({}) 조회 날짜보다 이후에 크롤링 함 -> 외부호출", swimsuitId);
 
             // 3. fastapi 외부호출
-            RecommendResponseDto recommendResponseDto = fastapiClient.getRecommendSwimcap(swimsuitId, colors);
+            RecommendResponseDto recommendResponseDto = apiClient.getRecommendSwimcap(swimsuitId, colors);
             log.debug("\n추천값 조회하기{}", recommendResponseDto);
 
             List<RecommendListDto> similarList = recommendResponseDto.getSimilarList();

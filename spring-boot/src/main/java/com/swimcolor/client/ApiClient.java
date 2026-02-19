@@ -7,8 +7,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface FastapiClient {
-    public CrawlResponseDto crawlSwimsuits(String url);
+public interface ApiClient {
+    default public CrawlResponseDto crawlSwimsuits(String url) {return null;};
     public CrawlResponseDto crawlSwimcaps(String url);
     public RecommendResponseDto getRecommendSwimcap(String swimsuitId, List<String> colors);
 
@@ -19,4 +19,6 @@ public interface FastapiClient {
     default public Mono<Void> crawlSwimcapsAsync(String url, Long logId) {
         return null;
     }
+
+    default public void crawlSwimsuits(String url, Long logId) {};
 }

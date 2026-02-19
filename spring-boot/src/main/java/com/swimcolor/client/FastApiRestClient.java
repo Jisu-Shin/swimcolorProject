@@ -15,8 +15,8 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FastapiRestClient implements FastapiClient {
-    private final RestClient fastApiRestClient;
+public class FastApiRestClient implements ApiClient {
+    private final RestClient restClient;
 
     /**
      * 수영복을 크롤링 한다
@@ -25,7 +25,7 @@ public class FastapiRestClient implements FastapiClient {
         CrawlRequestDto requestDto = new CrawlRequestDto();
         requestDto.setCrawlingUrl(url);
 
-        return fastApiRestClient.post()
+        return restClient.post()
                 .uri("/crawl/swimsuits")
                 .body(requestDto)
                 .retrieve()
@@ -43,7 +43,7 @@ public class FastapiRestClient implements FastapiClient {
         CrawlRequestDto requestDto = new CrawlRequestDto();
         requestDto.setCrawlingUrl(url);
 
-        return fastApiRestClient.post()
+        return restClient.post()
                 .uri("/crawl/swimcaps")
                 .body(requestDto)
                 .retrieve()
@@ -62,7 +62,7 @@ public class FastapiRestClient implements FastapiClient {
         requestDto.setSwimsuitId(swimsuitId);
         requestDto.setColors(colors);
 
-        return fastApiRestClient.post()
+        return restClient.post()
                 .uri("/recommend")
                 .body(requestDto)
                 .retrieve()

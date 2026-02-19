@@ -21,6 +21,11 @@ public class SwimsuitApiController {
     private final SwimsuitService swimsuitService;
     private final RecommendationService recommendationService;
 
+    @GetMapping
+    public Page<SwimsuitListDto> getSwimsuitsByBrand(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="brands", required = false) String brands) {
+        return swimsuitService.getSwimsuitListBySearchCondtion(page, getBrandsFromParam(brands));
+    }
+
     @GetMapping("/next")
     public Page<SwimsuitListDto> getNextSwimsuits(@RequestParam(value="page", defaultValue="0") int page) {
         return swimsuitService.getSwimsuitList(page);
@@ -36,10 +41,9 @@ public class SwimsuitApiController {
         return ResponseEntity.ok(recommendationService.recommendSwimcaps(id, requestDto.getColors()));
     }
 
-    @GetMapping()
-    public Page<SwimsuitListDto> getSwimsuitsByBrand(@RequestParam(value="page", defaultValue="0") int page, @RequestParam(value="brands", required = false) String brands) {
-        return swimsuitService.getSwimsuitListBySearchCondtion(page, getBrandsFromParam(brands));
-    }
+//    todo 정렬하기
+//    @GetMapping
+//    public Page<>
 
     private List<String> getBrandsFromParam(String brandsParam) {
         if (brandsParam == null || brandsParam.isBlank()) {

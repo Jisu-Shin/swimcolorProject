@@ -1,17 +1,20 @@
 package com.swimcolor.service;
 
-import com.swimcolor.client.FastapiClient;
+import com.swimcolor.client.ApiClient;
 import com.swimcolor.domain.CrawlStatus;
 import com.swimcolor.domain.CrawlingLog;
 import com.swimcolor.domain.ItemType;
 import com.swimcolor.domain.ViewType;
+import com.swimcolor.dto.CrawlRequestDto;
 import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.exception.CrawlingException;
 import com.swimcolor.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -19,7 +22,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class AdminService {
     // todo adminservice에 의존성이 있는 서비스들이 이렇게 많아도 될까?
-    private final FastapiClient fastapiClient;
+    private final ApiClient apiClient;
     private final SwimsuitService swimsuitService;
     private final SwimcapService swimcapService;
     private final CrawlingLogService crawlingLogService;
@@ -32,7 +35,7 @@ public class AdminService {
     public void crawlSwimsuits(String url) {
         log.info("#### [SWIMSUIT] 크롤링 시작: {}", url);
 
-        if(crawlStatusService.getCrawlStatus(ItemType.SWIMSUIT.name()) == CrawlStatus.RUNNING.name()) {
+        if (crawlStatusService.getCrawlStatus(ItemType.SWIMSUIT.name()) == CrawlStatus.RUNNING.name()) {
             throw new CrawlingException(ErrorCode.CRAWLING_ALREADY_IN_PROGRESS);
         }
 
@@ -42,20 +45,13 @@ public class AdminService {
         // 2. 크롤링 로그 저장
         Long logId = saveLog(url, ItemType.SWIMSUIT);
 
-        // 3. FastAPI 호출
-        fastapiClient.crawlSwimsuitsAsync(url, logId)
-                .subscribe(
-                        success -> {
-                            log.info("#### [SWIMSUIT] FastAPI 접수 완료: logId={}", logId);
-                        },
-                        error -> {
-                            log.error("#### [SWIMSUIT] FastAPI 호출 실패: ", error);
-
-                            // 여기서 실패 처리를 직접 해줘야 함!
-                            crawlStatusService.failSwimsuitCrawling();
-                            crawlingLogService.updateCrawlingLog(logId, CrawlStatus.FAILED, 0, "FastAPI 연결 실패: " + error.getMessage());
-                        }
-                );
+        // 3. 람다 호출
+        try {
+            apiClient.crawlSwimsuits(url, logId);
+        } catch (RuntimeException e) {
+            crawlStatusService.failSwimsuitCrawling();
+            crawlingLogService.updateCrawlingLog(logId, CrawlStatus.FAILED, 0, "람다 연결 실패: " + e.getMessage());
+        }
     }
 
     @Transactional
@@ -86,7 +82,7 @@ public class AdminService {
     public void crawlSwimcaps(String url) {
         log.info("#### [SWIMCAP] 크롤링 시작: {}", url);
 
-        if(crawlStatusService.getCrawlStatus(ItemType.SWIMCAP.name()) == CrawlStatus.RUNNING.name()) {
+        if (crawlStatusService.getCrawlStatus(ItemType.SWIMCAP.name()) == CrawlStatus.RUNNING.name()) {
             throw new CrawlingException(ErrorCode.CRAWLING_ALREADY_IN_PROGRESS);
         }
 
@@ -97,7 +93,7 @@ public class AdminService {
         Long logId = saveLog(url, ItemType.SWIMCAP);
 
         // 3. fastapi 호출
-        fastapiClient.crawlSwimcapsAsync(url, logId)
+        apiClient.crawlSwimcapsAsync(url, logId)
                 .subscribe(
                         success -> {
                             log.info("#### [SWIMCAP] FastAPI 접수 완료: logId={}", logId);

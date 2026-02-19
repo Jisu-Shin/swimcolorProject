@@ -17,11 +17,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-@Primary
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FastapiWebClient implements FastapiClient {
+public class FastApiWebClient implements ApiClient {
 
     private final WebClient webClient;
 
