@@ -22,8 +22,9 @@ def send_to_spring(log_id: int, products: list, callback_url: str) -> bool:
     """Spring 서버로 결과 전송"""
     try:
         payload = {
-            "log_id": log_id,
-            "products": products
+            "logId": log_id,
+            "products": products,
+            "crawlStatus": "COMPLETED"
         }
 
         response = requests.post(
@@ -33,6 +34,7 @@ def send_to_spring(log_id: int, products: list, callback_url: str) -> bool:
         )
         response.raise_for_status()  # 4xx, 5xx면 예외 발생
         logger.info(f"✅ Spring 전송 완료: {response.status_code}")
+        logger.info(f"✅ respoonse: {response}")
         return True
 
     except requests.exceptions.Timeout:
@@ -45,6 +47,23 @@ def send_to_spring(log_id: int, products: list, callback_url: str) -> bool:
         logger.error(f"❌ Spring 서버 HTTP 오류: {e.response.status_code}")
         return False
 
+def _send_failed_to_spring(log_id: int, callback_url: str) :
+    """실패 상태를 스프링으로 전송"""
+    try:
+        payload = {
+            "logId": log_id,
+            "crawlStatus": "FAILD"
+        }
+
+        response = requests.post(
+            callback_url,
+            json=payload,  # 자동으로 Content-Type: application/json 설정
+            timeout=30  # 30초 타임아웃
+        )
+
+    except Exception as e:
+        logger.error(f"FAILED 상태 전송 실패, error: {e}")
+        raise e
 
 def handler(event, context):
     try:
@@ -81,15 +100,7 @@ def handler(event, context):
 
         # ✅ return 전에 Spring으로 전송
         if not send_to_spring(log_id, products, callback_url):
-            raise Exception("Spring 서버 전송 실패 - SQS 재처리 대기")
-
-        return {
-            "statusCode": 200,
-            "body": json.dumps({
-                'message': '색상 추출 완료',
-                'total_count': len(products)
-            }, ensure_ascii=False)
-        }
+            _send_failed_to_spring(log_id, callback_url)
 
     except Exception as e:
         logger.error(f"처리 중 오류 발생: {e}")
