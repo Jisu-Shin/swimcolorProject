@@ -52,7 +52,7 @@ def _send_failed_to_spring(log_id: int, callback_url: str) :
     try:
         payload = {
             "logId": log_id,
-            "crawlStatus": "FAILD"
+            "crawlStatus": "FAILED"
         }
 
         response = requests.post(
