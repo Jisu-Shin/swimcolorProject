@@ -45,7 +45,7 @@ jobs:
           docker build \
             --platform linux/amd64 \
             --provenance=false \
-            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 
+            -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -f ./spring-boot/Dockerfile .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
