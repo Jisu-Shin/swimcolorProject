@@ -14,8 +14,9 @@ logger = logging.getLogger(__name__)
 def apply_mask(
         image: np.ndarray,
         result,
-        conf_threshold: float = 0.5,
-        target_class: int = 0) -> np.ndarray:
+        target_class: int = 0,
+        conf_threshold: float = 0.5
+        ) -> np.ndarray:
     """
     YOLO 결과에서 마스크 적용
 
@@ -63,24 +64,75 @@ def apply_mask(
 
     return cv2.bitwise_and(image, mask_3c)
 
+def get_segmentation_mask(
+        image: np.ndarray,
+        model,
+        target_class: int = 0,
+        conf_threshold: float = 0.5
+) -> Optional[np.ndarray]:
+    """
+    YOLO로 세그멘테이션 마스크만 반환
+
+    Args:
+        image: OpenCV 이미지 (BGR)
+        model: YOLO 모델 인스턴스
+        conf_threshold: 탐지 신뢰도 임계값
+        target_class: 탐지할 클래스 ID
+
+    Returns:
+        mask: 세그멘테이션 마스크 (H, W), 0~255 또는 None
+    """
+    try:
+        results = model(image, verbose=False)
+        r = results[0]
+
+        # 가장 신뢰도 높은 탐지 찾기
+        best_detection = None
+        max_confidence = 0.0
+
+        for i, box in enumerate(r.boxes):
+            conf = float(box.conf[0])
+            cls = int(box.cls[0])
+
+            if cls == target_class and conf >= conf_threshold and conf > max_confidence:
+                best_detection = i
+                max_confidence = conf
+
+        if best_detection is None:
+            return None
+
+        # 마스크 추출 및 리사이즈
+        mask = r.masks.data[best_detection].cpu().numpy()
+        mask = (mask * 255).astype("uint8")
+
+        h, w = image.shape[:2]
+        mask = cv2.resize(mask, (w, h))
+
+        return mask
+
+    except Exception as e:
+        logger.warning(f"마스크 추출 실패: {e}")
+        return None
+
+
 def crop_swimsuit_only(
         image: np.ndarray,
         model,
-        conf_threshold: float = 0.5,
-        target_class: int = 0
+        target_class: int = 0,
+        conf_threshold: float = 0.5
 ) -> np.ndarray:
     """
     YOLO로 수영복/수모 탐지 후 해당 영역만 크롭
-    
+
     Args:
         image: OpenCV 이미지 (BGR)
         model: YOLO 모델 인스턴스
         conf_threshold: 탐지 신뢰도 임계값 (0.0 ~ 1.0)
         target_class: 탐지할 클래스 ID (기본: 0)
-        
+
     Returns:
         cropped_image: 수영복/수모 영역만 크롭된 이미지
-        
+
     Raises:
         ValueError: 객체를 탐지하지 못한 경우
     """
@@ -127,57 +179,6 @@ def crop_swimsuit_only(
     )
 
     return cropped
-
-
-def get_segmentation_mask(
-        image: np.ndarray,
-        model,
-        conf_threshold: float = 0.5,
-        target_class: int = 0
-) -> Optional[np.ndarray]:
-    """
-    YOLO로 세그멘테이션 마스크만 반환
-    
-    Args:
-        image: OpenCV 이미지 (BGR)
-        model: YOLO 모델 인스턴스
-        conf_threshold: 탐지 신뢰도 임계값
-        target_class: 탐지할 클래스 ID
-        
-    Returns:
-        mask: 세그멘테이션 마스크 (H, W), 0~255 또는 None
-    """
-    try:
-        results = model(image, verbose=False)
-        r = results[0]
-
-        # 가장 신뢰도 높은 탐지 찾기
-        best_detection = None
-        max_confidence = 0.0
-
-        for i, box in enumerate(r.boxes):
-            conf = float(box.conf[0])
-            cls = int(box.cls[0])
-
-            if cls == target_class and conf >= conf_threshold and conf > max_confidence:
-                best_detection = i
-                max_confidence = conf
-
-        if best_detection is None:
-            return None
-
-        # 마스크 추출 및 리사이즈
-        mask = r.masks.data[best_detection].cpu().numpy()
-        mask = (mask * 255).astype("uint8")
-
-        h, w = image.shape[:2]
-        mask = cv2.resize(mask, (w, h))
-
-        return mask
-
-    except Exception as e:
-        logger.warning(f"마스크 추출 실패: {e}")
-        return None
 
 
 def apply_mask_to_image(

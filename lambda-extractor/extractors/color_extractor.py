@@ -151,7 +151,7 @@ class ColorExtractor(BaseExtractor):
 
         return images
 
-    def process(self, image) -> List[List[Dict[str, Any]]]:
+    def process(self, image, target_class) -> List[List[Dict[str, Any]]]:
         """
         이미지 처리 (YOLO 배치 추론)
 
@@ -175,7 +175,8 @@ class ColorExtractor(BaseExtractor):
 
             # 2. 각 이미지별로 처리
             # 마스크 적용
-            cropped = apply_mask(image, result[0], ExtractorConfig.CONF_THRESHOLD)
+            # swimcap -> 0 , swimsuit ->1
+            cropped = apply_mask(image, result[0], target_class)
 
             # 색상 추출
             colors.append(extract_colors_kmeans(cropped, ExtractorConfig.DEFAULT_N_COLORS))
@@ -191,7 +192,8 @@ class ColorExtractor(BaseExtractor):
 
     async def extract_colors(
             self,
-            image_urls: List[str]
+            image_urls: List[str],
+            target_class: int
     ) -> List[List[Dict[str, Any]]]:
         """
         전체 파이프라인: 이미지 다운로드 → 색상 추출
@@ -229,7 +231,7 @@ class ColorExtractor(BaseExtractor):
             logger.info(f"   {i}번째 이미지 처리 중...")
 
             # 색상 처리
-            all_colors.extend(self.process(image))
+            all_colors.extend(self.process(image, target_class))
 
         color_time = time.time() - load_image_complete_time
         logger.info(f"병렬 색상 추출 완료: {color_time:.3f}s")
@@ -238,7 +240,6 @@ class ColorExtractor(BaseExtractor):
         total_time = time.time() - start_time
         success_count = sum(1 for colors in all_colors if colors)
 
-        # logger.info(f"🎉 전체 완료: {total_time:.1f}초")
         logger.info(f"   성공: {success_count}/{len(all_colors)}개")
 
         return all_colors
@@ -257,7 +258,8 @@ class ColorExtractor(BaseExtractor):
 
 async def main():
     """테스트용 메인 함수"""
-    model_path = "../onnx/swimsuit-seg/best.onnx"
+    # model_path = "../onnx/swimsuit-seg/best.onnx"
+    model_path = "../onnx/best.onnx"
     print(f"모델 경로: {model_path}")
 
     if not os.path.exists(model_path):
@@ -278,7 +280,8 @@ async def main():
     try:
         # 3. 색상 추출
         all_colors = await extractor.extract_colors(
-            image_urls=image_urls
+            image_urls=image_urls,
+            target_class=1
         )
 
         # 4. 결과 출력

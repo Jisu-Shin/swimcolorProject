@@ -13,8 +13,7 @@ logger.setLevel(logging.INFO)
 
 class Config:
     """ 설정값"""
-    swimsuit_onnx_path = "onnx/swimsuit-seg/best.onnx"
-    swimcap_onnx_path: str = "onnx/swimcap-seg/best.onnx"
+    swimcolor_onnx_path: str = "onnx/best.onnx"
 
 # ============================================================================
 
@@ -77,15 +76,19 @@ def handler(event, context):
         products = raw['products']
         callback_url = raw['callback_url']
 
+        # 수영복인지 수모인지 구분
+        target_class = 0 if "swimcap" in callback_url else 1
+
         logger.info(f"[{message_id}] 상품 개수: {len(products)}")
 
         # ✅ Extractor는 records 루프 밖에서 한 번만 생성 (모델 로딩 비용이 크기 때문)
-        extractor = ExtractorFactory.create('ver2', Config.swimsuit_onnx_path)
+        extractor = ExtractorFactory.create('ver2', Config.swimcolor_onnx_path)
 
         img_url_list = [product['img_url'] for product in products]
 
         all_colors_results = asyncio.run(extractor.extract_colors(
-            image_urls=img_url_list
+            image_urls=img_url_list,
+            target_class = target_class
         ))
 
         for product, colors in zip(products, all_colors_results):
