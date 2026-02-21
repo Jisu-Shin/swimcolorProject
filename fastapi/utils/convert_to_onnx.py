@@ -58,6 +58,6 @@ def validate_onnx(onnx_path: str):
 
 
 if __name__ == "__main__":
-    model_path = "../" + settings.yolo_model_path
+    model_path = "../ml/runs/segment/swimcolor-seg/weights/best.pt"
     print(f"모델 경로: {model_path}")
     convert_to_onnx(model_path)

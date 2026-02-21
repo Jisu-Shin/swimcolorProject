@@ -10,11 +10,11 @@ def main():
 
     # 2. 바로 학습 시작
     results = model.train(
-        data="/Users/zsu/MyProject/roboflow/roboflow_1221/data.yaml",
+        data="/Users/zsu/MyProject/roboflow/swimsuit&cap_0221/data.yaml",
         epochs=30,
         imgsz=640,
         batch=4,
-        name="swimsuit-seg",
+        name="swimcolor-seg",
         device='cpu',
         project="runs/segment",  # 결과 저장 폴더
         save=True,  # 가중치 저장
@@ -22,7 +22,7 @@ def main():
     )
 
     print("✅ 학습 완료! 결과:", results)
-    print("📁 모델 파일: runs/segment/swimsuit-seg/weights/best.pt")
+    # print("📁 모델 파일: runs/segment/swimsuit-seg/weights/best.pt")
 
 
 if __name__ == "__main__":
