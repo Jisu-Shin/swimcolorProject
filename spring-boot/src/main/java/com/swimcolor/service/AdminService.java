@@ -47,7 +47,7 @@ public class AdminService {
 
         // 3. 람다 호출
         try {
-            apiClient.crawlSwimsuits(url, logId);
+            apiClient.crawlProducts(url, logId, ItemType.SWIMSUIT);
         } catch (RuntimeException e) {
             crawlStatusService.failSwimsuitCrawling();
             crawlingLogService.updateCrawlingLog(logId, CrawlStatus.FAILED, 0, "람다 연결 실패: " + e.getMessage());
@@ -92,21 +92,13 @@ public class AdminService {
         // 2. 크롤링 로그 저장
         Long logId = saveLog(url, ItemType.SWIMCAP);
 
-        // 3. fastapi 호출
-        apiClient.crawlSwimcapsAsync(url, logId)
-                .subscribe(
-                        success -> {
-                            log.info("#### [SWIMCAP] FastAPI 접수 완료: logId={}", logId);
-                        },
-                        error -> {
-                            // FastAPI 서버가 죽었거나, 타임아웃 났을 때 실행
-                            log.error("#### [SWIMCAP] FastAPI 호출 실패: ", error);
-
-                            // 여기서 실패 처리를 직접 해줘야 함!
-                            crawlStatusService.failSwimcapCrawling();
-                            crawlingLogService.updateCrawlingLog(logId, CrawlStatus.FAILED, 0, "FastAPI 연결 실패: " + error.getMessage());
-                        }
-                );
+        // 3. 람다 호출
+        try {
+            apiClient.crawlProducts(url, logId, ItemType.SWIMCAP);
+        } catch (RuntimeException e) {
+            crawlStatusService.failSwimcapCrawling();
+            crawlingLogService.updateCrawlingLog(logId, CrawlStatus.FAILED, 0, "람다 연결 실패: " + e.getMessage());
+        }
     }
 
     @Transactional

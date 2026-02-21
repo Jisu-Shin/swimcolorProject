@@ -1,11 +1,12 @@
 package com.swimcolor.client;
 
+import com.swimcolor.domain.ItemType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ApiClientTest {
+class IntegrationApiClientTest {
 
     @Autowired
     private ApiClient apiClient;
@@ -17,7 +18,7 @@ class ApiClientTest {
         Long logId = 1L;
 
         // when
-        apiClient.crawlSwimsuits(testUrl, logId);
+        apiClient.crawlProducts(testUrl, logId, ItemType.SWIMSUIT);
 
         // 비동기라서 Lambda가 호출될 시간을 잠깐 줌
         Thread.sleep(3000);

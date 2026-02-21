@@ -2,6 +2,7 @@ package com.swimcolor.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swimcolor.domain.ItemType;
 import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.dto.RecommendResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class LambdaClient implements ApiClient{
+public class LambdaClient implements ApiClient {
     private final LambdaAsyncClient lambdaAsyncClient;
     private final String FUNCTION_NAME = "lambda-crawling";
 
@@ -46,13 +47,15 @@ public class LambdaClient implements ApiClient{
     }
 
     @Override
-    public void crawlSwimsuits(String url, Long logId) {
+    public void crawlProducts(String url, Long logId, ItemType itemType) {
         ObjectMapper objectMapper = new ObjectMapper();
 
         Map<String, String> payloadMap = new HashMap<>();
         payloadMap.put("logId", logId.toString());
         payloadMap.put("url", url);
-        payloadMap.put("callbackUrl", crawlingCallbackUrl.concat("/swimsuits"));
+
+        String pathVariable = ItemType.SWIMSUIT == itemType ? "/swimsuits" : "/swimcaps";
+        payloadMap.put("callbackUrl", crawlingCallbackUrl.concat(pathVariable));
 
         String payloadJson;
         try {
