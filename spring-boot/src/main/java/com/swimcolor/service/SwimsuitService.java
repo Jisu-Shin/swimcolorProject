@@ -41,7 +41,7 @@ public class SwimsuitService {
     }
 
     public List<SwimsuitListDto> getPopularSwimsuit() {
-        return swimsuitRepository.findAll().stream()
+        return swimsuitRepository.findPopularSwimsuits().stream()
                 .limit(POPULAR_SIZE)
                 .map(swimsuitMapper::toDto)
                 .collect(Collectors.toList());
