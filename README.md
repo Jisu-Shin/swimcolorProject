@@ -6,7 +6,7 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.9-6DB33F)](https://spring.io/)
 
 > ### 🎯 **현재 운영 중인 서비스입니다**
-> [https://8egpibrfhv.ap-northeast-1.awsapprunner.com/](https://8egpibrfhv.ap-northeast-1.awsapprunner.com/)
+> [Swimcolor 웹사이트 이동하기](https://d1iq2qlestvas6.cloudfront.net)
 
 ## Overview
 온라인 쇼핑 환경에서 수영복과 수모의 색상 조합을 사전에 시뮬레이션하기 어려운 문제를 해결하기 위해, 인간 시각 특성을 반영한 CIEDE2000 알고리즘을 적용한 정량적 색상 매칭 시스템입니다.
