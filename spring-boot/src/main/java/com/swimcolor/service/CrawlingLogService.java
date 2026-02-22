@@ -40,8 +40,9 @@ public class CrawlingLogService {
                 .orElseThrow(() -> new IllegalArgumentException("크롤링 로그가 없습니다 id: " + id));
 
         Long duration = Duration.between(crawlingLog.getCrawledAt(), LocalDateTime.now()).toMillis();
+        int totalCount = crawlingLog.getTotalCount() + count;
 
-        crawlingLog.update(crawlStatus, count, errMsg, duration);
+        crawlingLog.update(crawlStatus, totalCount, errMsg, duration);
     }
 
     public CrawlingLog getLastSwimcapCrawlingLog(ItemType itemType){

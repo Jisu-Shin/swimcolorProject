@@ -127,7 +127,6 @@ public class AdminService {
 
     }
 
-    // 로그 저장 로직이 중복되니 별도 메서드로 추출하는 게 깔끔합니다!
     private Long saveLog(String url, ItemType type) {
         CrawlingLog crawlingLog = CrawlingLog.builder()
                 .sourceUrl(url)
