@@ -378,6 +378,12 @@ body {
     color: var(--dark-text);
 }
 
+.product-preview-info p:nth-child(2) {
+    overflow: hidden;          /* 박스 넘치는 내용 숨김 */
+    text-overflow: ellipsis;   /* 넘칠 때 ... 표시 */
+    white-space: nowrap;       /* 줄바꿈 금지 (한 줄 유지) */
+}
+
 .all-products-cta {
     margin-top: 40px; /* 위아래 여백을 넉넉히 주어 숨통을 틔워줍니다 */
     text-align: center;
