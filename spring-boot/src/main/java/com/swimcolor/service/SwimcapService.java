@@ -14,12 +14,13 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SwimcapService {
+public class SwimcapService extends ItemService {
     private final JpaSwimcapRepository swimcapRepository;
     private final SwimcapMapper swimcapMapper;
 
+    @Override
     @Transactional
-    public int saveSwimcap(CrawlResponseDto responseDto) {
+    public int save(CrawlResponseDto responseDto) {
         List<Swimcap> swimcapList = responseDto.getProducts().stream()
                 .map(p->swimcapMapper.toEntity(p, responseDto.getLogId()))
                 .toList();

@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -31,7 +30,7 @@ class AdminServiceMockupTest {
     private SwimsuitService swimsuitService;
 
     @Mock
-    private CrawlStatusService crawlStatusService;
+    private CrawlingStateManager crawlingStateManager;
 
     @Mock
     private CrawlingLogService crawlingLogService;
@@ -55,7 +54,7 @@ class AdminServiceMockupTest {
 
         // then
         // 1. 크롤링 상태가 완료로 변경되었는지 확인
-        verify(crawlStatusService, times(1)).completeSwimsuitCrawling();
+        verify(crawlingStateManager, times(1)).completeSwimsuitCrawling();
 
         // 2. 수영복 저장 메서드가 호출되었는지 확인
         verify(swimsuitService, times(1)).saveSwimsuit(successResponse);
@@ -65,7 +64,7 @@ class AdminServiceMockupTest {
                 .updateCrawlingLog(eq(logId), eq(CrawlStatus.COMPLETED), eq(expectedCount), eq(null));
 
         // 4. 실패 관련 메서드가 호출되지 않았는지 확인
-        verify(crawlStatusService, never()).failSwimsuitCrawling();
+        verify(crawlingStateManager, never()).failSwimsuitCrawling();
     }
 
     @Test
@@ -82,14 +81,14 @@ class AdminServiceMockupTest {
 
         // then
         // 1. 크롤링 상태가 실패로 변경되었는지 확인
-        verify(crawlStatusService, times(1)).failSwimsuitCrawling();
+        verify(crawlingStateManager, times(1)).failSwimsuitCrawling();
 
         // 2. 크롤링 로그가 FAILED로 업데이트 되었는지 확인
         verify(crawlingLogService, times(1))
                 .updateCrawlingLog(eq(logId), eq(CrawlStatus.FAILED), eq(0), eq(errorMessage));
 
         // 3. 성공 관련 메서드가 호출되지 않았는지 확인
-        verify(crawlStatusService, never()).completeSwimsuitCrawling();
+        verify(crawlingStateManager, never()).completeSwimsuitCrawling();
         verify(swimsuitService, never()).saveSwimsuit(any());
     }
 
@@ -111,7 +110,7 @@ class AdminServiceMockupTest {
 
         // then
         // 1. 크롤링은 성공했지만 저장된 데이터가 없음
-        verify(crawlStatusService, times(1)).completeSwimsuitCrawling();
+        verify(crawlingStateManager, times(1)).completeSwimsuitCrawling();
         verify(swimsuitService, times(1)).saveSwimsuit(successResponse);
         verify(crawlingLogService, times(1))
                 .updateCrawlingLog(eq(logId), eq(CrawlStatus.COMPLETED), eq(0), eq(null));
@@ -134,7 +133,7 @@ class AdminServiceMockupTest {
         adminService.responseCrawlSwimsuits(successResponse);
 
         // then
-        verify(crawlStatusService, times(1)).completeSwimsuitCrawling();
+        verify(crawlingStateManager, times(1)).completeSwimsuitCrawling();
         verify(swimsuitService, times(1)).saveSwimsuit(successResponse);
         verify(crawlingLogService, times(1))
                 .updateCrawlingLog(eq(logId), eq(CrawlStatus.COMPLETED), eq(expectedCount), eq(null));
@@ -153,7 +152,7 @@ class AdminServiceMockupTest {
         adminService.responseCrawlSwimsuits(failedResponse);
 
         // then
-        verify(crawlStatusService, times(1)).failSwimsuitCrawling();
+        verify(crawlingStateManager, times(1)).failSwimsuitCrawling();
         verify(crawlingLogService, times(1))
                 .updateCrawlingLog(eq(logId), eq(CrawlStatus.FAILED), eq(0), eq(detailedError));
         verify(swimsuitService, never()).saveSwimsuit(any());

@@ -1,11 +1,9 @@
 package com.swimcolor.service;
 
-import com.swimcolor.client.ApiClient;
 import com.swimcolor.domain.ColorMatch;
 import com.swimcolor.domain.Swimcap;
 import com.swimcolor.domain.ViewType;
 import com.swimcolor.dto.RecommendListDto;
-import com.swimcolor.dto.RecommendResponseDto;
 import com.swimcolor.dto.SwimcapListDto;
 import com.swimcolor.mapper.SwimcapMapper;
 import com.swimcolor.repository.JpaColorMatchRepository;
@@ -104,6 +102,7 @@ public class RecommendationService {
         for (String suitColor : colors) {
             for (ColorRecommendDto cap : allColors) {
                 double distance = ColorDifferenceCalculator.deltaE2000(suitColor, cap.getColor());
+
                 if (distance < MIN_DISTANCE) {
                     RecommendListDto isExistDto = similarMap.get(cap.getSwimcapId());
                     RecommendListDto recommendListDto = new RecommendListDto(swimsuitId, suitColor, cap.getSwimcapId(), cap.getColor(), distance, ALGORITHM_VERSION);

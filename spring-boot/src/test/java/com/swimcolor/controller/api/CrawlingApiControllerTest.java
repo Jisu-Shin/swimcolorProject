@@ -2,7 +2,7 @@ package com.swimcolor.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swimcolor.domain.CrawlingLog;
-import com.swimcolor.service.CrawlStatusService;
+import com.swimcolor.service.CrawlingStateManager;
 import com.swimcolor.service.CrawlingLogService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ class CrawlingApiControllerTest {
     private ObjectMapper objectMapper; // Spring Boot Test에서 자동 주입 가능
 
     @MockitoBean
-    private CrawlStatusService crawlStatusService;
+    private CrawlingStateManager crawlingStateManager;
 
     @MockitoBean
     private CrawlingLogService crawlingLogService;

@@ -3,7 +3,7 @@ package com.swimcolor.controller.api;
 import com.swimcolor.domain.CrawlStatus;
 import com.swimcolor.domain.CrawlingLog;
 import com.swimcolor.domain.ItemType;
-import com.swimcolor.service.CrawlStatusService;
+import com.swimcolor.service.CrawlingStateManager;
 import com.swimcolor.service.CrawlingLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,25 +14,25 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/crawling")
 public class CrawlingApiController {
 
-    private final CrawlStatusService crawlStatusService;
+    private final CrawlingStateManager crawlingStateManager;
     private final CrawlingLogService crawlingLogService;
 
-    @GetMapping("/status/{category}")
-    public ResponseEntity<String> getCrawlStatus(@PathVariable String category) {
-        String status = crawlStatusService.getCrawlStatus(category);
+    @GetMapping("/status/{itemType}")
+    public ResponseEntity<Boolean> getCrawlStatus(@PathVariable String itemType) {
+        boolean status = crawlingStateManager.isRunning(ItemType.valueOf(itemType));
         return ResponseEntity.ok(status);
     }
 
-    @DeleteMapping("/status/{category}")
-    public ResponseEntity<Void> removeCrawlStatus(@PathVariable String category) {
+    @DeleteMapping("/status/{itemType}")
+    public ResponseEntity<Void> removeCrawlStatus(@PathVariable String itemType) {
 
         CrawlingLog lastLog;
-        if (ItemType.SWIMCAP.name().equals(category)) {
-            crawlStatusService.removeSwimcapCrawling();
+        if (ItemType.SWIMCAP.name().equals(itemType)) {
+            crawlingStateManager.removeCrawling(ItemType.SWIMCAP);
             lastLog = crawlingLogService.getLastSwimcapCrawlingLog(ItemType.SWIMCAP);
+
         } else {
-            // SWIMSUIT
-            crawlStatusService.removeSwimsuitCrawling();
+            crawlingStateManager.removeCrawling(ItemType.SWIMSUIT);
             lastLog = crawlingLogService.getLastSwimcapCrawlingLog(ItemType.SWIMSUIT);
         }
 

@@ -24,14 +24,15 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SwimsuitService {
+public class SwimsuitService extends ItemService {
     private static final int PAGE_SIZE = 12;
     private static final int POPULAR_SIZE = 4;
     private final JpaSwimsuitRepository swimsuitRepository;
     private final SwimsuitMapper swimsuitMapper;
 
+    @Override
     @Transactional
-    public int saveSwimsuit(CrawlResponseDto responseDto) {
+    public int save(CrawlResponseDto responseDto) {
         List<Swimsuit> swimsuitList = responseDto.getProducts().stream()
                 .map(s -> swimsuitMapper.toEntity(s, responseDto.getLogId()))
                 .toList();
