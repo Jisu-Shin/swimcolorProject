@@ -38,6 +38,6 @@ public class CrawlingApiController {
 
         crawlingLogService.updateCrawlingLog(lastLog.getId(), CrawlStatus.FAILED, 0, "ADMIN REQUEST FAILED");
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
