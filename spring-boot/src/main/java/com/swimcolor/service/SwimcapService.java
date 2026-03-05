@@ -1,5 +1,6 @@
 package com.swimcolor.service;
 
+import com.swimcolor.domain.ItemType;
 import com.swimcolor.domain.Swimcap;
 import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.mapper.SwimcapMapper;
@@ -14,7 +15,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SwimcapService extends ItemService {
+public class SwimcapService implements ItemService {
     private final JpaSwimcapRepository swimcapRepository;
     private final SwimcapMapper swimcapMapper;
 
@@ -27,5 +28,10 @@ public class SwimcapService extends ItemService {
         swimcapRepository.saveAll(swimcapList);
 
         return swimcapList.size();
+    }
+
+    @Override
+    public ItemType getItemType() {
+        return ItemType.SWIMCAP;
     }
 }

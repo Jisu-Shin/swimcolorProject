@@ -14,8 +14,8 @@ public interface JpaRecentViewLogRepository extends JpaRepository<RecentViewLog,
              LIMIT 1),
             (SELECT IFNULL(MAX(last_viewed_at), TIMESTAMP('2025-12-31'))
              FROM recent_view_log
-             WHERE view_id = :viewId)
+             WHERE view_id = :swimsuitId)
         )
         """, nativeQuery = true)
-    Integer getMinuteDiff(@Param("viewId") String viewId);
+    Integer getMinuteDiff(@Param("swimsuitId") String swimsuitId);
 }

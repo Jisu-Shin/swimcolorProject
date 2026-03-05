@@ -1,5 +1,6 @@
 package com.swimcolor.service;
 
+import com.swimcolor.domain.ItemType;
 import com.swimcolor.domain.Swimsuit;
 import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.dto.FindSwimsuitDto;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SwimsuitService extends ItemService {
+public class SwimsuitService implements ItemService {
     private static final int PAGE_SIZE = 12;
     private static final int POPULAR_SIZE = 4;
     private final JpaSwimsuitRepository swimsuitRepository;
@@ -39,6 +40,11 @@ public class SwimsuitService extends ItemService {
         swimsuitRepository.saveAll(swimsuitList);
 
         return swimsuitList.size();
+    }
+
+    @Override
+    public ItemType getItemType() {
+        return ItemType.SWIMSUIT;
     }
 
     public List<SwimsuitListDto> getPopularSwimsuit() {
