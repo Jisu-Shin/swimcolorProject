@@ -114,4 +114,18 @@ public class CrawlingService {
         log.info("#### [{}}] lambda 크롤링 실패", itemType);
         crawlingLogService.updateCrawlingLog(logId, CrawlStatus.FAILED, 0, errorMsg);
     }
+
+    public void removeCrawlingStatus(ItemType itemType) {
+        CrawlingLog lastLog;
+        if (ItemType.SWIMCAP == itemType) {
+            crawlingStateManager.removeCrawling(ItemType.SWIMCAP);
+            lastLog = crawlingLogService.getLastSwimcapCrawlingLog(ItemType.SWIMCAP);
+
+        } else {
+            crawlingStateManager.removeCrawling(ItemType.SWIMSUIT);
+            lastLog = crawlingLogService.getLastSwimcapCrawlingLog(ItemType.SWIMSUIT);
+        }
+
+        crawlingLogService.updateCrawlingLog(lastLog.getId(), CrawlStatus.FAILED, 0, "ADMIN REQUEST FAILED");
+    }
 }

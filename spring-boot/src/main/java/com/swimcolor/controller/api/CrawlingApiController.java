@@ -1,21 +1,21 @@
 package com.swimcolor.controller.api;
 
-import com.swimcolor.domain.CrawlStatus;
-import com.swimcolor.domain.CrawlingLog;
 import com.swimcolor.domain.ItemType;
+import com.swimcolor.service.CrawlingService;
 import com.swimcolor.service.CrawlingStateManager;
-import com.swimcolor.service.CrawlingLogService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/crawling")
 public class CrawlingApiController {
 
     private final CrawlingStateManager crawlingStateManager;
-    private final CrawlingLogService crawlingLogService;
+    private final CrawlingService crawlingService;
 
     @GetMapping("/status/{itemType}")
     public ResponseEntity<Boolean> getCrawlStatus(@PathVariable String itemType) {
@@ -25,19 +25,9 @@ public class CrawlingApiController {
 
     @DeleteMapping("/status/{itemType}")
     public ResponseEntity<Void> removeCrawlStatus(@PathVariable String itemType) {
-
-        CrawlingLog lastLog;
-        if (ItemType.SWIMCAP.name().equals(itemType)) {
-            crawlingStateManager.removeCrawling(ItemType.SWIMCAP);
-            lastLog = crawlingLogService.getLastSwimcapCrawlingLog(ItemType.SWIMCAP);
-
-        } else {
-            crawlingStateManager.removeCrawling(ItemType.SWIMSUIT);
-            lastLog = crawlingLogService.getLastSwimcapCrawlingLog(ItemType.SWIMSUIT);
-        }
-
-        crawlingLogService.updateCrawlingLog(lastLog.getId(), CrawlStatus.FAILED, 0, "ADMIN REQUEST FAILED");
-
+        log.info("itemType 확인 : {}", ItemType.valueOf(itemType));
+        log.info("itemType == SWIMSUIT 확인 : {}", ItemType.valueOf(itemType)==ItemType.SWIMSUIT);
+        crawlingService.removeCrawlingStatus(ItemType.valueOf(itemType));
         return ResponseEntity.noContent().build();
     }
 }

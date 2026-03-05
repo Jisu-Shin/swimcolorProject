@@ -43,14 +43,15 @@ var main = {
 
 // 1. 현재 진행 중인 작업 복구 (새로고침 대응)
 async function checkCurrentStatus() {
-    const categories = ['SWIMSUIT', 'SWIMCAP'];
+    const itemTypeList = ['SWIMSUIT', 'SWIMCAP'];
 
-    for (const category of categories) {
-        oper.ajax("GET", null, `/api/crawling/status/${category}`, async function(status) {
-            if (status === "RUNNING") {
-                console.log(`[복구] ${category} 작업이 진행 중입니다.`);
+    for (const itemType of itemTypeList) {
+        oper.ajax("GET", null, `/api/crawling/status/${itemType}`, async function(status) {
+            console.log(status);
+            if (status === true) {
+                console.log(`[복구] ${itemType} 작업이 진행 중입니다.`);
 
-                const isSwimsuit = (category === 'SWIMSUIT');
+                const isSwimsuit = (itemType === 'SWIMSUIT');
                 const $btn = isSwimsuit ? $('#btn-crawl-swimsuit') : $('#btn-crawl-swimcap');
                 const $input = isSwimsuit ? $('#swimsuitUrl') : $('#swimcapUrl');
                 const storageKey = isSwimsuit ? 'lastSwimsuitUrl' : 'lastSwimcapUrl';
@@ -68,10 +69,10 @@ async function checkCurrentStatus() {
                 }
 
                 try {
-                    await waitForCompletion(category);
-                    alert(`${category} 크롤링이 완료되었습니다!`);
+                    await waitForCompletion(itemType);
+                    alert(`${itemType} 크롤링이 완료되었습니다!`);
                 } catch (e) {
-                    alert(`${category} 작업 중 문제가 발견되었습니다.`);
+                    alert(`${itemType} 작업 중 문제가 발견되었습니다.`);
                 } finally {
                     // 완료 후 정리
                     $btn.prop('disabled', false).text(isSwimsuit ? "수영복 크롤링" : "수모 크롤링");
@@ -86,17 +87,17 @@ async function checkCurrentStatus() {
 }
 
 // 2. 특정 상태가 될 때까지 폴링하는 약속(Promise)
-function waitForCompletion(category) {
+function waitForCompletion(itemType) {
     return new Promise((resolve, reject) => {
         const check = () => {
-            oper.ajax("GET", null, `/api/crawling/status/${category}`, function(status) {
+            oper.ajax("GET", null, `/api/crawling/status/${itemType}`, function(status) {
                 if (status === "COMPLETED") {
                     resolve();
                 } else if (status === "FAILED") {
                     reject(new Error("서버에서 작업 실패 응답을 받았습니다."));
                 } else if (status === "IDLE") {
                     // 서버가 IDLE 상태라면 사용자가 중지했거나 작업이 취소된 것
-                    console.log(`[중단] 서버가 IDLE 상태이므로 ${category} 폴링을 중단합니다.`);
+                    console.log(`[중단] 서버가 IDLE 상태이므로 ${itemType} 폴링을 중단합니다.`);
                     reject(new Error("USER_STOP"));
                 } else {
                     setTimeout(check, 5000); // 5초 간격
@@ -177,21 +178,21 @@ async function runSwimcapCrawl() {
     }
 }
 
-function stopCrawl(category) {
+function stopCrawl(itemType) {
     // 1. 사용자에게 확인 받기
-    const message = `${category === 'SWIMSUIT' ? '수영복' : '수모'} 크롤링 조회를 중지하시겠습니까?`;
+    const message = `${itemType === 'SWIMSUIT' ? '수영복' : '수모'} 크롤링 조회를 중지하시겠습니까?`;
 
     if (!confirm(message)) {
         // 사용자가 '취소'를 누르면 여기서 함수 종료
         return;
     }
 
-    const isSwimsuit = (category === 'SWIMSUIT');
+    const isSwimsuit = (itemType === 'SWIMSUIT');
     const $btn = isSwimsuit ? $('#btn-crawl-swimsuit') : $('#btn-crawl-swimcap');
     const $input = isSwimsuit ? $('#swimsuitUrl') : $('#swimcapUrl');
     const $stopBtnId = isSwimsuit ? $('#btn-stop-swimsuit') : $('#btn-stop-swimcap');
 
-    oper.ajax("DELETE", null, '/api/crawling/status/'+category);
+    oper.ajax("DELETE", null, '/api/crawling/status/'+itemType);
 
     localStorage.removeItem(isSwimsuit ? 'lastSwimsuitUrl' : 'lastSwimcapUrl');
 

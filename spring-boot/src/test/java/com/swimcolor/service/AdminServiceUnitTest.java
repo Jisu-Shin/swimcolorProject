@@ -1,6 +1,7 @@
 package com.swimcolor.service;
 
 import com.swimcolor.domain.CrawlStatus;
+import com.swimcolor.domain.ItemType;
 import com.swimcolor.dto.CrawlListDto;
 import com.swimcolor.dto.CrawlResponseDto;
 import org.junit.jupiter.api.DisplayName;
@@ -46,7 +47,7 @@ class AdminServiceMockupTest {
         System.out.println(successResponse);
 
         // Mock 설정
-        when(swimsuitService.saveSwimsuit(any(CrawlResponseDto.class)))
+        when(swimsuitService.save(any(CrawlResponseDto.class)))
                 .thenReturn(expectedCount);
 
         // when
@@ -54,17 +55,17 @@ class AdminServiceMockupTest {
 
         // then
         // 1. 크롤링 상태가 완료로 변경되었는지 확인
-        verify(crawlingStateManager, times(1)).completeSwimsuitCrawling();
+        verify(crawlingStateManager, times(1)).completeCrawling(ItemType.SWIMSUIT);
 
         // 2. 수영복 저장 메서드가 호출되었는지 확인
-        verify(swimsuitService, times(1)).saveSwimsuit(successResponse);
+        verify(swimsuitService, times(1)).save(successResponse);
 
         // 3. 크롤링 로그가 COMPLETED로 업데이트 되었는지 확인
         verify(crawlingLogService, times(1))
                 .updateCrawlingLog(eq(logId), eq(CrawlStatus.COMPLETED), eq(expectedCount), eq(null));
 
         // 4. 실패 관련 메서드가 호출되지 않았는지 확인
-        verify(crawlingStateManager, never()).failSwimsuitCrawling();
+        verify(crawlingStateManager, never()).failCrawling(ItemType.SWIMSUIT);
     }
 
     @Test
@@ -81,15 +82,15 @@ class AdminServiceMockupTest {
 
         // then
         // 1. 크롤링 상태가 실패로 변경되었는지 확인
-        verify(crawlingStateManager, times(1)).failSwimsuitCrawling();
+        verify(crawlingStateManager, times(1)).failCrawling(ItemType.SWIMSUIT);
 
         // 2. 크롤링 로그가 FAILED로 업데이트 되었는지 확인
         verify(crawlingLogService, times(1))
                 .updateCrawlingLog(eq(logId), eq(CrawlStatus.FAILED), eq(0), eq(errorMessage));
 
         // 3. 성공 관련 메서드가 호출되지 않았는지 확인
-        verify(crawlingStateManager, never()).completeSwimsuitCrawling();
-        verify(swimsuitService, never()).saveSwimsuit(any());
+        verify(crawlingStateManager, never()).completeCrawling(ItemType.SWIMSUIT);
+        verify(swimsuitService, never()).save(any());
     }
 
     @Test
@@ -102,7 +103,7 @@ class AdminServiceMockupTest {
         CrawlResponseDto successResponse = createSuccessResponse(logId, 0);
 
         // Mock 설정
-        when(swimsuitService.saveSwimsuit(any(CrawlResponseDto.class)))
+        when(swimsuitService.save(any(CrawlResponseDto.class)))
                 .thenReturn(expectedCount);
 
         // when
@@ -110,8 +111,8 @@ class AdminServiceMockupTest {
 
         // then
         // 1. 크롤링은 성공했지만 저장된 데이터가 없음
-        verify(crawlingStateManager, times(1)).completeSwimsuitCrawling();
-        verify(swimsuitService, times(1)).saveSwimsuit(successResponse);
+        verify(crawlingStateManager, times(1)).completeCrawling(ItemType.SWIMSUIT);
+        verify(swimsuitService, times(1)).save(successResponse);
         verify(crawlingLogService, times(1))
                 .updateCrawlingLog(eq(logId), eq(CrawlStatus.COMPLETED), eq(0), eq(null));
     }
@@ -126,15 +127,15 @@ class AdminServiceMockupTest {
         CrawlResponseDto successResponse = createSuccessResponse(logId, expectedCount);
 
         // Mock 설정
-        when(swimsuitService.saveSwimsuit(any(CrawlResponseDto.class)))
+        when(swimsuitService.save(any(CrawlResponseDto.class)))
                 .thenReturn(expectedCount);
 
         // when
         adminService.responseCrawlSwimsuits(successResponse);
 
         // then
-        verify(crawlingStateManager, times(1)).completeSwimsuitCrawling();
-        verify(swimsuitService, times(1)).saveSwimsuit(successResponse);
+        verify(crawlingStateManager, times(1)).completeCrawling(ItemType.SWIMSUIT);
+        verify(swimsuitService, times(1)).save(successResponse);
         verify(crawlingLogService, times(1))
                 .updateCrawlingLog(eq(logId), eq(CrawlStatus.COMPLETED), eq(expectedCount), eq(null));
     }
@@ -152,10 +153,10 @@ class AdminServiceMockupTest {
         adminService.responseCrawlSwimsuits(failedResponse);
 
         // then
-        verify(crawlingStateManager, times(1)).failSwimsuitCrawling();
+        verify(crawlingStateManager, times(1)).failCrawling(ItemType.SWIMSUIT);
         verify(crawlingLogService, times(1))
                 .updateCrawlingLog(eq(logId), eq(CrawlStatus.FAILED), eq(0), eq(detailedError));
-        verify(swimsuitService, never()).saveSwimsuit(any());
+        verify(swimsuitService, never()).save(any());
     }
 
     // ==================== Helper Methods ====================
