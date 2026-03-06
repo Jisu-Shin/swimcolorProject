@@ -7,7 +7,6 @@ import com.swimcolor.domain.ItemType;
 import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.exception.CrawlingException;
 import com.swimcolor.exception.ErrorCode;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,7 @@ public class CrawlingService {
     private final Map<ItemType, ItemService> itemServiceMap;
 
     public CrawlingService(ApiClient apiClient, CrawlingLogService crawlingLogService, CrawlingStateManager crawlingStateManager, RecentViewLogService recentViewLogService
-    , List<ItemService> itemServices) {
+            , List<ItemService> itemServices) {
         this.apiClient = apiClient;
         this.crawlingLogService = crawlingLogService;
         this.crawlingStateManager = crawlingStateManager;
@@ -37,8 +36,9 @@ public class CrawlingService {
 
     /**
      * 크롤링 시작
+     *
      * @param itemType 크롤링 상품 종류
-     * @param url 크롤링 대상 URL
+     * @param url      크롤링 대상 URL
      */
     public void startCrawling(ItemType itemType, String url) {
         log.info("#### [{}] 크롤링 시작: {}", itemType, url);
@@ -53,6 +53,10 @@ public class CrawlingService {
         Long logId = saveLog(itemType, url);
 
         // 2. 람다 호출
+        invokeLambda(itemType, url, logId);
+    }
+
+    private void invokeLambda(ItemType itemType, String url, Long logId) {
         try {
             apiClient.crawlProducts(url, logId, itemType);
         } catch (RuntimeException e) {
@@ -79,16 +83,18 @@ public class CrawlingService {
 
     /**
      * 크롤링 결과 응답
-     * @param itemType 크롤링 상품 종류
+     *
+     * @param itemType         크롤링 상품 종류
      * @param crawlResponseDto 크롤링 응답 DTO
      */
     public void handleCrawlingResponse(ItemType itemType, CrawlResponseDto crawlResponseDto) {
-        if (crawlResponseDto.getCrawlStatus() == CrawlStatus.COMPLETED) {
-            completeCrawlingResponse(itemType, crawlResponseDto);
-        }
+        // Java 14+ switch arrow 문법
+        switch (crawlResponseDto.getCrawlStatus()) {
+            case COMPLETED ->
+                completeCrawlingResponse(itemType, crawlResponseDto);
 
-        if (crawlResponseDto.getCrawlStatus() == CrawlStatus.FAILED) {
-            failCrawlingResponse(itemType, crawlResponseDto.getLogId(), crawlResponseDto.getErrorMsg());
+            case FAILED ->
+                failCrawlingResponse(itemType, crawlResponseDto.getLogId(), crawlResponseDto.getErrorMsg());
         }
     }
 
@@ -116,15 +122,8 @@ public class CrawlingService {
     }
 
     public void removeCrawlingStatus(ItemType itemType) {
-        CrawlingLog lastLog;
-        if (ItemType.SWIMCAP == itemType) {
-            crawlingStateManager.removeCrawling(ItemType.SWIMCAP);
-            lastLog = crawlingLogService.getLastSwimcapCrawlingLog(ItemType.SWIMCAP);
-
-        } else {
-            crawlingStateManager.removeCrawling(ItemType.SWIMSUIT);
-            lastLog = crawlingLogService.getLastSwimcapCrawlingLog(ItemType.SWIMSUIT);
-        }
+        crawlingStateManager.removeCrawling(itemType);
+        CrawlingLog lastLog = crawlingLogService.getLastSwimcapCrawlingLog(itemType);
 
         crawlingLogService.updateCrawlingLog(lastLog.getId(), CrawlStatus.FAILED, 0, "ADMIN REQUEST FAILED");
     }
