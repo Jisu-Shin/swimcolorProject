@@ -28,19 +28,19 @@ var main = {
     // 모바일 검색창 확장 로직
     initSearchBar: function() {
         const searchBtn = document.querySelector('.search-btn');
+        const searchMobileBtn = document.querySelector('.search-mobile-btn');
         const searchInput = document.querySelector('.search-bar input');
         const header = document.querySelector('.header');
         const searchBar = document.querySelector('.search-bar');
 
         if (!searchBtn) return;
 
-        searchBtn.addEventListener('click', (e) => {
-            if (window.innerWidth <= 767) {
-                if (!header.classList.contains('search-active')) {
-                    e.preventDefault();
-                    header.classList.add('search-active');
-                    searchInput.focus();
-                }
+        // 모바일 검색 버튼 클릭시 확장
+        searchMobileBtn.addEventListener('click', (e) => {
+            if (!header.classList.contains('search-active')) {
+                e.preventDefault();
+                header.classList.add('search-active');
+                searchInput.focus();
             }
         });
 
@@ -65,7 +65,7 @@ const nav = {
         history.back();
     },
     goSearch: function() {
-        const keyword = $('#search-kewords').val();
+        const keyword = $('#search-keywords').val();
 
         if (!keyword || keyword.trim() === "") {
             alert("검색어를 입력해주세요.");
@@ -388,24 +388,33 @@ const swimsuitListModule = {
     }
 }
 
-/** 검색페이지 모듈 **/
+/** 검색 모듈 **/
 const searchModule = {
     init: function() {
         const _this = this;
 
-        // 엔터키 이벤트 바인딩
+        // 검색 페이지의 엔터키 이벤트 바인딩
         $('#search-page-input').on('keydown', function(e) {
             if (e.key === 'Enter' || e.keyCode === 13) {
-                _this.doSearch();
+                _this.doSearch($(this));
+            }
+        });
+
+        // 메인 검색창 엔터키 이벤트 바인딩
+        $('#search-keywords').on('keydown', function(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                _this.doSearch($(this));
             }
         });
     },
 
-    doSearch: function() {
-        const keyword = $('#search-page-input').val().trim();
+    doSearch: function($el) {
+        const targetInput = $el;
+        const keyword = targetInput.val().trim();
 
         if (!keyword) {
             alert("검색어를 입력해주세요.");
+            targetInput.focus(); // 입력창에 포커스 주기
             return;
         }
 

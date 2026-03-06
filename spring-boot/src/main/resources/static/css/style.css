@@ -204,9 +204,7 @@ body {
     padding: 2px 4px 2px 12px;
     display: flex;
     align-items: center;
-    transition: all 0.3s ease;
-    width: 350px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 400px;
     gap: 10px;
 }
 
@@ -219,7 +217,12 @@ body {
     width: 100%; /* 유동적으로 변함 */
 }
 
-.search-bar .search-btn {
+.search-bar .search-mobile-btn {
+    background: var(--light-blue);
+    display: none;
+}
+
+.search-bar button {
     flex-shrink: 0;
     background: var(--primary-blue);
     color: var(--white);
@@ -734,7 +737,7 @@ body {
 /* ===== 검색페이지 ===== */
 /* 검색창 및 탭 영역 */
 .search-header-section {
-    padding: 60px 0 20px;
+    padding: 40px 0 20px;
     text-align: center;
 }
 
@@ -826,8 +829,8 @@ body {
 .product-result-header {
     display: flex;
     justify-content: space-between;
-    padding: 20px 0;
-    border-top: 1px solid #eee;
+    padding: 30px 0 20px;
+    border-top: 1px solid #b4b4b4;
 }
 
 .sort-options a {
@@ -1033,6 +1036,24 @@ a:focus, button:focus, input:focus {
         width: 100%;
         opacity: 1;
         padding: 8px 10px;
+    }
+
+    .search-bar button {
+        display: none;
+    }
+
+    /* 모바일용 버튼은 보이게 합니다. */
+    .search-bar .search-mobile-btn {
+        display: flex; /* 버튼 내부 아이콘 정렬을 위해 flex 권장 */
+    }
+
+    /* 2. 검색창 확장 상태 (header에 search-active 클래스가 있을 때) */
+    .header.search-active .search-btn {
+        display: flex !important; /* 실제 검색 실행 버튼 나타남 */
+    }
+
+    .header.search-active .search-mobile-btn {
+        display: none !important; /* 확장용 아이콘은 숨김 */
     }
 
     /* --- 히어로 섹션 --- */
