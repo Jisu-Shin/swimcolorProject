@@ -4,6 +4,7 @@ import logging
 import time
 import asyncio
 from typing import List, Dict, Tuple
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 from crawling.base_crawler import BaseCrawler
 
@@ -111,9 +112,22 @@ class GanaswimCrawlerV4(BaseCrawler):
         logger.info("🚀 Playwright 순차 크롤링 시작...")
         start_time = time.time()
 
-        url_arr = url.split("&pageNumber=")
-        clean_url = url_arr[0]
-        page_number = int(url_arr[1]) if len(url_arr) > 1 else 1
+        # 1. URL 분석 및 쿼리 스트링 추출
+        parsed_url = urlparse(url)
+        query_params = parse_qs(parsed_url.query)
+
+        # 2. pageNumber 추출 (없으면 기본값 1)
+        # parse_qs는 값을 리스트 형태로 반환하므로 [0]으로 접근합니다.
+        page_number = int(query_params.get('pageNumber', [1])[0])
+
+        # 3. pageNumber를 제외한 깨끗한 URL 생성
+        # 쿼리 파라미터에서 pageNumber 삭제
+        if 'pageNumber' in query_params:
+            del query_params['pageNumber']
+
+        # 다시 URL 조립
+        new_query = urlencode(query_params, doseq=True)
+        clean_url = urlunparse(parsed_url._replace(query=new_query))
 
         logger.info(f"정제된 URL: {clean_url}")
         logger.info(f"시작 페이지: {page_number}")
@@ -174,9 +188,9 @@ if __name__ == "__main__":
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
 
-    crawler = GanaswimCrawlerV4(headless=True)
+    crawler = GanaswimCrawlerV4()
 
-    url = "https://swim.co.kr/categories/918698/products?childCategoryNo=919173&brands=%255B43160588%252C43160568%255D&pageNumber=1"
+    url = "https://swim.co.kr/categories/918698/products?childCategoryNo=919173&brands=%255B43160588%252C43160568%255D&pageNumber=3"
     product_list = crawler.crawl(url)
 
     print(f"\n총 {len(product_list)}개 상품 수집됨")
