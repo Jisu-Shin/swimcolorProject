@@ -23,7 +23,7 @@
 
         <div class="brand-list" th:if="${not #lists.isEmpty(brands)}">
             <a th:each="brand : ${brands}"
-               th:href="@{/search(keyword=${brand})}"
+               th:href="@{/search(keywords=${brand})}"
                class="brand-card">
                 <div class="brand-circle" th:text="${brand}">A</div>
             </a>
