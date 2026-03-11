@@ -47,7 +47,7 @@ public class RecentViewLogService {
      */
     public boolean isAfterCrawling(String swimsuitId) {
         Integer dateDiff = jpaRecentViewLogRepository.getMinuteDiff(swimsuitId);
-        log.info("크롤링 시간(분) 비교(음수일경우 외부호출 / 0,양수일경우 DB조회 필요) : {} 분 ", dateDiff);
+        log.info("크롤링 시간(분) 비교(음수일경우 알고리즘 호출 / 0,양수일경우 캐시(DB) 사용) : {} 분 ", dateDiff);
 
         return dateDiff < 0 ? true : false;
     }
