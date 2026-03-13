@@ -51,4 +51,18 @@ public class RecentViewLogService {
 
         return dateDiff < 0 ? true : false;
     }
+
+    /**
+     * swimsuitId (swimsuit id) 를 받아 수모를 크롤링한 날짜랑 비교한다.
+     * (수모를 크롤링한 날짜) < (viewId를 조회한 날짜) 경우, 조회 시점보다 과거에 크롤링 한 것이다
+     * dateDiff = (viewId 조회 날짜) - (수모를 크롤링한 날짜)
+     * @param swimsuitId
+     * @return 수모를 크롤링한 날짜가 과거인 경우에만 true 반환
+     */
+    public boolean isBeforeCrawling(String swimsuitId) {
+        Integer dateDiff = jpaRecentViewLogRepository.getMinuteDiff(swimsuitId);
+        log.info("크롤링 시간(분) 비교(음수일경우 알고리즘 호출 / 0,양수일경우 캐시(DB) 사용) : {} 분 ", dateDiff);
+
+        return dateDiff > 0 ? true : false;
+    }
 }
