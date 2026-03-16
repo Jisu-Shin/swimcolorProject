@@ -3,6 +3,7 @@ package com.swimcolor.service;
 import com.swimcolor.domain.ItemType;
 import com.swimcolor.domain.Swimcap;
 import com.swimcolor.dto.CrawlResponseDto;
+import com.swimcolor.dto.SwimcapListDto;
 import com.swimcolor.mapper.SwimcapMapper;
 import com.swimcolor.repository.JpaSwimcapRepository;
 import jakarta.transaction.Transactional;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,5 +35,12 @@ public class SwimcapService implements ItemService {
     @Override
     public ItemType getItemType() {
         return ItemType.SWIMCAP;
+    }
+
+    public List<SwimcapListDto> findSwimcapsByIds(List<String> swimcapIds) {
+        List<Swimcap> swimcapList = swimcapRepository.findByIdsWithColors(swimcapIds);
+        return swimcapList.stream()
+                .map(s -> swimcapMapper.toDto(s))
+                .collect(Collectors.toList());
     }
 }

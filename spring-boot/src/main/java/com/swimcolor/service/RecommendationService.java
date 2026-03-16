@@ -24,11 +24,10 @@ public class RecommendationService {
     private final RecentViewLogService recentViewLogService;
     private final RecommendationAlgorithm recommendationAlgorithm;
     private final RecommendationCacheService recommendationCacheService;
-
-    private final JpaSwimcapRepository swimcapRepository;
-    private final SwimcapMapper swimcapMapper;
+    private final SwimcapService swimcapService;
 
     public List<SwimcapListDto> recommendSwimcaps(String swimsuitId, List<String> colors) {
+        // todo 글로벌예외핸들러 처리하면서 수정해야함 validate Exception 던지기
         if (validateColors(colors)) {
             return List.of();
         }
@@ -37,34 +36,32 @@ public class RecommendationService {
         List<String> cachedSwimcapIds = recommendationCacheService.getCachedRecommendation(swimsuitId);
         if (!cachedSwimcapIds.isEmpty()) {
             log.info("캐시 사용 (DB) ");
-            return getSwimcapListDtoList(cachedSwimcapIds);
+            return swimcapService.findSwimcapsByIds(cachedSwimcapIds);
         }
 
-        log.info("컬러매치 데이터가 없거나, swimsuitId({}) 조회 날짜보다 이후에 크롤링 함 -> 알고리즘 수행 ", swimsuitId);
+        log.info("추천 알고리즘 수행 - swimsuitId={} ", swimsuitId);
 
         // 2. 알고리즘 수행
-        // todo 이제 스프링에서 돌리는거라 getSwimcapListDtoList 어떻게 생략할 수 있을 거 같은데...
         List<RecommendListDto> similarList = recommendationAlgorithm.recommend(swimsuitId, colors);
-
-        // todo 추천데이터가 없는 경우
         if (similarList.isEmpty()) {
             return List.of();
         }
 
         // 3. 색상 매칭 데이터를 저장
-        List<String> swimcapIds = saveColorMatch(swimsuitId, similarList);
-        return getSwimcapListDtoList(swimcapIds);
+        List<String> swimcapIds = saveColorMatch(similarList);
+
+        // 4. 추천한 수영복 최근뷰로그에 날짜 저장하기
+        recentViewLogService.save(swimsuitId, ViewType.SWIMSUIT);
+
+        return swimcapService.findSwimcapsByIds(swimcapIds);
     }
 
     @Nonnull
-    private List<String> saveColorMatch(String swimsuitId, List<RecommendListDto> similarList) {
+    private List<String> saveColorMatch(List<RecommendListDto> similarList) {
         colorMatchService.saveColorMatch(similarList);
         List<String> swimcapIds = similarList.stream()
                 .map(c -> c.getSwimcapId())
                 .toList();
-
-        // 5. 추천한 수영복 최근뷰로그에 날짜 저장하기
-        recentViewLogService.save(swimsuitId, ViewType.SWIMSUIT);
         return swimcapIds;
     }
 
@@ -75,13 +72,5 @@ public class RecommendationService {
 //            throw new IllegalStateException("수영복의 색상리스트가 없습니다.");
         }
         return false;
-    }
-
-    @Nonnull
-    private List<SwimcapListDto> getSwimcapListDtoList(List<String> swimcapIds) {
-        List<Swimcap> swimcapList = swimcapRepository.findByIdsWithColors(swimcapIds);
-        return swimcapList.stream()
-                .map(s -> swimcapMapper.toDto(s))
-                .collect(Collectors.toList());
     }
 }
