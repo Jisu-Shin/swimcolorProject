@@ -41,7 +41,8 @@ public class WeightedColorRecommendationAlgorithm implements RecommendationAlgor
                 score += WEIGHTS[i] * distance;
             }
 
-            RecommendListDto recommendListDto = new RecommendListDto(swimsuitId, colors.get(0), cap.getSwimcapId(), cap.getColor(), score, ALGORITHM_VERSION);
+            double rounded = Math.round(score * 1000.0) / 1000.0;
+            RecommendListDto recommendListDto = new RecommendListDto(swimsuitId, colors.get(0), cap.getSwimcapId(), cap.getColor(), rounded, ALGORITHM_VERSION);
 
             scoreMap.merge(
                     cap.getSwimcapId(),

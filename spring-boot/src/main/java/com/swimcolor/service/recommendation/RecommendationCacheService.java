@@ -20,7 +20,7 @@ public class RecommendationCacheService {
     public List<String> getCachedRecommendation(String swimsuitId) {
 
         // 1. SwimsuitCapSimilarity에 값이 있는지 확인하기
-        List<ColorMatch> colorMatchList = colorMatchRepository.findBySwimsuitIdOrderBySimilarityScoreDesc(swimsuitId);
+        List<ColorMatch> colorMatchList = colorMatchRepository.findBySwimsuitIdAndAlgorithmVersionOrderBySimilarityScoreDesc(swimsuitId, "2.0.1");
 
         // 컬러매치에 데이터가 있고, 크롤링을 조회시점보다 과거에 한 경우
         if (hasColorMatchList(colorMatchList) && recentViewLogService.isBeforeCrawling(swimsuitId)){
