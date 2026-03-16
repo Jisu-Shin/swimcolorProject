@@ -18,12 +18,14 @@ public interface JpaSwimcapRepository extends JpaRepository<Swimcap, String> {
         LEFT JOIN FETCH s.colors c
         LEFT JOIN ColorMatch cm 
                ON s.id = cm.swimcapId
+               AND cm.swimsuitId = :swimsuitId
         WHERE s.id IN :ids
         AND cm.algorithmVersion = :algorithmVersion
         ORDER BY cm.similarityScore
         """)
     List<Swimcap> findByIdsWithColors(
             @Param("ids") List<String> ids,
+            @Param("swimsuitId") String swimsuitId,
             @Param("algorithmVersion") String algorithmVersion
     );
 

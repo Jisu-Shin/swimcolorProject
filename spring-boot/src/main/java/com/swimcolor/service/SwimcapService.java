@@ -25,7 +25,7 @@ public class SwimcapService implements ItemService {
     @Transactional
     public int save(CrawlResponseDto responseDto) {
         List<Swimcap> swimcapList = responseDto.getProducts().stream()
-                .map(p->swimcapMapper.toEntity(p, responseDto.getLogId()))
+                .map(p -> swimcapMapper.toEntity(p, responseDto.getLogId()))
                 .toList();
         swimcapRepository.saveAll(swimcapList);
 
@@ -37,9 +37,9 @@ public class SwimcapService implements ItemService {
         return ItemType.SWIMCAP;
     }
 
-    public List<SwimcapListDto> findSwimcapsByIds(List<String> swimcapIds) {
+    public List<SwimcapListDto> findSwimcapsByIds(List<String> swimcapIds, String swimsuitId) {
         // todo 알고리즘 버전
-        List<Swimcap> swimcapList = swimcapRepository.findByIdsWithColors(swimcapIds, "2.0.1");
+        List<Swimcap> swimcapList = swimcapRepository.findByIdsWithColors(swimcapIds, swimsuitId, "2.0.1");
         return swimcapList.stream()
                 .map(s -> swimcapMapper.toDto(s))
                 .collect(Collectors.toList());

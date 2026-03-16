@@ -1,11 +1,8 @@
 package com.swimcolor.service;
 
-import com.swimcolor.domain.Swimcap;
 import com.swimcolor.domain.ViewType;
 import com.swimcolor.dto.RecommendListDto;
 import com.swimcolor.dto.SwimcapListDto;
-import com.swimcolor.mapper.SwimcapMapper;
-import com.swimcolor.repository.JpaSwimcapRepository;
 import com.swimcolor.service.recommendation.RecommendationAlgorithm;
 import com.swimcolor.service.recommendation.RecommendationCacheService;
 import jakarta.annotation.Nonnull;
@@ -14,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,7 +32,7 @@ public class RecommendationService {
         List<String> cachedSwimcapIds = recommendationCacheService.getCachedRecommendation(swimsuitId);
         if (!cachedSwimcapIds.isEmpty()) {
             log.info("캐시 사용 (DB) - swimsuitId={} ", swimsuitId);
-            return swimcapService.findSwimcapsByIds(cachedSwimcapIds);
+            return swimcapService.findSwimcapsByIds(cachedSwimcapIds, swimsuitId);
         }
 
         log.info("추천 알고리즘 수행 - swimsuitId={} ", swimsuitId);
@@ -53,7 +49,7 @@ public class RecommendationService {
         // 4. 추천한 수영복 최근뷰로그에 날짜 저장하기
         recentViewLogService.save(swimsuitId, ViewType.SWIMSUIT);
 
-        return swimcapService.findSwimcapsByIds(swimcapIds);
+        return swimcapService.findSwimcapsByIds(swimcapIds, swimsuitId);
     }
 
     @Nonnull
