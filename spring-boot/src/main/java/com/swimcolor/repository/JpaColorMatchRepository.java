@@ -14,7 +14,7 @@ import java.util.List;
 public interface JpaColorMatchRepository extends JpaRepository<ColorMatch, Long> {
     List<ColorMatch> findBySwimsuitIdOrderBySimilarityScoreDesc(String swimsuitId);
 
-    List<ColorMatch> findBySwimsuitIdAndAlgorithmVersionOrderBySimilarityScoreDesc(String swimsuitId, String algorithmVersion);
+    List<ColorMatch> findBySwimsuitIdAndAlgorithmVersionOrderBySimilarityScore(String swimsuitId, String algorithmVersion);
 
     @Modifying
     @Query("delete from ColorMatch c where c.swimsuitId = :swimsuitId and c.algorithmVersion = :algorithmVersion")

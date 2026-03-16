@@ -38,7 +38,8 @@ public class SwimcapService implements ItemService {
     }
 
     public List<SwimcapListDto> findSwimcapsByIds(List<String> swimcapIds) {
-        List<Swimcap> swimcapList = swimcapRepository.findByIdsWithColors(swimcapIds);
+        // todo 알고리즘 버전
+        List<Swimcap> swimcapList = swimcapRepository.findByIdsWithColors(swimcapIds, "2.0.1");
         return swimcapList.stream()
                 .map(s -> swimcapMapper.toDto(s))
                 .collect(Collectors.toList());

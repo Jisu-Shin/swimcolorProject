@@ -35,7 +35,7 @@ public class RecommendationService {
         // 1. 캐시 조회
         List<String> cachedSwimcapIds = recommendationCacheService.getCachedRecommendation(swimsuitId);
         if (!cachedSwimcapIds.isEmpty()) {
-            log.info("캐시 사용 (DB) ");
+            log.info("캐시 사용 (DB) - swimsuitId={} ", swimsuitId);
             return swimcapService.findSwimcapsByIds(cachedSwimcapIds);
         }
 
