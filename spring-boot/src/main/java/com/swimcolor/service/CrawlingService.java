@@ -7,6 +7,7 @@ import com.swimcolor.domain.ItemType;
 import com.swimcolor.dto.CrawlResponseDto;
 import com.swimcolor.exception.CrawlingException;
 import com.swimcolor.exception.ErrorCode;
+import com.swimcolor.service.item.ItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

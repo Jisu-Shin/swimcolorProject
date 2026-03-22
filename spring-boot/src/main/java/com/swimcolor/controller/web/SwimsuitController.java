@@ -1,7 +1,7 @@
 package com.swimcolor.controller.web;
 
 import com.swimcolor.dto.SwimsuitListDto;
-import com.swimcolor.service.SwimsuitService;
+import com.swimcolor.service.item.SwimsuitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

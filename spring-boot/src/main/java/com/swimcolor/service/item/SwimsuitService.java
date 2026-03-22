@@ -1,4 +1,4 @@
-package com.swimcolor.service;
+package com.swimcolor.service.item;
 
 import com.swimcolor.domain.ItemType;
 import com.swimcolor.domain.Swimsuit;

@@ -1,6 +1,6 @@
 package com.swimcolor.controller.web;
 
-import com.swimcolor.service.SwimsuitService;
+import com.swimcolor.service.item.SwimsuitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -1,10 +1,11 @@
-package com.swimcolor.service;
+package com.swimcolor.service.recommendation;
 
 import com.swimcolor.domain.ViewType;
 import com.swimcolor.dto.RecommendListDto;
 import com.swimcolor.dto.SwimcapListDto;
-import com.swimcolor.service.recommendation.RecommendationAlgorithm;
-import com.swimcolor.service.recommendation.RecommendationCacheService;
+import com.swimcolor.service.ColorMatchService;
+import com.swimcolor.service.RecentViewLogService;
+import com.swimcolor.service.item.SwimcapService;
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

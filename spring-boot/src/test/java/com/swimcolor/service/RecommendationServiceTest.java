@@ -1,6 +1,7 @@
 package com.swimcolor.service;
 
 import com.swimcolor.dto.SwimcapListDto;
+import com.swimcolor.service.recommendation.RecommendationService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

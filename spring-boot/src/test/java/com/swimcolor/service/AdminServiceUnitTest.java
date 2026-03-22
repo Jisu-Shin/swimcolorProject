@@ -4,6 +4,7 @@ import com.swimcolor.domain.CrawlStatus;
 import com.swimcolor.domain.ItemType;
 import com.swimcolor.dto.CrawlListDto;
 import com.swimcolor.dto.CrawlResponseDto;
+import com.swimcolor.service.item.SwimsuitService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
